@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2018/05/Redis常见数据类型操作命令/
+http://blog.linzhongtai.cn/2018/09/JAVA集合总结/

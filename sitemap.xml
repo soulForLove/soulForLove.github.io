@@ -2,13 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://blog.linzhongtai.cn/2018/09/JAVA%E9%9B%86%E5%90%88%E6%80%BB%E7%BB%93/</loc>
-    
-    <lastmod>2018-09-12T02:49:27.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://blog.linzhongtai.cn/2018/06/Liquibase%E5%B0%8F%E7%9F%A5%E8%AF%86/</loc>
     
     <lastmod>2018-06-15T08:30:13.000Z</lastmod>
@@ -23,13 +16,6 @@
   </url>
   
   <url>
-    <loc>http://blog.linzhongtai.cn/photos/index.html</loc>
-    
-    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://blog.linzhongtai.cn/googleddf2510b177a27a8.html</loc>
     
     <lastmod>2018-05-24T02:45:26.000Z</lastmod>
@@ -37,7 +23,7 @@
   </url>
   
   <url>
-    <loc>http://blog.linzhongtai.cn/about/index.html</loc>
+    <loc>http://blog.linzhongtai.cn/photos/index.html</loc>
     
     <lastmod>2018-05-24T02:45:26.000Z</lastmod>
     
@@ -45,6 +31,13 @@
   
   <url>
     <loc>http://blog.linzhongtai.cn/categories/index.html</loc>
+    
+    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.linzhongtai.cn/about/index.html</loc>
     
     <lastmod>2018-05-24T02:45:26.000Z</lastmod>
     
@@ -68,6 +61,13 @@
     <loc>http://blog.linzhongtai.cn/2018/05/Springboot%E5%AD%A6%E4%B9%A0%E4%B9%8B%E7%A6%81%E7%94%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE/</loc>
     
     <lastmod>2018-05-15T07:16:45.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.linzhongtai.cn/2018/05/JAVA%E9%9B%86%E5%90%88%E6%80%BB%E7%BB%93/</loc>
+    
+    <lastmod>2018-05-12T02:49:27.000Z</lastmod>
     
   </url>
   

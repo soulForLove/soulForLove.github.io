@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2018/10/从ConcurrentHashMap看Java多线程核心技术/
+http://blog.linzhongtai.cn/2018/10/缓存与数据库一致性之缓存穿透、缓存雪崩、key重建方案/

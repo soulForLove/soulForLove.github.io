@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<script>
+    (function(){
+        if(''){
+            if (prompt('请输入文章密码') !== ''){
+                alert('密码错误！');
+                history.back();
+            }
+        }
+    })();
+</script>
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-bounce.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="并发编程,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="林林总总" type="application/atom+xml">
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.1">
+
+
+
+
+
+
+<meta name="description" content="多线程开发涉及到的相关技术点">
+<meta name="keywords" content="并发编程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多线程相关技术点">
+<meta property="og:url" content="http://blog.linzhongtai.cn/2018/09/多线程相关技术点/index.html">
+<meta property="og:site_name" content="林林总总">
+<meta property="og:description" content="多线程开发涉及到的相关技术点">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-09-15T09:38:01.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="多线程相关技术点">
+<meta name="twitter:description" content="多线程开发涉及到的相关技术点">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.linzhongtai.cn/2018/09/多线程相关技术点/">
+
+
+
+
+
+  <title>多线程相关技术点 | 林林总总</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?10f34814a8834d4576bff581ebd0a5f2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+<a href="https://github.com/soulForLove"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/82b228a3648bf44fc1163ef44c62fcc60081495e/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_red_aa0000.png"></a>
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">林林总总</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photos">
+          <a href="/photos/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-image"></i> <br>
+            
+            照片
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope="" itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://blog.linzhongtai.cn/2018/09/多线程相关技术点/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Soul">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="林林总总">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">多线程相关技术点</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-15T17:38:01+08:00">
+                2018-09-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            
+            <span class="page-pv">
+            &nbsp; | &nbsp; 热度&nbsp; 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>°C
+            
+            </span>
+          
+
+          
+
+          
+              <div class="post-description">
+                  多线程开发涉及到的相关技术点
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <a id="more"></a>
+<blockquote>
+<p>本文转发自技术世界，原文链接　<a href="http://www.jasongj.com/java/multi_thread/" target="_blank" rel="noopener">http://www.jasongj.com/java/multi_thread/</a></p>
+</blockquote>
+<h2 id="sleep和wait到底什么区别"><a href="#sleep和wait到底什么区别" class="headerlink" title="sleep和wait到底什么区别"></a>sleep和wait到底什么区别</h2><p>其实这个问题应该这么问——sleep和wait有什么相同点。因为这两个方法除了都能让当前线程暂停执行完，几乎没有其它相同点。</p>
+<p>wait方法是Object类的方法，这意味着所有的Java类都可以调用该方法。sleep方法是Thread类的静态方法。</p>
+<p>wait是在当前线程持有wait对象锁的情况下，暂时放弃锁，并让出CPU资源，并积极等待其它线程调用同一对象的notify或者notifyAll方法。注意，即使只有一个线程在等待，并且有其它线程调用了notify或者notifyAll方法，等待的线程只是被激活，但是它必须得再次获得锁才能继续往下执行。换言之，即使notify被调用，但只要锁没有被释放，原等待线程因为未获得锁仍然无法继续执行。测试代码如下所示</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">import java.util.Date;</span><br><span class="line">public class Wait &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    Thread thread1 = new Thread(() -&gt; &#123;</span><br><span class="line">      synchronized (Wait.class) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">          System.out.println(new Date() + &quot; Thread1 is running&quot;);</span><br><span class="line">          Wait.class.wait();</span><br><span class="line">          System.out.println(new Date() + &quot; Thread1 ended&quot;);</span><br><span class="line">        &#125; catch (Exception ex) &#123;</span><br><span class="line">          ex.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    thread1.start();</span><br><span class="line">    </span><br><span class="line">    Thread thread2 = new Thread(() -&gt; &#123;</span><br><span class="line">      synchronized (Wait.class) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">          System.out.println(new Date() + &quot; Thread2 is running&quot;);</span><br><span class="line">          Wait.class.notify();</span><br><span class="line">          // Don&apos;t use sleep method to avoid confusing</span><br><span class="line">          for(long i = 0; i &lt; 200000; i++) &#123;</span><br><span class="line">            for(long j = 0; j &lt; 100000; j++) &#123;&#125;</span><br><span class="line">          &#125;</span><br><span class="line">          System.out.println(new Date() + &quot; Thread2 release lock&quot;);</span><br><span class="line">        &#125; catch (Exception ex) &#123;</span><br><span class="line">          ex.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      for(long i = 0; i &lt; 200000; i++) &#123;</span><br><span class="line">        for(long j = 0; j &lt; 100000; j++) &#123;&#125;</span><br><span class="line">      &#125;</span><br><span class="line">      System.out.println(new Date() + &quot; Thread2 ended&quot;);</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    // Don&apos;t use sleep method to avoid confusing</span><br><span class="line">    for(long i = 0; i &lt; 200000; i++) &#123;</span><br><span class="line">      for(long j = 0; j &lt; 100000; j++) &#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    thread2.start();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Tue Jun 14 22:51:11 CST 2016 Thread1 is running</span><br><span class="line">Tue Jun 14 22:51:23 CST 2016 Thread2 is running</span><br><span class="line">Tue Jun 14 22:51:36 CST 2016 Thread2 release lock</span><br><span class="line">Tue Jun 14 22:51:36 CST 2016 Thread1 ended</span><br><span class="line">Tue Jun 14 22:51:49 CST 2016 Thread2 ended</span><br></pre></td></tr></table></figure>
+<p>从运行结果可以看出</p>
+<ul>
+<li>thread1执行wait后，暂停执行</li>
+<li>thread2执行notify后，thread1并没有继续执行，因为此时thread2尚未释放锁，thread1因为得不到锁而不能继续执行</li>
+<li>thread2执行完synchronized语句块后释放锁，thread1得到通知并获得锁，进而继续执行</li>
+</ul>
+<p>注意：wait方法需要释放锁，前提条件是它已经持有锁。所以wait和notify（或者notifyAll）方法都必须被包裹在synchronized语句块中，并且synchronized后锁的对象应该与调用wait方法的对象一样。否则抛出<strong>IllegalMonitorStateException</strong></p>
+<p>sleep方法告诉操作系统至少指定时间内不需为线程调度器为该线程分配执行时间片，并不释放锁（如果当前已经持有锁）。实际上，调用sleep方法时并不要求持有任何锁。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">package com.test.thread;</span><br><span class="line">import java.util.Date;</span><br><span class="line">public class Sleep &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    Thread thread1 = new Thread(() -&gt; &#123;</span><br><span class="line">      synchronized (Sleep.class) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">          System.out.println(new Date() + &quot; Thread1 is running&quot;);</span><br><span class="line">          Thread.sleep(2000);</span><br><span class="line">          System.out.println(new Date() + &quot; Thread1 ended&quot;);</span><br><span class="line">        &#125; catch (Exception ex) &#123;</span><br><span class="line">          ex.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    thread1.start();</span><br><span class="line">    </span><br><span class="line">    Thread thread2 = new Thread(() -&gt; &#123;</span><br><span class="line">      synchronized (Sleep.class) &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">          System.out.println(new Date() + &quot; Thread2 is running&quot;);</span><br><span class="line">          Thread.sleep(2000);</span><br><span class="line">          System.out.println(new Date() + &quot; Thread2 ended&quot;);</span><br><span class="line">        &#125; catch (Exception ex) &#123;</span><br><span class="line">          ex.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      for(long i = 0; i &lt; 200000; i++) &#123;</span><br><span class="line">        for(long j = 0; j &lt; 100000; j++) &#123;&#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    // Don&apos;t use sleep method to avoid confusing</span><br><span class="line">    for(long i = 0; i &lt; 200000; i++) &#123;</span><br><span class="line">      for(long j = 0; j &lt; 100000; j++) &#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    thread2.start();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Thu Jun 16 19:46:06 CST 2016 Thread1 is running</span><br><span class="line">Thu Jun 16 19:46:08 CST 2016 Thread1 ended</span><br><span class="line">Thu Jun 16 19:46:13 CST 2016 Thread2 is running</span><br><span class="line">Thu Jun 16 19:46:15 CST 2016 Thread2 ended</span><br></pre></td></tr></table></figure>
+<p>由于thread 1和thread 2的run方法实现都在同步块中，无论哪个线程先拿到锁，执行sleep时并不释放锁，因此其它线程无法执行。直到前面的线程sleep结束并退出同步块（释放锁），另一个线程才得到锁并执行。</p>
+<p>注意：sleep方法并不需要持有任何形式的锁，也就不需要包裹在synchronized中。</p>
+<p>本文所有示例均基于Java HotSpot(TM) 64-Bit Server VM</p>
+<p>调用sleep方法的线程，在jstack中显示的状态为sleeping。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Thread.State: TIMED_WAITING (sleeping)</span><br></pre></td></tr></table></figure>
+<p>调用wait方法的线程，在jstack中显示的状态为on object monitor</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Thread.State: WAITING (on object monitor)</span><br></pre></td></tr></table></figure>
+<h2 id="synchronized几种用法"><a href="#synchronized几种用法" class="headerlink" title="synchronized几种用法"></a>synchronized几种用法</h2><blockquote>
+<p>每个Java对象都可以用做一个实现同步的互斥锁，这些锁被称为内置锁。线程进入同步代码块或方法时自动获得内置锁，退出同步代码块或方法时自动释放该内置锁。进入同步代码块或者同步方法是获得内置锁的唯一途径。</p>
+</blockquote>
+<h3 id="实例同步方法"><a href="#实例同步方法" class="headerlink" title="实例同步方法"></a>实例同步方法</h3><p>synchronized用于修饰实例方法（非静态方法）时，执行该方法需要获得的是该类实例对象的内置锁（同一个类的不同实例拥有不同的内置锁）。如果多个实例方法都被synchronized修饰，则当多个线程调用同一实例的不同同步方法（或者同一方法）时，需要竞争锁。但当调用的是不同实例的方法时，并不需要竞争锁。</p>
+<h3 id="静态同步方法"><a href="#静态同步方法" class="headerlink" title="静态同步方法"></a>静态同步方法</h3><p>synchronized用于修饰静态方法时，执行该方法需要获得的是该类的class对象的内置锁（一个类只有唯一一个class对象）。调用同一个类的不同静态同步方法时会产生锁竞争。</p>
+<h3 id="同步代码块"><a href="#同步代码块" class="headerlink" title="同步代码块"></a>同步代码块</h3><p>synchronized用于修饰代码块时，进入同步代码块需要获得synchronized关键字后面括号内的对象（可以是实例对象也可以是class对象）的内置锁。</p>
+<h3 id="synchronized使用总结"><a href="#synchronized使用总结" class="headerlink" title="synchronized使用总结"></a>synchronized使用总结</h3><p>锁的使用是为了操作临界资源的正确性，而往往一个方法中并非所有的代码都操作临界资源。换句话说，方法中的代码往往并不都需要同步。此时建议不使用同步方法，而使用同步代码块，只对操作临界资源的代码，也即需要同步的代码加锁。这样做的好处是，当一个线程在执行同步代码块时，其它线程仍然可以执行该方法内同步代码块以外的部分，充分发挥多线程并发的优势，从而相较于同步整个方法而言提升性能。</p>
+<p>释放Java内置锁的唯一方式是synchronized方法或者代码块执行结束。若某一线程在synchronized方法或代码块内发生死锁，则对应的内置锁无法释放，其它线程也无法获取该内置锁（即进入跟该内置锁相关的synchronized方法或者代码块）。</p>
+<p>使用jstack dump线程栈时，可查看到相关线程通过synchronized获取到或等待的对象，但Locked ownable synchronizers仍然显示为None。下例中，线程thead-test-b已获取到类型为java.lang.Double的对象的内置锁（monitor），且该对象的内存地址为0x000000076ab95cb8</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&quot;thread-test-b&quot; #11 prio=5 os_prio=31 tid=0x00007fab0190b800 nid=0x5903 runnable [0x0000700010249000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line">        at com.jasongj.demo.TestJstack.lambda$1(TestJstack.java:27)</span><br><span class="line">        - locked &lt;0x000000076ab95cb8&gt; (a java.lang.Double)</span><br><span class="line">        at com.jasongj.demo.TestJstack$$Lambda$2/1406718218.run(Unknown Source)</span><br><span class="line">        at java.lang.Thread.run(Thread.java:745)</span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">        - None</span><br></pre></td></tr></table></figure>
+<h2 id="Java中的锁"><a href="#Java中的锁" class="headerlink" title="Java中的锁"></a>Java中的锁</h2><h3 id="重入锁"><a href="#重入锁" class="headerlink" title="重入锁"></a>重入锁</h3><p>Java中的重入锁（即ReentrantLock）与Java内置锁一样，是一种排它锁。使用synchronized的地方一定可以用ReentrantLock代替。</p>
+<p>重入锁需要显示请求获取锁，并显示释放锁。为了避免获得锁后，没有释放锁，而造成其它线程无法获得锁而造成死锁，一般建议将释放锁操作放在finally块里，如下所示。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">try&#123;</span><br><span class="line">  renentrantLock.lock();</span><br><span class="line">  // 用户操作</span><br><span class="line">&#125; finally &#123;</span><br><span class="line">  renentrantLock.unlock();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果重入锁已经被其它线程持有，则当前线程的lock操作会被阻塞。除了lock()方法之外，重入锁（或者说锁接口）还提供了其它获取锁的方法以实现不同的效果。</p>
+<ul>
+<li>lockInterruptibly() 该方法尝试获取锁，若获取成功立即返回；若获取不成功则阻塞等待。与lock方法不同的是，在阻塞期间，如果当前线程被打断（interrupt）则该方法抛出InterruptedException。该方法提供了一种解除死锁的途径。</li>
+<li>tryLock() 该方法试图获取锁，若该锁当前可用，则该方法立即获得锁并立即返回true；若锁当前不可用，则立即返回false。该方法不会阻塞，并提供给用户对于成功获利锁与获取锁失败进行不同操作的可能性。</li>
+<li>tryLock(long time, TimeUnit unit) 该方法试图获得锁，若该锁当前可用，则立即获得锁并立即返回true。若锁当前不可用，则等待相应的时间（由该方法的两个参数决定）：1）若该时间内锁可用，则获得锁，并返回true；2）若等待期间当前线程被打断，则抛出InterruptedException；3）若等待时间结束仍未获得锁，则返回false。</li>
+</ul>
+<p>重入锁可定义为公平锁或非公平锁，默认实现为非公平锁。</p>
+<ul>
+<li>公平锁是指多个线程获取锁被阻塞的情况下，锁变为可用时，最新申请锁的线程获得锁。可通过在重入锁（RenentrantLock）的构造方法中传入true构建公平锁，如Lock lock = new RenentrantLock(true)</li>
+<li>非公平锁是指多个线程等待锁的情况下，锁变为可用状态时，哪个线程获得锁是随机的。synchonized相当于非公平锁。可通过在重入锁的构造方法中传入false或者使用无参构造方法构建非公平锁。</li>
+</ul>
+<p>使用jstack dump线程栈时，可查看到获取到或正在等待的锁对象，获取到该锁的线程会在Locked ownable synchronizers处显示该锁的对象类型及内存地址。在下例中，从Locked ownable synchronizers部分可看到，线程thread-test-e获取到公平重入锁，且该锁对象的内存地址为0x000000076ae3d708</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&quot;thread-test-e&quot; #17 prio=5 os_prio=31 tid=0x00007fefaa0b6800 nid=0x6403 runnable [0x0000700002939000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line">        at com.jasongj.demo.TestJstack.lambda$4(TestJstack.java:64)</span><br><span class="line">        at com.jasongj.demo.TestJstack$$Lambda$5/466002798.run(Unknown Source)</span><br><span class="line">        at java.lang.Thread.run(Thread.java:745)</span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">        - &lt;0x000000076af86810&gt; (a java.util.concurrent.locks.ReentrantLock$FairSync)</span><br></pre></td></tr></table></figure>
+<p>而线程thread-test-f由于未获取到锁，而处于WAITING(parking)状态，且它等待的锁正是上文线程thread-test-e获取的锁（内存地址0x000000076af86810）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&quot;thread-test-f&quot; #18 prio=5 os_prio=31 tid=0x00007fefaa9b2800 nid=0x6603 waiting on condition [0x0000700002a3c000]</span><br><span class="line">   java.lang.Thread.State: WAITING (parking)</span><br><span class="line">        at sun.misc.Unsafe.park(Native Method)</span><br><span class="line">        - parking to wait for  &lt;0x000000076af86810&gt; (a java.util.concurrent.locks.ReentrantLock$FairSync)</span><br><span class="line">        at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)</span><br><span class="line">        at java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:836)</span><br><span class="line">        at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(AbstractQueuedSynchronizer.java:870)</span><br><span class="line">        at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:1199)</span><br><span class="line">        at java.util.concurrent.locks.ReentrantLock$FairSync.lock(ReentrantLock.java:224)</span><br><span class="line">        at java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:285)</span><br><span class="line">        at com.jasongj.demo.TestJstack.lambda$5(TestJstack.java:69)</span><br><span class="line">        at com.jasongj.demo.TestJstack$$Lambda$6/33524623.run(Unknown Source)</span><br><span class="line">        at java.lang.Thread.run(Thread.java:745)</span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">        - None</span><br></pre></td></tr></table></figure>
+<h3 id="读写锁"><a href="#读写锁" class="headerlink" title="读写锁"></a>读写锁</h3><p>锁可以保证原子性和可见性。而原子性更多是针对写操作而言。对于读多写少的场景，一个读操作无须阻塞其它读操作，只需要保证读和写或者写与写不同时发生即可。此时，如果使用重入锁（即排它锁），对性能影响较大。Java中的读写锁（ReadWriteLock）就是为这种读多写少的场景而创造的。</p>
+<p>实际上，ReadWriteLock接口并非继承自Lock接口，ReentrantReadWriteLock也只实现了ReadWriteLock接口而未实现Lock接口。ReadLock和WriteLock，是ReentrantReadWriteLock类的静态内部类，它们实现了Lock接口。</p>
+<p>一个ReentrantReadWriteLock实例包含一个ReentrantReadWriteLock.ReadLock实例和一个ReentrantReadWriteLock.WriteLock实例。通过readLock()和writeLock()方法可分别获得读锁实例和写锁实例，并通过Lock接口提供的获取锁方法获得对应的锁。</p>
+<p>读写锁的锁定规则如下：</p>
+<ul>
+<li>获得读锁后，其它线程可获得读锁而不能获取写锁</li>
+<li>获得写锁后，其它线程既不能获得读锁也不能获得写锁</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">package com.test.thread;</span><br><span class="line">import java.util.Date;</span><br><span class="line">import java.util.concurrent.locks.Lock;</span><br><span class="line">import java.util.concurrent.locks.ReadWriteLock;</span><br><span class="line">import java.util.concurrent.locks.ReentrantReadWriteLock;</span><br><span class="line">public class ReadWriteLockDemo &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    ReadWriteLock readWriteLock = new ReentrantReadWriteLock();</span><br><span class="line">    new Thread(() -&gt; &#123;</span><br><span class="line">      readWriteLock.readLock().lock();</span><br><span class="line">      try &#123;</span><br><span class="line">        System.out.println(new Date() + &quot;\tThread 1 started with read lock&quot;);</span><br><span class="line">        try &#123;</span><br><span class="line">          Thread.sleep(2000);</span><br><span class="line">        &#125; catch (Exception ex) &#123;</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(new Date() + &quot;\tThread 1 ended&quot;);</span><br><span class="line">      &#125; finally &#123;</span><br><span class="line">        readWriteLock.readLock().unlock();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line">    new Thread(() -&gt; &#123;</span><br><span class="line">      readWriteLock.readLock().lock();</span><br><span class="line">      try &#123;</span><br><span class="line">        System.out.println(new Date() + &quot;\tThread 2 started with read lock&quot;);</span><br><span class="line">        try &#123;</span><br><span class="line">          Thread.sleep(2000);</span><br><span class="line">        &#125; catch (Exception ex) &#123;</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(new Date() + &quot;\tThread 2 ended&quot;);</span><br><span class="line">      &#125; finally &#123;</span><br><span class="line">        readWriteLock.readLock().unlock();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line">    new Thread(() -&gt; &#123;</span><br><span class="line">      Lock lock = readWriteLock.writeLock();</span><br><span class="line">      lock.lock();</span><br><span class="line">      try &#123;</span><br><span class="line">        System.out.println(new Date() + &quot;\tThread 3 started with write lock&quot;);</span><br><span class="line">        try &#123;</span><br><span class="line">          Thread.sleep(2000);</span><br><span class="line">        &#125; catch (Exception ex) &#123;</span><br><span class="line">          ex.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(new Date() + &quot;\tThread 3 ended&quot;);</span><br><span class="line">      &#125; finally &#123;</span><br><span class="line">        lock.unlock();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Sat Jun 18 21:33:46 CST 2016  Thread 1 started with read lock</span><br><span class="line">Sat Jun 18 21:33:46 CST 2016  Thread 2 started with read lock</span><br><span class="line">Sat Jun 18 21:33:48 CST 2016  Thread 2 ended</span><br><span class="line">Sat Jun 18 21:33:48 CST 2016  Thread 1 ended</span><br><span class="line">Sat Jun 18 21:33:48 CST 2016  Thread 3 started with write lock</span><br><span class="line">Sat Jun 18 21:33:50 CST 2016  Thread 3 ended</span><br></pre></td></tr></table></figure>
+<p>从上面的执行结果可见，thread 1和thread 2都只需获得读锁，因此它们可以并行执行。而thread 3因为需要获取写锁，必须等到thread 1和thread 2释放锁后才能获得锁。</p>
+<h3 id="条件锁"><a href="#条件锁" class="headerlink" title="条件锁"></a>条件锁</h3><p>条件锁只是一个帮助用户理解的概念，实际上并没有条件锁这种锁。对于每个重入锁，都可以通过newCondition()方法绑定若干个条件对象。</p>
+<p>条件对象提供以下方法以实现不同的等待语义</p>
+<ul>
+<li>await() 调用该方法的前提是，当前线程已经成功获得与该条件对象绑定的重入锁，否则调用该方法时会抛出IllegalMonitorStateException。调用该方法外，当前线程会释放当前已经获得的锁（这一点与上文讲述的Java内置锁的wait方法一致），并且等待其它线程调用该条件对象的signal()或者signalAll()方法（这一点与Java内置锁wait后等待notify()或notifyAll()很像）。或者在等待期间，当前线程被打断，则wait()方法会抛出InterruptedException并清除当前线程的打断状态。</li>
+<li>await(long time, TimeUnit unit) 适用条件和行为与await()基本一致，唯一不同点在于，指定时间之内没有收到signal()或signalALL()信号或者线程中断时该方法会返回false;其它情况返回true。</li>
+<li>awaitNanos(long nanosTimeout) 调用该方法的前提是，当前线程已经成功获得与该条件对象绑定的重入锁，否则调用该方法时会抛出IllegalMonitorStateException。nanosTimeout指定该方法等待信号的的最大时间（单位为纳秒）。若指定时间内收到signal()或signalALL()则返回nanosTimeout减去已经等待的时间；若指定时间内有其它线程中断该线程，则抛出InterruptedException并清除当前线程的打断状态；若指定时间内未收到通知，则返回0或负数。</li>
+<li>awaitUninterruptibly() 调用该方法的前提是，当前线程已经成功获得与该条件对象绑定的重入锁，否则调用该方法时会抛出IllegalMonitorStateException。调用该方法后，结束等待的唯一方法是其它线程调用该条件对象的signal()或signalALL()方法。等待过程中如果当前线程被中断，该方法仍然会继续等待，同时保留该线程的中断状态。</li>
+<li>awaitUntil(Date deadline) 适用条件与行为与awaitNanos(long nanosTimeout)完全一样，唯一不同点在于它不是等待指定时间，而是等待由参数指定的某一时刻。</li>
+</ul>
+<p>调用条件等待的注意事项</p>
+<ul>
+<li>调用上述任意条件等待方法的前提都是当前线程已经获得与该条件对象对应的重入锁。</li>
+<li>调用条件等待后，当前线程让出CPU资源。</li>
+<li>上述等待方法结束后，方法返回的前提是它能重新获得与该条件对象对应的重入锁。如果无法获得锁，仍然会继续等待。这也是awaitNanos(long nanosTimeout)可能会返回负值的原因。</li>
+<li>一旦条件等待方法返回，则当前线程肯定已经获得了对应的重入锁。</li>
+<li>重入锁可以创建若干个条件对象，signal()和signalAll()方法只能唤醒相同条件对象的等待。</li>
+<li>一个重入锁上可以生成多个条件变量，不同线程可以等待不同的条件，从而实现更加细粒度的的线程间通信。</li>
+</ul>
+<p>signal()与signalAll()</p>
+<ul>
+<li>signal() 若有一个或若干个线程在等待该条件变量，则该方法会唤醒其中的一个（具体哪一个，无法预测）。调用该方法的前提是当前线程持有该条件变量对应的锁，否则抛出IllegalMonitorStateException。</li>
+<li>signalALL() 若有一个或若干个线程在等待该条件变量，则该方法会唤醒所有等待。调用该方法的前提是当前线程持有该条件变量对应的锁，否则抛出IllegalMonitorStateException。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">package com.test.thread;</span><br><span class="line">import java.util.Date;</span><br><span class="line">import java.util.concurrent.TimeUnit;</span><br><span class="line">import java.util.concurrent.locks.Condition;</span><br><span class="line">import java.util.concurrent.locks.Lock;</span><br><span class="line">import java.util.concurrent.locks.ReentrantLock;</span><br><span class="line">public class ConditionTest &#123;</span><br><span class="line">  public static void main(String[] args) throws InterruptedException &#123;</span><br><span class="line">    Lock lock = new ReentrantLock();</span><br><span class="line">    Condition condition = lock.newCondition();</span><br><span class="line">    new Thread(() -&gt; &#123;</span><br><span class="line">      lock.lock();</span><br><span class="line">      try &#123;</span><br><span class="line">        System.out.println(new Date() + &quot;\tThread 1 is waiting&quot;);</span><br><span class="line">        try &#123;</span><br><span class="line">          long waitTime = condition.awaitNanos(TimeUnit.SECONDS.toNanos(2));</span><br><span class="line">          System.out.println(new Date() + &quot;\tThread 1 remaining time &quot; + waitTime);</span><br><span class="line">        &#125; catch (Exception ex) &#123;</span><br><span class="line">          ex.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(new Date() + &quot;\tThread 1 is waken up&quot;);</span><br><span class="line">      &#125; finally &#123;</span><br><span class="line">        lock.unlock();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line">    </span><br><span class="line">    new Thread(() -&gt; &#123;</span><br><span class="line">      lock.lock();</span><br><span class="line">      try&#123;</span><br><span class="line">        System.out.println(new Date() + &quot;\tThread 2 is running&quot;);</span><br><span class="line">        try &#123;</span><br><span class="line">          Thread.sleep(4000);</span><br><span class="line">        &#125; catch (Exception ex) &#123;</span><br><span class="line">          ex.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        condition.signal();</span><br><span class="line">        System.out.println(new Date() + &quot;\tThread 2 ended&quot;);</span><br><span class="line">      &#125; finally &#123;</span><br><span class="line">        lock.unlock();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Sun Jun 19 15:59:09 CST 2016  Thread 1 is waiting</span><br><span class="line">Sun Jun 19 15:59:09 CST 2016  Thread 2 is running</span><br><span class="line">Sun Jun 19 15:59:13 CST 2016  Thread 2 ended</span><br><span class="line">Sun Jun 19 15:59:13 CST 2016  Thread 1 remaining time -2003467560</span><br><span class="line">Sun Jun 19 15:59:13 CST 2016  Thread 1 is waken up</span><br></pre></td></tr></table></figure>
+<p>从执行结果可以看出，虽然thread 2一开始就调用了signal()方法去唤醒thread 1，但是因为thread 2在4秒钟后才释放锁，也即thread 1在4秒后才获得锁，所以thread 1的await方法在4秒钟后才返回，并且返回负值。</p>
+<h2 id="信号量Semaphore"><a href="#信号量Semaphore" class="headerlink" title="信号量Semaphore"></a>信号量Semaphore</h2><p>信号量维护一个许可集，可通过acquire()获取许可（若无可用许可则阻塞），通过release()释放许可，从而可能唤醒一个阻塞等待许可的线程。</p>
+<p>与互斥锁类似，信号量限制了同一时间访问临界资源的线程的个数，并且信号量也分公平信号量与非公平信号量。而不同的是，互斥锁保证同一时间只会有一个线程访问临界资源，而信号量可以允许同一时间多个线程访问特定资源。所以信号量并不能保证原子性。</p>
+<p>信号量的一个典型使用场景是限制系统访问量。每个请求进来后，处理之前都通过acquire获取许可，若获取许可成功则处理该请求，若获取失败则等待处理或者直接不处理该请求。</p>
+<p>信号量的使用方法:</p>
+<ul>
+<li>acquire(int permits) 申请permits（必须为非负数）个许可，若获取成功，则该方法返回并且当前可用许可数减permits；若当前可用许可数少于permits指定的个数，则继续等待可用许可数大于等于permits；若等待过程中当前线程被中断，则抛出InterruptedException。</li>
+<li>acquire() 等价于acquire(1)。</li>
+<li>acquireUninterruptibly(int permits) 申请permits（必须为非负数）个许可，若获取成功，则该方法返回并且当前可用许可数减permits；若当前许可数少于permits，则继续等待可用许可数大于等于permits；若等待过程中当前线程被中断，继续等待可用许可数大于等于permits，并且获取成功后设置线程中断状态。</li>
+<li>acquireUninterruptibly() 等价于acquireUninterruptibly(1)。</li>
+<li>drainPermits() 获取所有可用许可，并返回获取到的许可个数，该方法不阻塞。</li>
+<li>tryAcquire(int permits) 尝试获取permits个可用许可，如果当前许可个数大于等于permits，则返回true并且可用许可数减permits；否则返回false并且可用许可数不变。</li>
+<li>tryAcquire() 等价于tryAcquire(1)。</li>
+<li>tryAcquire(int permits, long timeout, TimeUnit unit) 尝试获取permits（必须为非负数）个许可，若在指定时间内获取成功则返回true并且可用许可数减permits；若指定时间内当前线程被中断，则抛出InterruptedException；若指定时间内可用许可数均小于permits，则返回false。</li>
+<li>tryAcquire(long timeout, TimeUnit unit) 等价于tryAcquire(1, long timeout, TimeUnit unit)*</li>
+<li>release(int permits) 释放permits个许可，该方法不阻塞并且某线程调用release方法前并不需要先调用acquire方法。</li>
+<li>release() 等价于release(1)。</li>
+</ul>
+<p>注意：与wait/notify和await/signal不同，acquire/release完全与锁无关，因此acquire等待过程中，可用许可满足要求时acquire可立即返回，而不用像锁的wait和条件变量的await那样重新获取锁才能返回。或者可以理解成，只要可用许可满足需求，就已经获得了锁。</p>
+
+      
+    </div>
+
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">---------------------------------------Ending---------------------------------------</div>
+    
+</div>
+      
+    </div>
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2018/09/多线程相关技术点/">多线程相关技术点</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Soul 的个人博客">Soul</a></p>
+  <p><span>发布时间:</span>2018年09月15日 - 17:09</p>
+  <p><span>最后更新:</span>2018年09月15日 - 17:09</p>
+  <p><span>原始链接:</span><a href="/2018/09/多线程相关技术点/" title="多线程相关技术点">http://blog.linzhongtai.cn/2018/09/多线程相关技术点/</a>
+    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://blog.linzhongtai.cn/2018/09/多线程相关技术点/" aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({   
+          title: "",   
+          text: '复制成功',   
+          html: false,
+          timer: 500,   
+          showConfirmButton: false
+        });
+      });
+    }));  
+</script>
+
+          
+    </div>
+    
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>有钱捧个钱场，没钱捧个人场</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatPay.png" alt="Soul WeChat Pay">
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.png" alt="Soul Alipay">
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/并发编程/" rel="tag"># 并发编程</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/深入理解ThreadLocal/" rel="next" title="深入理解ThreadLocal">
+                <i class="fa fa-chevron-left"></i> 深入理解ThreadLocal
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/从ConcurrentHashMap看Java多线程核心技术/" rel="prev" title="从ConcurrentHashMap看Java多线程核心技术">
+                从ConcurrentHashMap看Java多线程核心技术 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript">
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMDE1OC82NzEz"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Soul">
+          <p class="site-author-name" itemprop="name">Soul</p>
+           
+              <p class="site-description motion-element" itemprop="description">喝前摇一摇，神经变大条</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">76</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">46</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/soulForLove" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/lin-32-77-13/activities" target="_blank" title="知乎">
+                  
+                    <i class="fa fa-fw fa-snowflake-o"></i>
+                  
+                  知乎
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://gitee.com/Soulll/events" target="_blank" title="Gitee">
+                  
+                    <i class="fa fa-fw fa-bomb"></i>
+                  
+                  Gitee
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.jianshu.com/u/b3f99b1dadd1" target="_blank" title="简书">
+                  
+                    <i class="fa fa-fw fa-book"></i>
+                  
+                  简书
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#sleep和wait到底什么区别"><span class="nav-number">1.</span> <span class="nav-text">sleep和wait到底什么区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized几种用法"><span class="nav-number">2.</span> <span class="nav-text">synchronized几种用法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实例同步方法"><span class="nav-number">2.1.</span> <span class="nav-text">实例同步方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态同步方法"><span class="nav-number">2.2.</span> <span class="nav-text">静态同步方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同步代码块"><span class="nav-number">2.3.</span> <span class="nav-text">同步代码块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#synchronized使用总结"><span class="nav-number">2.4.</span> <span class="nav-text">synchronized使用总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java中的锁"><span class="nav-number">3.</span> <span class="nav-text">Java中的锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重入锁"><span class="nav-number">3.1.</span> <span class="nav-text">重入锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#读写锁"><span class="nav-number">3.2.</span> <span class="nav-text">读写锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#条件锁"><span class="nav-number">3.3.</span> <span class="nav-text">条件锁</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#信号量Semaphore"><span class="nav-number">4.</span> <span class="nav-text">信号量Semaphore</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+<!--
+      <div id="music163player">
+          <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=306664&auto=1&height=66"></iframe>
+      </div>
+-->
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Soul</span>
+</div>
+
+
+<!--
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+-->
+
+<script>
+(function(){
+    var bp = document.createElement('script');
+    bp.src = '//push.zhanzhang.baidu.com/push.js';
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+
+  
+
+  
+
+  <!-- 宠物 -->
+  <!-- 
+<div id="hexo-helper-live2d">
+  <canvas id="live2dcanvas" width="150" height="300"></canvas>
+</div>
+<style>
+  #live2dcanvas{
+    position: fixed;
+    width: 150px;
+    height: 300px;
+    opacity:0.7;
+    right: 0px;
+    z-index: 999;
+    pointer-events: none;
+    bottom: -20px;
+  }
+</style>
+<script type="text/javascript" src="/live2d/device.min.js"></script>
+<script type="text/javascript">
+const loadScript = function loadScript(c,b){var a=document.createElement("script");a.type="text/javascript";"undefined"!=typeof b&&(a.readyState?a.onreadystatechange=function(){if("loaded"==a.readyState||"complete"==a.readyState)a.onreadystatechange=null,b()}:a.onload=function(){b()});a.src=c;document.body.appendChild(a)};
+(function(){
+  if((typeof(device) != 'undefined') && (device.mobile())){
+    document.getElementById("live2dcanvas").style.width = '75px';
+    document.getElementById("live2dcanvas").style.height = '150px';
+  }else
+    if (typeof(device) === 'undefined') console.error('Cannot find current-device script.');
+  loadScript("/live2d/script.js", function(){loadlive2d("live2dcanvas", "/live2d/assets/z16.model.json", 0.5);});
+})();
+</script>
+ -->
+  <!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/love.js"></script>
+</body>
+</html>

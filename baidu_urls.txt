@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2018/06/Liquibase小知识/
+http://blog.linzhongtai.cn/2018/06/cron表达式/

@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[cron表达式]]></title>
+    <url>%2F2018%2F06%2Fcron%E8%A1%A8%E8%BE%BE%E5%BC%8F%2F</url>
+    <content type="text"><![CDATA[语法格式1、Seconds Minutes Hours DayofMonth Month DayofWeek Year2、Seconds Minutes Hours DayofMonth Month DayofWeek 对应的含义Seconds:可出现”, - /“四个字符，有效范围为0-59的整数Minutes:可出现”, - /“四个字符，有效范围为0-59的整数Hours:可出现”, - /“四个字符，有效范围为0-23的整数DayofMonth:可出现”, - / ? L W C”八个字符，有效范围为0-31的整数Month:可出现”, - /“四个字符，有效范围为1-12的整数或JAN-DEcDayofWeek:可出现”, - / ? L C #”八个字符，有效范围为1-7的整数或SUN-SAT两个范围。1表示星期天，2表示星期一， 依次类推Year:可出现”, - * /“四个字符，有效范围为1970-2099年 特殊字符含义 * 表示所有值 ? 表示未说明的值，即不关心它为何值 - 表示一个指定的范围 , 表示附加一个可能值 / 符号前表示开始时间，符号后表示每次递增的值 L 用在day-of-month字段意思是 “这个月最后一天”；用在 day-of-week字段, 它简单意思是 “7” or “SAT”。 如果在day-of-week字段里和数字联合使用，它的意思就是 “这个月的最后一个星期几” – 例如： “6L” means “这个月的最后一个星期五”. 当我们用“L”时，不指明一个列表值或者范围是很重要的，不然的话，我们会得到一些意想不到的结果 W只能用在day-of-month字段。用来描叙最接近指定天的工作日（周一到周五）。例如：在day-of-month字段用“15W”指“最接近这个 月第15天的工作日”，即如果这个月第15天是周六，那么触发器将会在这个月第14天即周五触发；如果这个月第15天是周日，那么触发器将会在这个月第16天即周一触发；如果这个月第15天是周二，那么就在触发器这天触发。注意一点：这个用法只会在当前月计算值，不会越过当前月。“W”字符仅能在 day-of-month指明一天，不能是一个范围或列表。也可以用“LW”来指定这个月的最后一个工作日。 # 只能用在day-of-week字段。用来指定这个月的第几个周几。例：在day-of-week字段用”6#3”指这个月第3个周五（6指周五，3指第3个）。如果指定的日期不存在，触发器就不会触发 C指和calendar联系后计算过的值。例：在day-of-month字段用“5C”指在这个月第5天或之后包括calendar的第一天；在day-of-week字段用“1C”指在这周日或之后包括calendar的第一天 范例12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152每隔5秒执行一次：*/5 * * * * ?每隔1分钟执行一次：0 */1 * * * ?每天23点执行一次：0 0 23 * * ?每天凌晨1点执行一次：0 0 1 * * ?每月1号凌晨1点执行一次：0 0 1 1 * ?每月最后一天23点执行一次：0 0 23 L * ?每周星期天凌晨1点实行一次：0 0 1 ? * L在26分、29分、33分执行一次：0 26,29,33 * * * ?每天的0点、13点、18点、21点都执行一次：0 0 0,13,18,21 * * ?每隔5分钟执行一次：0 0/5 * * * ?每天中午12点触发 ：0 0 12 * * ?每天上午10:15触发 :0 15 10 ? * *每天上午10:15触发 :0 15 10 * * ?每天上午10:15触发：0 15 10 * * ? *2005年的每天上午10:15触发 ：0 15 10 * * ? 2005在每天下午2点到下午2:59期间的每1分钟触发 ：0 * 14 * * ?在每天下午2点到下午2:55期间的每5分钟触发 ：0 0/5 14 * * ?在每天下午2点到2:55期间和下午6点到6:55期间的每5分钟触发 ：0 0/5 14,18 * * ?在每天下午2点到下午2:05期间的每1分钟触发 ：0 0-5 14 * * ?每年三月的星期三的下午2:10和2:44触发 ：0 10,44 14 ? 3 WED周一至周五的上午10:15触发 ：0 15 10 ? * MON-FRI每月15日上午10:15触发 ：0 15 10 15 * ?每月最后一日的上午10:15触发 ：0 15 10 L * ?每月的最后一个星期五上午10:15触发 ：0 15 10 ? * 6L2002年至2005年的每月的最后一个星期五上午10:15触发 ：0 15 10 ? * 6L 2002-2005每月的第三个星期五上午10:15触发 ：0 15 10 ? * 6#3]]></content>
+      <categories>
+        <category>cron</category>
+      </categories>
+      <tags>
+        <tag>小知识</tag>
+        <tag>cron</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[Liquibase小知识]]></title>
     <url>%2F2018%2F06%2FLiquibase%E5%B0%8F%E7%9F%A5%E8%AF%86%2F</url>
     <content type="text"><![CDATA[liquibase相关 不依赖于特定的数据库，目前支持包括Oracle/Sql Server/DB2/MySql/Sybase/PostgreSQL/Caché等12种数据库，这样在数据库的部署和升级环节可帮助应用系统支持多数据库 提供数据库比较功能，比较结果保存在XML中，基于该XML你可用Liquibase轻松部署或升级数据库 以XML存储数据库变化，其中以作者和ID唯一标识一个变化（ChangSet），支持数据库变化的合并，因此支持多开发人员同时工作 在数据库中保存数据库修改历史（DatabaseChangeHistory），在数据库升级时自动跳过已应用的变化（ChangSet）提供变化应用的回滚功能，可按时间、数量或标签（tag）回滚已应用的变化。通过这种方式，开发人员可轻易的还原数据库在任何时间点的状态 可生成数据库修改文档（HTML格式） 提供数据重构的独立的IDE和Eclipse插件 目录以及文件解释 data 存放初始化数据文件 schemas存放数据结构变动脚本 changelog.xml主要执行文件，引入相关数据变动脚本 liquibase.properties数据库配置文件 pom.xml引入数据库依赖以及liquibase插件 liquibase常用命令changelogSync : 將changelog中未套用至db的change logs标识成已同步changelogSyncSQL : 同changelogSync，但只產生sql，而不執行同步到dbgenerateChangeLog : 將目前数据库的结构(默认不包含数据)生成 xmldbDoc : 產生像java doc的文件diff : 比對兩個数据库間的差異status : 顯示目前change set有那些change log會被套用到dbrollbackSql:根据回滚版本生成回滚sqlrollback:根据回滚版本生成回滚sql，并在数据库中执行update : 将changeLog.xml中的数据变动changeset脚本转化为sql语句，直接在数据库中执行updateSQL : 将changeLog.xml中的数据变动changeset脚本转化为sql语句，并输出到对应的文件中 Flyway VS Liquibase Flyway简单，直接写sql保存文件不支持回滚数据库迁移问题(SQL语句并不是一个广泛兼容的语言，有些关键字是独有的，如果flyway就需要兼容写两套sql脚本) Liquibase支持多种格式（xml/json/yaml/sql）支持多种数据库迁移可读性强支持回滚 传送门]]></content>
@@ -316,8 +328,8 @@
         <category>linux</category>
       </categories>
       <tags>
-        <tag>linux</tag>
         <tag>小知识</tag>
+        <tag>linux</tag>
       </tags>
   </entry>
   <entry>

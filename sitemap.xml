@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.linzhongtai.cn/2018/06/cron%E8%A1%A8%E8%BE%BE%E5%BC%8F/</loc>
+    
+    <lastmod>2018-06-15T09:10:33.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.linzhongtai.cn/2018/06/Liquibase%E5%B0%8F%E7%9F%A5%E8%AF%86/</loc>
     
     <lastmod>2018-06-15T08:30:13.000Z</lastmod>
@@ -16,20 +23,6 @@
   </url>
   
   <url>
-    <loc>http://blog.linzhongtai.cn/googleddf2510b177a27a8.html</loc>
-    
-    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.linzhongtai.cn/photos/index.html</loc>
-    
-    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://blog.linzhongtai.cn/categories/index.html</loc>
     
     <lastmod>2018-05-24T02:45:26.000Z</lastmod>
@@ -38,6 +31,20 @@
   
   <url>
     <loc>http://blog.linzhongtai.cn/about/index.html</loc>
+    
+    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.linzhongtai.cn/googleddf2510b177a27a8.html</loc>
+    
+    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.linzhongtai.cn/photos/index.html</loc>
     
     <lastmod>2018-05-24T02:45:26.000Z</lastmod>
     

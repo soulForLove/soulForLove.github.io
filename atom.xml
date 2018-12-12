@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.linzhongtai.cn/"/>
-  <updated>2018-10-24T09:41:34.000Z</updated>
+  <updated>2018-12-12T06:05:35.000Z</updated>
   <id>http://blog.linzhongtai.cn/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>最近</title>
+    <link href="http://blog.linzhongtai.cn/2018/12/%E6%9C%80%E8%BF%91/"/>
+    <id>http://blog.linzhongtai.cn/2018/12/最近/</id>
+    <published>2018-12-12T06:05:35.000Z</published>
+    <updated>2018-12-12T06:05:35.000Z</updated>
+    
+    <content type="html"><![CDATA[<a id="more"></a><blockquote><p>做一个有想法的人。</p></blockquote><article><br>    年初的目标还没有完成，却已到了年底啊啊啊啊啊啊啊。<br>    有很多想做想学想去改变的东西，三分钟热度撑不住想法，坚持才行。<br>    五月份，在选择的关卡，其实并没有深入的去了解自己想去想做的事情，很片面，也很幼稚的去做出决定。一段较为纠结的时间段，可能让自己学到的，就是知道了自己不想做什么事情，想做什么。<br>    十一月份是新的开始，也是新的挑战，一个人，能做事，且做好。<br>    世界很大，我想去看看，更想带你去看看。<br>    是随便乱写的哈哈哈，希望明年的自己更Xiang Yang。<br></article>]]></content>
+    
+    <summary type="html">
+    
+      2018年
+    
+    </summary>
+    
+      <category term="我的" scheme="http://blog.linzhongtai.cn/categories/%E6%88%91%E7%9A%84/"/>
+    
+    
+      <category term="我的" scheme="http://blog.linzhongtai.cn/tags/%E6%88%91%E7%9A%84/"/>
+    
+  </entry>
   
   <entry>
     <title>缓存与数据库一致性之缓存穿透、缓存雪崩、key重建方案</title>
@@ -441,30 +463,6 @@
       <category term="JAVA" scheme="http://blog.linzhongtai.cn/tags/JAVA/"/>
     
       <category term="设计模式" scheme="http://blog.linzhongtai.cn/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>工作中的代码优化</title>
-    <link href="http://blog.linzhongtai.cn/2018/04/%E5%B7%A5%E4%BD%9C%E4%B8%AD%E7%9A%84%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96/"/>
-    <id>http://blog.linzhongtai.cn/2018/04/工作中的代码优化/</id>
-    <published>2018-04-13T07:24:59.000Z</published>
-    <updated>2018-04-13T07:24:59.000Z</updated>
-    
-    <content type="html"><![CDATA[<a id="more"></a><h2 id="函数式接口改造"><a href="#函数式接口改造" class="headerlink" title="函数式接口改造"></a>函数式接口改造</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">private TopModel generateTopDetailModel(TopModel topModel, List&lt;PlayerWithData&gt; playerWithDataList) &#123;</span><br><span class="line">       List&lt;TopDetailModel&gt; shotsTopDetail = playerWithDataList.stream()</span><br><span class="line">               .filter(p -&gt; p.getShots() != null &amp;&amp; p.getShots() != 0)//要过滤掉空值再比较,且要过滤掉0值</span><br><span class="line">               .sorted(Comparator.comparing(PlayerWithData::getShots).reversed()</span><br><span class="line">                       .thenComparing(PlayerWithData::getName)).</span><br><span class="line">                       limit(3).map(StatsPlayer -&gt; &#123;</span><br><span class="line">                   TopDetailModel model = new TopDetailModel();</span><br><span class="line">                   BeanUtils.copyProperties(StatsPlayer, model);</span><br><span class="line">                   model.setDataCount(StatsPlayer.getShots());</span><br><span class="line">                   return model;</span><br><span class="line">               &#125;).collect(Collectors.toList());</span><br><span class="line">       topModel.setShots(shotsTopDetail);</span><br><span class="line"></span><br><span class="line">       List&lt;TopDetailModel&gt; maxDribbSpTopDetail = playerWithDataList.stream().</span><br><span class="line">               filter(p -&gt; p.getMaxDribbSp() != null &amp;&amp; p.getMaxDribbSp() != 0.0)</span><br><span class="line">               .sorted(Comparator.comparing(PlayerWithData::getMaxDribbSp).reversed()</span><br><span class="line">                       .thenComparing(PlayerWithData::getName)).</span><br><span class="line">                       limit(3).map(StatsPlayer -&gt; &#123;</span><br><span class="line">                   TopDetailModel model = new TopDetailModel();</span><br><span class="line">                   BeanUtils.copyProperties(StatsPlayer, model);</span><br><span class="line">                   model.setDataCount(StatsPlayer.getMaxDribbSp());</span><br><span class="line">                   return model;</span><br><span class="line">               &#125;).collect(Collectors.toList());</span><br><span class="line">       topModel.setMaxDribbSp(maxDribbSpTopDetail);</span><br><span class="line">       //省略N个字段的获取设值...</span><br><span class="line">       return topModel;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">private List&lt;TopDetailModel&gt; setIntegerTopModel(List&lt;PlayerWithData&gt; playerWithDataList,</span><br><span class="line">                                                   Function&lt;PlayerWithData, Integer&gt; function, Integer count) &#123;</span><br><span class="line">       return playerWithDataList.stream()</span><br><span class="line">               .filter(p -&gt; function.apply(p) != null &amp;&amp; function.apply(p) != 0)</span><br><span class="line">               .sorted(Comparator.comparing(function).reversed()</span><br><span class="line">                       .thenComparing(PlayerWithData::getName)).</span><br><span class="line">                       limit(count).map(stasPlayer -&gt; &#123;</span><br><span class="line">                   TopDetailModel model = new TopDetailModel();</span><br><span class="line">                   BeanUtils.copyProperties(stasPlayer, model);</span><br><span class="line">                   model.setDataCount(function);</span><br><span class="line">                   return model;</span><br><span class="line">               &#125;).collect(Collectors.toList());</span><br><span class="line">   &#125;</span><br><span class="line"> 之后每个参数传入函数方法调用设值即可：</span><br><span class="line"> topModel.setShots(setIntegerTopModel(playerWithDataList, PlayerWithData::getShots, count));</span><br></pre></td></tr></table></figure><h2 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">for (PenaltyModel penaltyModel : penaltyModels) &#123;</span><br><span class="line">            String eventType = &quot;PENALTY.&quot;;</span><br><span class="line">            if (penaltyModel.getIsGoal()) &#123;</span><br><span class="line">                eventType = eventType + &quot;TRUE&quot;;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                eventType = eventType + &quot;FALSE&quot;;</span><br><span class="line">            &#125;</span><br><span class="line">            ......</span><br><span class="line">            每次循环都会创建新对象，造成内存资源浪费</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">String为字符串常量，而StringBuilder和StringBuffer均为字符串变量，</span><br><span class="line">即String对象一旦创建之后该对象是不可更改的，但后两者的对象是变量，是可以更改的</span><br><span class="line">String：适用于少量的字符串操作的情况</span><br><span class="line">StringBuilder：适用于单线程下在字符缓冲区进行大量操作的情况</span><br><span class="line">StringBuffer：适用多线程下在字符缓冲区进行大量操作的情况</span><br></pre></td></tr></table></figure><h2 id="枚举命名"><a href="#枚举命名" class="headerlink" title="枚举命名"></a>枚举命名</h2><p>建议带上 Enum 后缀，枚举成员名称需要全大写，单词间用下划线隔开<br>正例：BallEnum    反例：BallType</p><h2 id="避免在循环中进行数据库操作"><a href="#避免在循环中进行数据库操作" class="headerlink" title="避免在循环中进行数据库操作"></a>避免在循环中进行数据库操作</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">private void uploadTeamConfig(List&lt;TeamConfig&gt; teamConfigList, String matchId) &#123;</span><br><span class="line">      if (!CollectionUtils.isEmpty(teamConfigList)) &#123;</span><br><span class="line">          for (TeamConfig teamConfig : teamConfigList) &#123;</span><br><span class="line">              PerMatchTeamConfig perMatchTeamConfig = new PerMatchTeamConfig();</span><br><span class="line">              BeanUtils.copyProperties(teamConfig, perMatchTeamConfig);</span><br><span class="line">              perMatchTeamConfig.setMatchId(matchId);</span><br><span class="line">              perMatchTeamConfigService.saveOrUpdateByMatchIdAndTeamId(perMatchTeamConfig);</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      记录一些工作中遇到的可优化的代码片段
-    
-    </summary>
-    
-      <category term="优化" scheme="http://blog.linzhongtai.cn/categories/%E4%BC%98%E5%8C%96/"/>
-    
-    
-      <category term="JAVA" scheme="http://blog.linzhongtai.cn/tags/JAVA/"/>
-    
-      <category term="优化" scheme="http://blog.linzhongtai.cn/tags/%E4%BC%98%E5%8C%96/"/>
     
   </entry>
   

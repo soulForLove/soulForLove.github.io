@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2019/03/JVM重温系列之一：内存区域/
+http://blog.linzhongtai.cn/2019/03/JVM重温系列之四：GC垃圾收集器/

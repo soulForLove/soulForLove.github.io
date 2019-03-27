@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.linzhongtai.cn/"/>
-  <updated>2019-03-27T09:42:53.000Z</updated>
+  <updated>2019-03-27T13:32:37.000Z</updated>
   <id>http://blog.linzhongtai.cn/</id>
   
   <author>
@@ -15,6 +15,72 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>JVM重温系列之四：GC垃圾收集器</title>
+    <link href="http://blog.linzhongtai.cn/2019/03/JVM%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8B%E5%9B%9B%EF%BC%9AGC%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/"/>
+    <id>http://blog.linzhongtai.cn/2019/03/JVM重温系列之四：GC垃圾收集器/</id>
+    <published>2019-03-27T13:32:37.000Z</published>
+    <updated>2019-03-27T13:32:37.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Java 堆内存被划分为新生代和年老代两部分，新生代主要使用复制算法 ；年老代主要使用标记-整理和标记-清除垃圾回收算法，因此 java 虚拟中针对新生代和年老代分别提供了多种不同的垃圾收集器，JDK1.6 中 Sun HotSpot 虚拟机的垃圾收集器如下：<br><img src="http://upload-images.jianshu.io/upload_images/5937589-12919617c472286d.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p><h2 id="Serial-收集器（单线程、-复制算法）"><a href="#Serial-收集器（单线程、-复制算法）" class="headerlink" title="Serial 收集器（单线程、 复制算法）"></a>Serial 收集器（单线程、 复制算法）</h2><p><strong>Serial是最基本垃圾收集器，使用复制算法。</strong><br>Serial 垃圾收集器虽然在收集垃圾过程中需要暂停所有其他的工作线程，但是它简单高效，对于限定单个 CPU 环境来说，没有线程交互的开销，可以获得最高的单线程垃圾收集效率，因此 <strong>Serial垃圾收集器依然是 java 虚拟机运行在 Client 模式下默认的新生代垃圾收集器</strong></p><h2 id="ParNew-收集器（Serial-多线程-多线程）"><a href="#ParNew-收集器（Serial-多线程-多线程）" class="headerlink" title="ParNew 收集器（Serial+多线程 多线程）"></a>ParNew 收集器（Serial+多线程 多线程）</h2><p>ParNew 垃圾收集器其实<strong>是 Serial 收集器的多线程版本</strong>，也使用复制算法，除了使用多线程进行垃圾收集之外，其余的行为和 Serial 收集器完全一样，ParNew 垃圾收集器在垃圾收集过程中同样也要暂停所有其他的工作线程。<br>ParNew 收集器默认开启和 CPU 数目相同的线程数，可通过-XX:ParallelGCThreads参数来限制垃圾收集器的线程数<br>ParNew虽然是除了多线程外和Serial收集器几乎完全一样，但是<strong>ParNew垃圾收集器是很多java虚拟机运行在 Server 模式下新生代的默认垃圾收集器</strong></p><h2 id="Parallel-Scavenge-收集器（多线程复制算法、高效）"><a href="#Parallel-Scavenge-收集器（多线程复制算法、高效）" class="headerlink" title="Parallel Scavenge 收集器（多线程复制算法、高效）"></a>Parallel Scavenge 收集器（多线程复制算法、高效）</h2><p>Parallel Scavenge 收集器也是一个新生代垃圾收集器，同样使用复制算法，也是一个多线程的垃圾收集器，它<strong>重点关注的是程序达到一个可控制的吞吐量</strong>（Thoughput，CPU 用于运行用户代码的时间/CPU 总消耗时间，即吞吐量=运行用户代码时间/(运行用户代码时间+垃圾收集时间)），高吞吐量可以最高效率地利用 CPU 时间，尽快地完成程序的运算任务，主要适用于在后台运算而不需要太多交互的任务。<br><strong>自适应调节策略也是ParallelScavenge 收集器与 ParNew 收集器的一个重要区别。</strong></p><h2 id="Serial-Old-收集器（单线程标记整理算法）"><a href="#Serial-Old-收集器（单线程标记整理算法）" class="headerlink" title="Serial Old 收集器（单线程标记整理算法）"></a>Serial Old 收集器（单线程标记整理算法）</h2><p>Serial Old 是 Serial 垃圾收集器年老代版本，它同样是个单线程的收集器，使用标记-整理算法，这个收集器也<strong>主要是运行在 Client 默认的 java 虚拟机默认的年老代垃圾收集器。</strong></p><h2 id="Parallel-Old-收集器（多线程标记整理算法）"><a href="#Parallel-Old-收集器（多线程标记整理算法）" class="headerlink" title="Parallel Old 收集器（多线程标记整理算法）"></a>Parallel Old 收集器（多线程标记整理算法）</h2><p>Parallel Old收集器是Parallel Scavenge的年老代版本，使用多线程的标记-整理算法，在JDK1.6才开始提供。<br>在 JDK1.6 之前，新生代使用 ParallelScavenge 收集器只能搭配年老代的 Serial Old 收集器，只能保证新生代的吞吐量优先，无法保证整体的吞吐量，<strong>Parallel Old 正是为了在年老代同样提供吞吐量优先的垃圾收集器</strong>，如果系统对吞吐量要求比较高，可以优先考虑新生代 Parallel Scavenge和年老代 Parallel Old 收集器的搭配策略。</p><h2 id="CMS-收集器（多线程标记清除算法）"><a href="#CMS-收集器（多线程标记清除算法）" class="headerlink" title="CMS 收集器（多线程标记清除算法）"></a>CMS 收集器（多线程标记清除算法）</h2><blockquote><p><strong>CMS(Concurrent Mark Sweep)收集器是一种以获取最短回收停顿时间为目标的收集器。是基于多线程的“标记-清除”算法。</strong></p></blockquote><ol><li>初始标记（Stop The World）<br>只是标记一下 GC Roots 能直接关联的对象，速度很快，仍然需要暂停所有的工作线程。</li><li>并发标记（Stop The World）<br>进行 GC Roots 跟踪的过程，和用户线程一起工作，不需要暂停工作线程。</li><li>重新标记<br>为了修正在并发标记期间，因用户程序继续运行而导致标记产生变动的那一部分对象的标记记录，仍然需要暂停所有的工作线程。</li><li>并发清除<br>清除 GC Roots 不可达对象，和用户线程一起工作，不需要暂停工作线程。由于耗时最长的并发标记和并发清除过程中，垃圾收集线程可以和用户现在一起并发工作，所以总体上来看<strong>CMS 收集器的内存回收和用户线程是一起并发地执行。</strong></li></ol><p>CMS 收集器工作过程：<br><img src="http://upload-images.jianshu.io/upload_images/5937589-6f5c41a61b10b6f2.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p><p>优点：</p><ul><li>并发收集</li><li>低停顿</li></ul><p>缺点：</p><ul><li>对CPU资源非常敏感</li><li>无法处理浮动垃圾，可能出现“Concurrent Mode Failure”失败而导致另一次的Full GC的产生。</li><li>使用“标记-清除”算法会导致大量内存空间碎片（碎片过多，当分配大对象的时候可能无法找到足够大的连续空间进行分配，从而提前触发Full GC）</li></ul><h2 id="G1收集器"><a href="#G1收集器" class="headerlink" title="G1收集器"></a>G1收集器</h2><p>Garbage first 垃圾收集器是目前垃圾收集器理论发展的最前沿成果，相比与 CMS 收集器，G1 收集器两个最突出的改进是：</p><ol><li>基于标记-整理算法，不产生内存碎片。</li><li>可以非常精确控制停顿时间，在不牺牲吞吐量前提下，实现低停顿垃圾回收。</li></ol><p>G1是一款面向服务端应用的垃圾收集器。</p><ul><li>并行与并发</li><li>分代收集</li><li>空间整合</li><li>可预测的停顿</li></ul><p>G1把堆内存划分为分为多个大小相等的独立区域（Region），虽然还保留有新生代和老年代的概念，但是新生代和老年代不再是物理隔离的了，而是一部分Region(不需要连续)的集合。<br><strong>G1跟踪各个Region里面的垃圾堆积的价值大小</strong>(回收所获得的空间大小以及回收所需时间的经验值)，<strong>在后台维护一个优先列表，每次根据允许的收集时间，优先回收价值最大的Region</strong>(这也是Garbage-First名称的由来)。这种使用Rrgion划分内存空间以及有优先级的区域回收方式，保证了G1收集器在有限的时间内可以获取尽可能高的收集效率。</p><p>G1收集器的运作大致可划分为以下几个步骤：</p><ol><li>初始标记</li><li>并发标记</li><li>最终标记</li><li>筛选回收</li></ol>]]></content>
+    
+    <summary type="html">
+    
+      重点了解下CMS、G1收集器
+    
+    </summary>
+    
+      <category term="jvm" scheme="http://blog.linzhongtai.cn/categories/jvm/"/>
+    
+    
+      <category term="jvm" scheme="http://blog.linzhongtai.cn/tags/jvm/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>JVM重温系列之三：Java引用类型</title>
+    <link href="http://blog.linzhongtai.cn/2019/03/JVM%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8B%E4%B8%89%EF%BC%9AJava%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B/"/>
+    <id>http://blog.linzhongtai.cn/2019/03/JVM重温系列之三：Java引用类型/</id>
+    <published>2019-03-27T13:31:32.000Z</published>
+    <updated>2019-03-27T13:31:32.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="强引用"><a href="#强引用" class="headerlink" title="强引用"></a>强引用</h2><p>在 Java 中最常见的就是强引用，把一个对象赋给一个引用变量，这个引用变量就是一个强引用。当一个对象被强引用变量引用时，它处于可达状态，它是不可能被垃圾回收机制回收的，即使该对象以后永远都不会被用到 JVM 也不会回收。因此强引用是造成 Java 内存泄漏的主要原因之一。</p><h2 id="软引用"><a href="#软引用" class="headerlink" title="软引用"></a>软引用</h2><p>软引用需要用 SoftReference 类来实现，对于只有软引用的对象来说，当系统内存足够时它不会被回收，当系统内存空间不足时它会被回收。软引用通常用在对内存敏感的程序中。</p><h2 id="弱引用"><a href="#弱引用" class="headerlink" title="弱引用"></a>弱引用</h2><p>弱引用需要用 WeakReference 类来实现，它比软引用的生存期更短，对于只有弱引用的对象来说，只要垃圾回收机制一运行，不管 JVM 的内存空间是否足够，总会回收该对象占用的内存。</p><h2 id="虚引用"><a href="#虚引用" class="headerlink" title="虚引用"></a>虚引用</h2><p>虚引用需要 PhantomReference 类来实现，它不能单独使用，必须和引用队列联合使用。虚引用的主要作用是跟踪对象被垃圾回收的状态。</p>]]></content>
+    
+    <summary type="html">
+    
+      强软弱虚
+    
+    </summary>
+    
+      <category term="jvm" scheme="http://blog.linzhongtai.cn/categories/jvm/"/>
+    
+    
+      <category term="jvm" scheme="http://blog.linzhongtai.cn/tags/jvm/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>JVM重温系列之二：垃圾回收与算法</title>
+    <link href="http://blog.linzhongtai.cn/2019/03/JVM%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8B%E4%BA%8C%EF%BC%9A%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
+    <id>http://blog.linzhongtai.cn/2019/03/JVM重温系列之二：垃圾回收与算法/</id>
+    <published>2019-03-27T13:30:19.000Z</published>
+    <updated>2019-03-27T13:30:19.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="http://upload-images.jianshu.io/upload_images/5937589-7184030af256a415.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p><h2 id="如何确定垃圾"><a href="#如何确定垃圾" class="headerlink" title="如何确定垃圾"></a>如何确定垃圾</h2><h3 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h3><p>在 Java 中，引用和对象是有关联的。如果要操作对象则必须用引用进行。因此，很显然一个简单的办法是通过引用计数来判断一个对象是否可以回收。<br><strong>每个对象有一个引用计数属性，新增一个引用时计数加1，引用释放时计数减1，计数为0时可以回收。此方法简单，无法解决对象相互循环引用的问题。</strong></p><h3 id="可达性分析"><a href="#可达性分析" class="headerlink" title="可达性分析"></a>可达性分析</h3><p>从GC Roots开始向下搜索，搜索所走过的路径称为引用链。当一个对象到GC Roots没有任何引用链相连时，则证明此对象是不可用的。不可达对象。</p><p>在Java语言中，GC Roots包括：</p><ul><li>虚拟机栈中引用的对象。</li><li>方法区中类静态属性实体引用的对象。</li><li>方法区中常量引用的对象。</li><li>本地方法栈中JNI引用的对象。</li></ul><p><strong>要注意的是，不可达对象不等价于可回收对象，不可达对象变为可回收对象至少要经过两次标记过程。两次标记后仍然是可回收对象，则将面临回收。</strong></p><h2 id="标记-清除算法"><a href="#标记-清除算法" class="headerlink" title="标记-清除算法"></a>标记-清除算法</h2><p>“标记-清除”（Mark-Sweep）算法，如它的名字一样，算法分为“标记”和“清除”两个阶段：首先标记出所有需要回收的对象，在标记完成后统一回收掉所有被标记的对象。之所以说它是最基础的收集算法，是因为后续的收集算法都是基于这种思路并对其缺点进行改进而得到的。<br>主要缺点有两个：一个是<strong>效率问题，标记和清除过程的效率都不高</strong>；另外一个是<strong>空间问题，标记清除之后会产生大量不连续的内存碎片</strong>，空间碎片太多可能会导致，当程序在以后的运行过程中需要分配较大对象时无法找到足够的连续内存而不得不提前触发另一次垃圾收集动作。<br><img src="http://upload-images.jianshu.io/upload_images/5937589-f7a1f6e35a3a742a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p><h2 id="复制算法"><a href="#复制算法" class="headerlink" title="复制算法"></a>复制算法</h2><p>“复制”（Copying）的收集算法，它将可用内存按容量划分为大小相等的两块，每次只使用其中的一块。当这一块的内存用完了，就将还存活着的对象复制到另外一块上面，然后再把已使用过的内存空间一次清理掉。<br>这种算法虽然<strong>实现简单，内存效率高，不易产生碎片</strong>，但是最大的问题是<strong>可用内存被压缩到了原本的一半</strong>。且存活对象增多的话，Copying 算法的效率会大大降低。<br>[图片上传失败…(image-580a95-1553689761459)]</p><h2 id="标记-整理算法"><a href="#标记-整理算法" class="headerlink" title="标记-整理算法"></a>标记-整理算法</h2><p>标记过程仍然与“标记-清除”算法一样，但后续步骤不是直接对可回收对象进行清理，而是让所有存活的对象都向一端移动，然后直接清理掉端边界以外的内存。<br>[图片上传失败…(image-26ac3c-1553689761459)]</p><h2 id="分代收集算法"><a href="#分代收集算法" class="headerlink" title="分代收集算法"></a>分代收集算法</h2><p>GC分代的基本假设：绝大部分对象的生命周期都非常短暂，存活时间短。<br>“分代收集”（Generational Collection）算法，把Java堆分为新生代和老年代，这样就可以根据各个年代的特点采用最适当的收集算法。在新生代中，每次垃圾收集时都发现有大批对象死去，只有少量存活，那就选用复制算法，只需要付出少量存活对象的复制成本就可以完成收集。而老年代中因为对象存活率高、没有额外空间对它进行分配担保，就必须使用“标记-清理”或“标记-整理”算法来进行回收。</p><h2 id="内存分配与回收策略"><a href="#内存分配与回收策略" class="headerlink" title="内存分配与回收策略"></a>内存分配与回收策略</h2><ol><li>对象优先在Eden区分配<br>大多数情况下，对象在新生代Eden区分配。当Eden区没有足够的空间进行分配时，虚拟机将发起一次MinorGC。</li><li>大对象直接进入老年代<br>所谓的大对象，指的是需要大量连续内存空间的Java对象，典型的大对象就是那种很长的字符串或数组。</li><li>长期存活的对象将进入老年代（-XX:MaxTenuringThreshold）<br>当对象在 Survivor 区躲过一次 GC 后，其年龄就会+1。默认情况下年龄到达 15 的对象会被移到老生代中。</li><li>动态年龄判断<br>如果在Survivor空间中相同年龄的所有对象大小的总和大于Survivor空间的一半，年龄大于或等于该年龄的对象就直接进入老年代，无须等到MaxTenuringThreshold中要求的年龄</li><li>空间分配担保<br>虚拟机会先检查老年代最大可用的连续空间是否大于新生代所有对象总空间，如果这个条件成立，那么Minor GC可以确保是安全的。如果不成立，则虚拟机会查看HandlePromotionFailure设置值是否允许担保失败。如果允许，那么会继续检查老年代最大可用的连续空间是否大于历次晋升到老年代对象的平均大小，如果大于，将尝试着进行一次Minor GC，尽管这次的Minor GC是有风险的；如果小于，或者HandlePromotionFailure设置不允许冒险，那这时也要改为进行一次Full GC。</li></ol><blockquote><p>Minor GC与Full GC有什么不一样？</p></blockquote><ul><li>新生代GC（MinorGC）：指发生在新生代的垃圾收集动作，因为Java对象大都具备朝生夕灭的特性，所以Minor GC 非常频繁，一般回收速度也比较快；</li><li>老年代GC（Major GC / Full GC）：指发生在老年代的GC，出现了Major GC，经常会伴随至少一次的Minor GC（但非绝对的，在Parallel Scavenge收集器的收集策略里就有直接进行Major GC的策略选择过程）。Major GC的速度一般会比Minor GC慢10倍以上。</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      新生代-复制算法，老年代-标记-清除/整理算法
+    
+    </summary>
+    
+      <category term="jvm" scheme="http://blog.linzhongtai.cn/categories/jvm/"/>
+    
+    
+      <category term="jvm" scheme="http://blog.linzhongtai.cn/tags/jvm/"/>
+    
+  </entry>
   
   <entry>
     <title>JVM重温系列之一：内存区域</title>
@@ -395,72 +461,6 @@
       <category term="JAVA" scheme="http://blog.linzhongtai.cn/tags/JAVA/"/>
     
       <category term="Collection" scheme="http://blog.linzhongtai.cn/tags/Collection/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>MySQL两种引擎的区别</title>
-    <link href="http://blog.linzhongtai.cn/2018/05/MySQL%E4%B8%A4%E7%A7%8D%E5%BC%95%E6%93%8E%E7%9A%84%E5%8C%BA%E5%88%AB/"/>
-    <id>http://blog.linzhongtai.cn/2018/05/MySQL两种引擎的区别/</id>
-    <published>2018-05-11T02:58:59.000Z</published>
-    <updated>2018-05-11T02:58:59.000Z</updated>
-    
-    <content type="html"><![CDATA[<a id="more"></a><h2 id="Innodb引擎"><a href="#Innodb引擎" class="headerlink" title="Innodb引擎"></a>Innodb引擎</h2><p>Innodb引擎提供了对数据库ACID事务的支持，并且实现了SQL标准的四种隔离级别。该引擎还提供了行级锁和外键约束，它的设计目标是处理大容量数据库系统，它本身其实就是基于MySQL后台的完整数据库系统，MySQL运行时Innodb会在内存中建立缓冲池，用于缓冲数据和索引。但是该引擎不支持FULLTEXT类型的索引，而且它没有保存表的行数，当SELECT COUNT(*) FROM TABLE时需要扫描全表。当需要使用数据库事务时，该引擎当然是首选。由于锁的粒度更小，写操作不会锁定全表，所以在并发较高时，使用Innodb引擎会提升效率。但是使用行级锁也不是绝对的，如果在执行一个SQL语句时MySQL不能确定要扫描的范围，InnoDB表同样会锁全表。</p><h2 id="MyISAM引擎"><a href="#MyISAM引擎" class="headerlink" title="MyISAM引擎"></a>MyISAM引擎</h2><p>MyISAM是MySQL默认的引擎，但是它没有提供对数据库事务的支持，也不支持行级锁和外键，因此当INSERT(插入)或UPDATE(更新)数据时即写操作需要锁定整个表，效率便会低一些。不过和Innodb不同，MyISAM中存储了表的行数，于是SELECT COUNT(*) FROM TABLE时只需要直接读取已经保存好的值而不需要进行全表扫描。如果表的读操作远远多于写操作且不需要数据库事务的支持，那么MyISAM也是很好的选择。</p><h2 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h2><ol><li><p>MyISAM是非事务安全的，而InnoDB是事务安全的</p></li><li><p>MyISAM锁的粒度是表级的，而InnoDB支持行级锁</p></li><li><p>MyISAM支持全文类型索引，而InnoDB不支持全文索引</p></li><li><p>MyISAM相对简单，效率上要优于InnoDB，小型应用可以考虑使用MyISAM</p></li><li><p>MyISAM表保存成文件形式，跨平台使用更加方便</p></li></ol><h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><ol><li>MyIASM管理非事务表，提供高速存储和检索以及全文搜索能力，如果再应用中执行大量select操作，应该选择MyIASM</li><li>InnoDB用于事务处理，具有ACID事务支持等特性，如果在应用中执行大量insert和update操作，应该选择InnoDB</li></ol><p>摘抄：<a href="https://blog.csdn.net/ls5718/article/details/52248040" target="_blank" rel="noopener">MySQL两种引擎的区别</a></p>]]></content>
-    
-    <summary type="html">
-    
-      Innodb、MyISAM
-    
-    </summary>
-    
-      <category term="Mysql" scheme="http://blog.linzhongtai.cn/categories/Mysql/"/>
-    
-    
-      <category term="Mysql" scheme="http://blog.linzhongtai.cn/tags/Mysql/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Redis主从复制</title>
-    <link href="http://blog.linzhongtai.cn/2018/05/Redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/"/>
-    <id>http://blog.linzhongtai.cn/2018/05/Redis主从复制/</id>
-    <published>2018-05-10T14:44:20.000Z</published>
-    <updated>2018-05-10T14:44:20.000Z</updated>
-    
-    <content type="html"><![CDATA[<a id="more"></a><h2 id="配置从库，不配主库"><a href="#配置从库，不配主库" class="headerlink" title="配置从库，不配主库"></a>配置从库，不配主库</h2><h2 id="从库配置：slaveof-主库ip-主库端口"><a href="#从库配置：slaveof-主库ip-主库端口" class="headerlink" title="从库配置：slaveof 主库ip 主库端口"></a>从库配置：slaveof <strong>主库ip</strong> <strong>主库端口</strong></h2><p>每次与master断开后，都需要重新连接，除非配置redis.conf文件</p><h2 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h2><h2 id="常用3招"><a href="#常用3招" class="headerlink" title="常用3招"></a>常用3招</h2><ul><li>一主二仆</li><li>薪火相传</li><li>反客为主（slaveof no one）</li></ul><h2 id="复制原理"><a href="#复制原理" class="headerlink" title="复制原理"></a>复制原理</h2><p>salve 启动成功连接到master后会发送一个sync命令，master接到命令后启动后台的存盘进程，同时收集所有接收到的用于修改数据集命令，进程执行完毕后，master将传送整个数据文件到slave，以完成一次完全同步，也就是<strong>全量复制</strong>，而slave服务在接收到数据后，存盘到内存中；master将新的修改命令依次传给slave，完成同步，此时为<strong>增量复制</strong></p><blockquote><p>只要重新连接master，一次完全同步（全量复制）将被自动执行</p></blockquote><h2 id="哨兵模式"><a href="#哨兵模式" class="headerlink" title="哨兵模式"></a>哨兵模式</h2><blockquote><p>反客为主的自动版本，监控主机是否故障，当主库挂了，根据投票数重新选定master</p></blockquote><ul><li>新建sentinel.conf</li><li><p>配置文件内容</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sentinel monitor 自定义名称 监控库ip 监控库端口 1</span><br></pre></td></tr></table></figure></li><li><p>启动哨兵</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-sentinel /usr/local/redis/sentinel.conf</span><br></pre></td></tr></table></figure></li></ul><p>自动监控，选好新master后，原master恢复后会变成slave</p><blockquote><p>一组sentinel可以同时监控多个master</p></blockquote><h2 id="复制的缺点"><a href="#复制的缺点" class="headerlink" title="复制的缺点"></a>复制的缺点</h2><p>由于所有的写操作都在master上，然后同步更新到slave上，所以从master同步到slave   机器有一定的延迟，当系统很繁忙的时候，延迟问题会更加严重，slave机器数量的增加也会使得这个问题更加严重</p>]]></content>
-    
-    <summary type="html">
-    
-      一主二仆/薪火相传/反客为主...
-    
-    </summary>
-    
-      <category term="redis" scheme="http://blog.linzhongtai.cn/categories/redis/"/>
-    
-    
-      <category term="redis" scheme="http://blog.linzhongtai.cn/tags/redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Redis持久化存储</title>
-    <link href="http://blog.linzhongtai.cn/2018/05/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%98%E5%82%A8/"/>
-    <id>http://blog.linzhongtai.cn/2018/05/Redis持久化存储/</id>
-    <published>2018-05-09T13:14:11.000Z</published>
-    <updated>2018-05-09T13:14:11.000Z</updated>
-    
-    <content type="html"><![CDATA[<a id="more"></a><h2 id="Redis中数据存储模式"><a href="#Redis中数据存储模式" class="headerlink" title="Redis中数据存储模式"></a>Redis中数据存储模式</h2><blockquote><p>cache-only<br>persistence</p></blockquote><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cache-only：只做为“缓存”服务，不持久数据，数据在服务终止后将消失，</span><br><span class="line">此模式下也将不存在“数据恢复”的手段，是一种安全性低/效率高/容易扩展的方式；</span><br><span class="line">persistence：为内存中的数据持久备份到磁盘文件，在服务重启后可以恢复，</span><br><span class="line">此模式下数据相对安全。</span><br></pre></td></tr></table></figure><p>对于persistence持久化存储，Redis提供了两种持久化方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Redis DataBase(简称RDB)</span><br><span class="line">Append-only file (简称AOF)</span><br></pre></td></tr></table></figure></p><blockquote><p>如果同时开启两种持久化，会优先加载AOF进行恢复</p></blockquote><h2 id="RDB持久化：默认开启"><a href="#RDB持久化：默认开启" class="headerlink" title="RDB持久化：默认开启"></a>RDB持久化：默认开启</h2><blockquote><p>指定时间间隔进行快照存储</p></blockquote><p>优点：使用单独子进程来进行持久化，主进程不会进行任何IO操作，保证了redis的高性能<br>缺点：RDB是间隔一段时间进行持久化，如果持久化之间redis发生故障，会发生数据丢失。所以这种方式更适合数据要求不严谨的时候</p><ul><li>save：服务器进程进行快照存储（阻塞）</li><li>bgsave：进行异步快照存储（派生子进程处理，非阻塞）</li><li>异常恢复：redis-check-rdb<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">#dbfilename：持久化数据存储在本地的文件</span><br><span class="line">dbfilename dump.rdb</span><br><span class="line">#dir：持久化数据存储在本地的路径，如果是在/redis/redis-3.0.6/src下</span><br><span class="line">启动的redis-cli，则数据会存储在当前src目录下</span><br><span class="line">dir ./</span><br><span class="line">##snapshot触发的时机，save &lt;seconds&gt; &lt;changes&gt;  </span><br><span class="line">##如下为900秒后，至少有一个变更操作，才会snapshot  </span><br><span class="line">##对于此值的设置，</span><br><span class="line">需要谨慎，评估系统的变更操作密集程度  </span><br><span class="line">##可以通过save “”来关闭snapshot功能  </span><br><span class="line">#持久化(以快照的方式) 策略（默认）</span><br><span class="line">save 900 1       （15分钟变更一次）</span><br><span class="line">save 300 10     （5分钟变更10次）</span><br><span class="line">save 60 10000  （1分钟变更1万次）</span><br><span class="line">##当snapshot时出现错误无法继续时，是否阻塞客户端“变更操作”，</span><br><span class="line">“错误”可能因为磁盘已满/磁盘故障/OS级别异常等  </span><br><span class="line">stop-writes-on-bgsave-error yes  </span><br><span class="line">##是否启用rdb文件压缩，默认为“yes”，压缩往往意味着“额外的cpu消耗”，</span><br><span class="line">同时也意味这较小的文件尺寸以及较短的网络传输时间  </span><br><span class="line">rdbcompression yes</span><br></pre></td></tr></table></figure></li></ul><h2 id="AOF持久化：默认不开启"><a href="#AOF持久化：默认不开启" class="headerlink" title="AOF持久化：默认不开启"></a>AOF持久化：默认不开启</h2><blockquote><p>以日志的形式来记录每个写操作，将redis执行过的所有写指令记录下来（读操作不记录），只许追加但不可以改写文件，redis启动之初会读取改文件进行重新构建数据</p></blockquote><ul><li>AOF通过保存所有修改数据库的写命令请求来记录服务器的数据库状态</li><li><p>AOF文件中的所有命令都会以Redis命令请求协议的格式保存<br>优点：可以保持更高的数据完整性，如果设置追加file的时间是1s，如果redis发生故障，最多会丢失1s的数据（appendfsync—&gt;everysec）；且如果日志写入不完整支持redis-check-aof来进行日志修复；AOF文件没被rewrite之前（文件过大时会对命令进行合并重写），可以删除其中的某些命令（比如误操作的flushall）。<br>缺点：AOF文件比RDB文件大，且恢复速度慢，运行效率也比rdb慢。</p><h3 id="重写机制"><a href="#重写机制" class="headerlink" title="重写机制"></a>重写机制</h3><blockquote><p>当超过阈值，则启动内容压缩，只保留最小指令集，可使用命令：bgrewriteaof</p></blockquote></li><li><p>定义：AOF采用文件追加的方式持久化数据，所以文件会越来越大，为了避免这种情况发生，增加了重写机制<br>当AOF文件的大小超过了配置所设置的阙值时，Redis就会启动AOF文件压缩，只保留可以恢复数据的最小指令集，可以使用命令bgrewriteaof</p></li><li>原理：当AOF增长过大时，会fork出一条新的进程将文件重写(也是先写临时文件最后rename)，遍历新进程的内存数据，每条记录有一条set语句。<br>重写AOF文件并没有操作旧的AOF文件，而是将整个内存中的数据内容用命令的方式重写了一个新的aof文件（有点类似快照）</li><li>触发机制：Redis会记录上次重写时的AOF文件大小，默认配置时当AOF文件大小是上次rewrite后大小的一倍且文件大于64M时触发<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">auto-aof-rewrite-percentage 100  （一倍）</span><br><span class="line">auto-aof-rewrite-min-size 64mb</span><br></pre></td></tr></table></figure></li></ul><h3 id="持久化策略"><a href="#持久化策略" class="headerlink" title="持久化策略"></a>持久化策略</h3><ul><li>appendfsync always (同步持久化，每次发生数据变更会被立即记录到磁盘，性能差但数据完整性比较好)</li><li>appendfsync everysec (异步操作，每秒记录，如果一秒钟内宕机，有数据丢失)</li><li>appendfsync no  （将缓存回写的策略交给系统，linux 默认是30秒将缓冲区的数据回写硬盘的）<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">##此选项为aof功能的开关，默认为“no”，可以通过“yes”来开启aof功能  </span><br><span class="line">##只有在“yes”下，aof重写/文件同步等特性才会生效  </span><br><span class="line">appendonly yes  </span><br><span class="line"></span><br><span class="line">##指定aof文件名称  </span><br><span class="line">appendfilename appendonly.aof  </span><br><span class="line"></span><br><span class="line">##指定aof操作中文件同步策略，有三个合法值：always(记录立即同步，性能较差) everysec(每秒同步，官方推荐) no(将缓存回写的策略交给系统，linux 默认是30秒将缓冲区的数据回写硬盘的)，默认为everysec  </span><br><span class="line">appendfsync everysec  </span><br><span class="line">##在aof-rewrite期间，appendfsync是否暂缓文件同步，&quot;no&quot;表示“不暂缓”，“yes”表示“暂缓”，默认为“no”  </span><br><span class="line">no-appendfsync-on-rewrite no  </span><br><span class="line"></span><br><span class="line">##aof文件rewrite触发的最小文件尺寸(mb,gb),只有大于此aof文件大于此尺寸是才会触发rewrite，默认“64mb”  </span><br><span class="line">auto-aof-rewrite-min-size 64mb  </span><br><span class="line"></span><br><span class="line">##相对于“上一次”rewrite，本次rewrite触发时aof文件应该增长的百分比。  </span><br><span class="line">##每一次rewrite之后，redis都会记录下此时“新aof”文件的大小(例如A)，那么当aof文件增长到A*(1 + p)之后  </span><br><span class="line">##触发下一次rewrite，每一次aof记录的添加，都会检测当前aof文件的尺寸。  </span><br><span class="line">auto-aof-rewrite-percentage 100</span><br></pre></td></tr></table></figure></li></ul><h2 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h2><ul><li>RDB与AOF同时开启  默认先加载AOF的配置文件</li><li>相同数据集，AOF文件要远大于RDB文件，恢复速度慢于RDB</li><li>AOF运行效率慢于RDB,但是同步策略效率好，不同步效率和RDB相同</li></ul>]]></content>
-    
-    <summary type="html">
-    
-      AOF、RDB
-    
-    </summary>
-    
-      <category term="redis" scheme="http://blog.linzhongtai.cn/categories/redis/"/>
-    
-    
-      <category term="redis" scheme="http://blog.linzhongtai.cn/tags/redis/"/>
     
   </entry>
   

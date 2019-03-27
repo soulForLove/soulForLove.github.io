@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2018/12/最近/
+http://blog.linzhongtai.cn/2019/03/JVM重温系列之一：内存区域/

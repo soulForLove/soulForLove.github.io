@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2019/03/JVM重温系列之五：类加载机制/
+http://blog.linzhongtai.cn/2019/03/重温系列之Java集合/

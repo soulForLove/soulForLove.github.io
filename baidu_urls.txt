@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2019/03/JVM重温系列之四：GC垃圾收集器/
+http://blog.linzhongtai.cn/2019/03/JVM重温系列之五：类加载机制/

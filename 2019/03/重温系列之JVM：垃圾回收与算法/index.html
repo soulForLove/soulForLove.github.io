@@ -93,7 +93,7 @@
 <link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css">
 
 
-  <meta name="keywords" content="jvm,重温,">
+  <meta name="keywords" content="Hexo, NexT">
 
 
 
@@ -111,20 +111,19 @@
 
 
 
-<meta name="description" content="新生代-复制算法，老年代-标记-清除/整理算法">
-<meta name="keywords" content="jvm,重温">
+<meta name="description" content="title: 重温系列之JVM：垃圾回收与算法date: 2019-03-27 21:30:19updated: 2019-03-27 21:30:19categories: jvmtags: [jvm,重温]description: 新生代-复制算法，老年代-标记-清除/整理算法copyright: truecomments: true— 如何确定垃圾引用计数法在 Java 中，引用和对象是有">
 <meta property="og:type" content="article">
-<meta property="og:title" content="重温系列之JVM：垃圾回收与算法">
+<meta property="og:title" content="林林总总">
 <meta property="og:url" content="http://blog.linzhongtai.cn/2019/03/重温系列之JVM：垃圾回收与算法/index.html">
 <meta property="og:site_name" content="林林总总">
-<meta property="og:description" content="新生代-复制算法，老年代-标记-清除/整理算法">
+<meta property="og:description" content="title: 重温系列之JVM：垃圾回收与算法date: 2019-03-27 21:30:19updated: 2019-03-27 21:30:19categories: jvmtags: [jvm,重温]description: 新生代-复制算法，老年代-标记-清除/整理算法copyright: truecomments: true— 如何确定垃圾引用计数法在 Java 中，引用和对象是有">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/5937589-7184030af256a415.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/5937589-f7a1f6e35a3a742a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-03-27T13:30:19.000Z">
+<meta property="og:updated_time" content="2019-03-28T07:48:06.781Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="重温系列之JVM：垃圾回收与算法">
-<meta name="twitter:description" content="新生代-复制算法，老年代-标记-清除/整理算法">
+<meta name="twitter:title" content="林林总总">
+<meta name="twitter:description" content="title: 重温系列之JVM：垃圾回收与算法date: 2019-03-27 21:30:19updated: 2019-03-27 21:30:19categories: jvmtags: [jvm,重温]description: 新生代-复制算法，老年代-标记-清除/整理算法copyright: truecomments: true— 如何确定垃圾引用计数法在 Java 中，引用和对象是有">
 <meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/5937589-7184030af256a415.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
 
@@ -159,7 +158,7 @@
 
 
 
-  <title>重温系列之JVM：垃圾回收与算法 | 林林总总</title>
+  <title> | 林林总总</title>
   
 
 
@@ -367,7 +366,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">重温系列之JVM：垃圾回收与算法</h1>
+          <h1 class="post-title" itemprop="name headline"></h1>
         
 
         <div class="post-meta">
@@ -390,28 +389,6 @@
           </span>
 
           
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/jvm/" itemprop="url" rel="index">
-                    <span itemprop="name">jvm</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
 
           
             
@@ -432,10 +409,6 @@
           
 
           
-              <div class="post-description">
-                  新生代-复制算法，老年代-标记-清除/整理算法
-              </div>
-          
 
         </div>
       </header>
@@ -447,7 +420,8 @@
       
 
       
-        <p><img src="http://upload-images.jianshu.io/upload_images/5937589-7184030af256a415.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
+        <hr>
+<p>title: 重温系列之JVM：垃圾回收与算法<br>date: 2019-03-27 21:30:19<br>updated: 2019-03-27 21:30:19<br>categories: jvm<br>tags: [jvm,重温]<br>description: 新生代-复制算法，老年代-标记-清除/整理算法<br>copyright: true<br>comments: true<br>—<img src="http://upload-images.jianshu.io/upload_images/5937589-7184030af256a415.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p>
 <h2 id="如何确定垃圾"><a href="#如何确定垃圾" class="headerlink" title="如何确定垃圾"></a>如何确定垃圾</h2><h3 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h3><p>在 Java 中，引用和对象是有关联的。如果要操作对象则必须用引用进行。因此，很显然一个简单的办法是通过引用计数来判断一个对象是否可以回收。<br><strong>每个对象有一个引用计数属性，新增一个引用时计数加1，引用释放时计数减1，计数为0时可以回收。此方法简单，无法解决对象相互循环引用的问题。</strong></p>
 <h3 id="可达性分析"><a href="#可达性分析" class="headerlink" title="可达性分析"></a>可达性分析</h3><p>从GC Roots开始向下搜索，搜索所走过的路径称为引用链。当一个对象到GC Roots没有任何引用链相连时，则证明此对象是不可用的。不可达对象。</p>
 <p>在Java语言中，GC Roots包括：</p>
@@ -462,7 +436,14 @@
 <h2 id="复制算法"><a href="#复制算法" class="headerlink" title="复制算法"></a>复制算法</h2><p>“复制”（Copying）的收集算法，它将可用内存按容量划分为大小相等的两块，每次只使用其中的一块。当这一块的内存用完了，就将还存活着的对象复制到另外一块上面，然后再把已使用过的内存空间一次清理掉。<br>这种算法虽然<strong>实现简单，内存效率高，不易产生碎片</strong>，但是最大的问题是<strong>可用内存被压缩到了原本的一半</strong>。且存活对象增多的话，Copying 算法的效率会大大降低。<br>[图片上传失败…(image-580a95-1553689761459)]</p>
 <h2 id="标记-整理算法"><a href="#标记-整理算法" class="headerlink" title="标记-整理算法"></a>标记-整理算法</h2><p>标记过程仍然与“标记-清除”算法一样，但后续步骤不是直接对可回收对象进行清理，而是让所有存活的对象都向一端移动，然后直接清理掉端边界以外的内存。<br>[图片上传失败…(image-26ac3c-1553689761459)]</p>
 <h2 id="分代收集算法"><a href="#分代收集算法" class="headerlink" title="分代收集算法"></a>分代收集算法</h2><p>GC分代的基本假设：绝大部分对象的生命周期都非常短暂，存活时间短。<br>“分代收集”（Generational Collection）算法，把Java堆分为新生代和老年代，这样就可以根据各个年代的特点采用最适当的收集算法。在新生代中，每次垃圾收集时都发现有大批对象死去，只有少量存活，那就选用复制算法，只需要付出少量存活对象的复制成本就可以完成收集。而老年代中因为对象存活率高、没有额外空间对它进行分配担保，就必须使用“标记-清理”或“标记-整理”算法来进行回收。</p>
-<h2 id="内存分配与回收策略"><a href="#内存分配与回收策略" class="headerlink" title="内存分配与回收策略"></a>内存分配与回收策略</h2><ol>
+<h2 id="内存分配与回收策略"><a href="#内存分配与回收策略" class="headerlink" title="内存分配与回收策略"></a>内存分配与回收策略</h2><h3 id="内存分配的2种方式："><a href="#内存分配的2种方式：" class="headerlink" title="内存分配的2种方式："></a>内存分配的2种方式：</h3><blockquote>
+<p><strong>选择哪种分配方式由Java堆是否规整决定，而Java堆是否规整又由所采用的垃圾收集器是否带有压缩整理功能决定</strong></p>
+</blockquote>
+<ul>
+<li><strong>指针碰撞</strong><br>Java堆中内存是绝对规整的，所有用过的内存都放在一边，空闲的内存放在另一边，中间放着一个指针作为分界点的指示器，那所分配内存就仅仅是把那个指针向空闲空间那边挪动一段与对象大小相等的距离</li>
+<li><strong>空闲列表</strong><br>Java堆中的内存并不是规整的，已使用的内存和空闲的内存相互交错，那就没有办法简单地进行指针碰撞了，虚拟机就必须维护一个列表，记录上哪些内存块是可用的，在分配的时候从列表中找到一块足够大的空间划分给对象实例，并更新列表上的记录<h3 id="回收策略"><a href="#回收策略" class="headerlink" title="回收策略"></a>回收策略</h3></li>
+</ul>
+<ol>
 <li>对象优先在Eden区分配<br>大多数情况下，对象在新生代Eden区分配。当Eden区没有足够的空间进行分配时，虚拟机将发起一次MinorGC。</li>
 <li>大对象直接进入老年代<br>所谓的大对象，指的是需要大量连续内存空间的Java对象，典型的大对象就是那种很长的字符串或数组。</li>
 <li>长期存活的对象将进入老年代（-XX:MaxTenuringThreshold）<br>当对象在 Survivor 区躲过一次 GC 后，其年龄就会+1。默认情况下年龄到达 15 的对象会被移到老生代中。</li>
@@ -493,37 +474,6 @@
     <div>
           
             
-<div class="my_post_copyright">
-  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
-
-  <!-- JS库 sweetalert 可修改路径 -->
-  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
-  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
-  <p><span>本文标题:</span><a href="/2019/03/重温系列之JVM：垃圾回收与算法/">重温系列之JVM：垃圾回收与算法</a></p>
-  <p><span>文章作者:</span><a href="/" title="访问 Soul 的个人博客">Soul</a></p>
-  <p><span>发布时间:</span>2019年03月27日 - 21:03</p>
-  <p><span>最后更新:</span>2019年03月27日 - 21:03</p>
-  <p><span>原始链接:</span><a href="/2019/03/重温系列之JVM：垃圾回收与算法/" title="重温系列之JVM：垃圾回收与算法">http://blog.linzhongtai.cn/2019/03/重温系列之JVM：垃圾回收与算法/</a>
-    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://blog.linzhongtai.cn/2019/03/重温系列之JVM：垃圾回收与算法/" aria-label="复制成功！"></i></span>
-  </p>
-  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
-</div>
-<script> 
-    var clipboard = new Clipboard('.fa-clipboard');
-    clipboard.on('success', $(function(){
-      $(".fa-clipboard").click(function(){
-        swal({   
-          title: "",   
-          text: '复制成功',   
-          html: false,
-          timer: 500,   
-          showConfirmButton: false
-        });
-      });
-    }));  
-</script>
-
           
     </div>
     
@@ -570,14 +520,6 @@
     </div>
 
     <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/jvm/" rel="tag"># jvm</a>
-          
-            <a href="/tags/重温/" rel="tag"># 重温</a>
-          
-        </div>
       
 
       
@@ -798,7 +740,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#如何确定垃圾"><span class="nav-number">1.</span> <span class="nav-text">如何确定垃圾</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#引用计数法"><span class="nav-number">1.1.</span> <span class="nav-text">引用计数法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可达性分析"><span class="nav-number">1.2.</span> <span class="nav-text">可达性分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#标记-清除算法"><span class="nav-number">2.</span> <span class="nav-text">标记-清除算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#复制算法"><span class="nav-number">3.</span> <span class="nav-text">复制算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#标记-整理算法"><span class="nav-number">4.</span> <span class="nav-text">标记-整理算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分代收集算法"><span class="nav-number">5.</span> <span class="nav-text">分代收集算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存分配与回收策略"><span class="nav-number">6.</span> <span class="nav-text">内存分配与回收策略</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#如何确定垃圾"><span class="nav-number">1.</span> <span class="nav-text">如何确定垃圾</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#引用计数法"><span class="nav-number">1.1.</span> <span class="nav-text">引用计数法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可达性分析"><span class="nav-number">1.2.</span> <span class="nav-text">可达性分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#标记-清除算法"><span class="nav-number">2.</span> <span class="nav-text">标记-清除算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#复制算法"><span class="nav-number">3.</span> <span class="nav-text">复制算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#标记-整理算法"><span class="nav-number">4.</span> <span class="nav-text">标记-整理算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分代收集算法"><span class="nav-number">5.</span> <span class="nav-text">分代收集算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存分配与回收策略"><span class="nav-number">6.</span> <span class="nav-text">内存分配与回收策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内存分配的2种方式："><span class="nav-number">6.1.</span> <span class="nav-text">内存分配的2种方式：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#回收策略"><span class="nav-number">6.2.</span> <span class="nav-text">回收策略</span></a></li></ol></li></ol></div>
             
 
           </div>

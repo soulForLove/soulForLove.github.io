@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.linzhongtai.cn/"/>
-  <updated>2019-03-30T12:54:30.000Z</updated>
+  <updated>2019-03-31T05:49:48.000Z</updated>
   <id>http://blog.linzhongtai.cn/</id>
   
   <author>
@@ -15,6 +15,54 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>重温系列之多线程并发：自旋锁</title>
+    <link href="http://blog.linzhongtai.cn/2019/03/%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8B%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%EF%BC%9A%E8%87%AA%E6%97%8B%E9%94%81/"/>
+    <id>http://blog.linzhongtai.cn/2019/03/重温系列之多线程并发：自旋锁/</id>
+    <published>2019-03-31T05:49:48.000Z</published>
+    <updated>2019-03-31T05:49:48.000Z</updated>
+    
+    <content type="html"><![CDATA[<a id="more"></a><blockquote><p>如果持有锁的线程能在很短时间内释放锁资源，那么那些等待竞争锁的线程就不需要做内核态和用户态之间的切换进入阻塞挂起状态，它们只需要等一等（自旋），等持有锁的线程释放锁后即可立即获取锁，这样就避免用户线程和内核的切换的消耗。</p></blockquote><p>自旋锁（spinlock）：是指当一个线程在获取锁的时候，如果锁已经被其它线程获取，那么该线程将循环等待，然后不断的判断锁是否能够被成功获取，直到获取到锁才会退出循环。</p><p>线程自旋是需要消耗cpu的，说白了就是让cpu在做无用功，如果一直获取不到锁，那线程也不能一直占用cpu自旋做无用功，所以需要设定一个自旋等待的最大时间。</p><p>如果持有锁的线程执行的时间超过自旋等待的最大时间扔没有释放锁，就会导致其它争用锁的线程在最大等待时间内还是获取不到锁，这时争用线程会停止自旋进入阻塞状态。</p><h2 id="自旋锁的优缺点"><a href="#自旋锁的优缺点" class="headerlink" title="自旋锁的优缺点"></a>自旋锁的优缺点</h2><ul><li>优点</li></ul><p>自旋锁尽可能的减少线程的阻塞，这对于锁的竞争不激烈，且占用锁时间非常短的代码块来说性能能大幅度的提升，因为自旋的消耗会小于线程阻塞挂起再唤醒的操作的消耗，这些操作会导致线程发生两次上下文切换</p><ul><li>缺点</li></ul><p>如果锁的竞争激烈，或者持有锁的线程需要长时间占用锁执行同步块，这时候就不适合使用自旋锁了，因为<strong>自旋锁在获取锁前一直都是占用 cpu 做无用功</strong>，占着茅坑不 拉屎，同时有大量线程在竞争一个锁，会导致获取锁的时间很长，线程自旋的消耗大于线程阻塞挂起操作的消耗，其它需要cpu的线程又不能获取到cpu，造成 cpu 的浪费，所以这种情况下我们要关闭自旋锁。</p><h2 id="自旋锁时间阈值-1-6-引入了适应性自旋锁"><a href="#自旋锁时间阈值-1-6-引入了适应性自旋锁" class="headerlink" title="自旋锁时间阈值(1.6 引入了适应性自旋锁)"></a>自旋锁时间阈值(1.6 引入了适应性自旋锁)</h2><p>自旋锁的目的是为了占着 CPU 的资源不释放，等到获取到锁立即进行处理。但是如何去选择自旋的执行时间呢？如果自旋执行时间太长，会有大量的线程处于自旋状态占用 CPU 资源，进而会影响整体系统的性能。因此自旋的周期选择额外重要。<br>JVM对于自旋周期的选择，jdk1.5这个限度是一定的写死的，在<strong>1.6引入了适应性自旋锁</strong>，适应性自旋锁意味着自旋的时间不在是固定的了，而是<strong>由前一次在同一个锁上的自旋时间以及锁的拥有者的状态来决定</strong>，基本认为一个线程上下文切换的时间是最佳的一个时间，同时JVM还针对当前CPU的负荷情况做了较多的优化。</p><ol><li>如果平均负载小于CPUs则一直自旋</li><li>如果有超过(CPUs/2)个线程正在自旋，则后来线程直接阻塞</li><li>如果正在自旋的线程发现Owner发生了变化则延迟自旋时间（自旋计数）或进入阻塞</li><li>如果CPU处于节电模式则停止自旋</li><li>自旋时间的最坏情况是CPU的存储延迟（CPU A存储了一个数据，到CPU B得知这个数据直接的时间差）</li><li>自旋时会适当放弃线程优先级之间的差异</li></ol><h2 id="自旋锁的开启"><a href="#自旋锁的开启" class="headerlink" title="自旋锁的开启"></a>自旋锁的开启</h2><ul><li>JDK1.6中-XX:+UseSpinning开启； </li><li>-XX:PreBlockSpin=10 为自旋次数； </li><li>JDK1.7后，去掉此参数，由jvm控制；</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      当一个线程在获取锁的时候，如果锁已经被其它线程获取，那么该线程将循环等待，然后不断的判断锁是否能够被成功获取，直到获取到锁才会退出循环
+    
+    </summary>
+    
+      <category term="并发编程" scheme="http://blog.linzhongtai.cn/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+    
+    
+      <category term="并发编程" scheme="http://blog.linzhongtai.cn/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+    
+      <category term="锁" scheme="http://blog.linzhongtai.cn/tags/%E9%94%81/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>重温系列之多线程并发：乐观锁与悲观锁</title>
+    <link href="http://blog.linzhongtai.cn/2019/03/%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8B%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%EF%BC%9A%E4%B9%90%E8%A7%82%E9%94%81%E4%B8%8E%E6%82%B2%E8%A7%82%E9%94%81/"/>
+    <id>http://blog.linzhongtai.cn/2019/03/重温系列之多线程并发：乐观锁与悲观锁/</id>
+    <published>2019-03-31T05:48:43.000Z</published>
+    <updated>2019-03-31T05:48:43.000Z</updated>
+    
+    <content type="html"><![CDATA[<a id="more"></a><blockquote><p>悲观锁：适合写操作多的场景，先加锁可以保证写操作时数据正确。<br>乐观锁：适合读操作多的场景，不加锁的特点能够使其读操作的性能大幅提升。</p></blockquote><h2 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h2><p><strong>总是假设最好的情况，每次去拿数据的时候都认为不会修改，所以不会上锁，但在更新的时候会判断一下在此期间这个数据有没有更新，可以使用版本号机制和CAS(Compare And Swap)算法实现。</strong><br>乐观锁适用于多读的应用类型，这样可以提高吞吐量，像数据库提供的类似于write_condition机制，其实都是提供的乐观锁。在Java中java.util.concurrent.atomic包下面的原子变量类就是使用了乐观锁的一种实现方式CAS实现的。</p><blockquote><p>乐观锁一般会使用版本号机制或CAS算法实现。</p></blockquote><h3 id="实现方式"><a href="#实现方式" class="headerlink" title="实现方式"></a>实现方式</h3><h4 id="版本号机制"><a href="#版本号机制" class="headerlink" title="版本号机制"></a>版本号机制</h4><p>一般是在数据表中加上一个数据版本号version字段，表示数据被修改的次数，当数据被修改时，version值会加一。当线程A要更新数据值时，在读取数据的同时也会读取version值，在提交更新时，若刚才读取到的version值为当前数据库中的version值相等时才更新，否则重试更新操作，直到更新成功。</p><h4 id="CAS算法"><a href="#CAS算法" class="headerlink" title="CAS算法"></a>CAS算法</h4><ul><li>需要读写的内存值 V</li><li>进行比较的值 A</li><li>要写入的新值 B</li></ul><p><strong>当且仅当 V 的值等于 A时，CAS通过原子方式用新值B来更新V的值，否则不会执行任何操作（比较和替换是一个原子操作）。一般情况下是一个自旋操作，即不断的重试。</strong></p><h3 id="乐观锁的缺点"><a href="#乐观锁的缺点" class="headerlink" title="乐观锁的缺点"></a>乐观锁的缺点</h3><ul><li>ABA 问题</li></ul><p>如果一个变量V初次读取的时候是A值，并且在准备赋值的时候检查到它仍然是A值，那我们就能说明它的值没有被其他线程修改过了吗？很明显是不能的，因为在这段时间它的值可能被改为其他值，然后又改回A，那CAS操作就会误认为它从来没有被修改过。这个问题被称为CAS操作的 “ABA”问题。<br>JDK 1.5 以后的 AtomicStampedReference 类就提供了此种能力，其中的 compareAndSet 方法就是首先检查当前引用是否等于预期引用，并且当前标志是否等于预期标志，如果全部相等，则以原子方式将该引用和该标志的值设置为给定的更新值</p><ul><li>循环时间长开销大</li></ul><p><strong>自旋CAS（也就是不成功就一直循环执行直到成功）如果长时间不成功，会给CPU带来非常大的执行开销</strong></p><ul><li>只能保证一个共享变量的原子操作</li></ul><p><strong>CAS 只对单个共享变量有效，当操作涉及跨多个共享变量时 CAS 无效</strong>。但是从 JDK 1.5开始，提供了AtomicReference类来保证引用对象之间的原子性，你可以把多个变量放在一个对象里来进行 CAS 操作.所以我们可以使用锁或者利用AtomicReference类把多个共享变量合并成一个共享变量来操作</p><h2 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h2><p>总是假设最坏的情况，每次取数据时都认为其他线程会修改，所以都会加锁（读锁、写锁、行锁等），当其他线程想要访问数据时，都需要阻塞挂起。可以依靠数据库实现，如行锁、读锁和写锁等，都是在操作之前加锁，在Java中，synchronized的思想也是悲观锁。</p><h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>synchronized的底层实现主要依靠 Lock-Free 的队列，基本思路是 自旋后阻塞，竞争切换后继续竞争锁，稍微牺牲了公平性，但获得了高吞吐量。在线程冲突较少的情况下，可以获得和CAS类似的性能；而线程冲突严重的情况下，性能远高于CAS。</p>]]></content>
+    
+    <summary type="html">
+    
+      乐观or悲观
+    
+    </summary>
+    
+      <category term="并发编程" scheme="http://blog.linzhongtai.cn/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+    
+    
+      <category term="并发编程" scheme="http://blog.linzhongtai.cn/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+    
+      <category term="锁" scheme="http://blog.linzhongtai.cn/tags/%E9%94%81/"/>
+    
+  </entry>
   
   <entry>
     <title>重温系列之多线程并发：线程方法</title>
@@ -417,54 +465,6 @@
     
     
       <category term="redis" scheme="http://blog.linzhongtai.cn/tags/redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>maven依赖关系中Scope的作用</title>
-    <link href="http://blog.linzhongtai.cn/2018/06/maven%E4%BE%9D%E8%B5%96%E5%85%B3%E7%B3%BB%E4%B8%ADScope%E7%9A%84%E4%BD%9C%E7%94%A8/"/>
-    <id>http://blog.linzhongtai.cn/2018/06/maven依赖关系中Scope的作用/</id>
-    <published>2018-06-22T09:17:05.000Z</published>
-    <updated>2018-06-22T09:17:05.000Z</updated>
-    
-    <content type="html"><![CDATA[<a id="more"></a><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在POM 4中，中还引入了，它主要管理依赖的部署。目前可以使用5个值：</p><ul><li>compile，缺省值，适用于所有阶段，会随着项目一起发布。 </li><li>provided，类似compile，期望JDK、容器或使用者会提供这个依赖。如servlet.jar。 </li><li>runtime，只在运行时使用，如JDBC驱动，适用运行和测试阶段。 </li><li>test，只在测试时使用，用于编译和运行测试代码。不会随项目发布。 </li><li>system，类似provided，需要显式提供包含依赖的jar，Maven不会在Repository中查找它。</li></ul><h2 id="compile-（编译范围）"><a href="#compile-（编译范围）" class="headerlink" title="compile （编译范围）"></a>compile （编译范围）</h2><p>compile是默认的范围；如果没有提供一个范围，那该依赖的范围就是编译范围。编译范围依赖在所有的classpath 中可用,同时它们也会被打包</p><h2 id="provided-（已提供范围）"><a href="#provided-（已提供范围）" class="headerlink" title="provided （已提供范围）"></a>provided （已提供范围）</h2><p>provided 依赖只有在当JDK 或者一个容器已提供该依赖之后才使用。例如， 如果你开发了一个web 应用，你可能在编译classpath 中需要可用的Servlet API 来编译一个servlet，但是你不会想要在打包好的WAR 中包含这个Servlet API；这个Servlet API JAR 由你的应用服务器或者servlet 容器提供。已提供范围的依赖在编译classpath （不是运行时）可用。它们不是传递性的，也不会被打包</p><h2 id="runtime-（运行时范围）"><a href="#runtime-（运行时范围）" class="headerlink" title="runtime （运行时范围）"></a>runtime （运行时范围）</h2><p>runtime依赖在运行和测试系统的时候需要，但在编译的时候不需要。比如，你可能在编译的时候只需要JDBC API JAR，而只有在运行的时候才需要JDBC驱动实现。</p><h2 id="test-（测试范围）"><a href="#test-（测试范围）" class="headerlink" title="test （测试范围）"></a>test （测试范围）</h2><p>test范围依赖 在一般的编译和运行时都不需要，它们只有在测试编译和测试运行阶段可用</p><h2 id="system-（系统范围）"><a href="#system-（系统范围）" class="headerlink" title="system （系统范围）"></a>system （系统范围）</h2><p>system范围依赖与provided 类似，但是你必须显式的提供一个对于本地系统中JAR 文件的路径。这么做是为了允许基于本地对象编译，而这些对象是系统类库的一部分。这样的构件应该是一直可用的，Maven也不会在仓库中去寻找它。如果你将一个依赖范围设置成系统范围，你必须同时提供一个 systemPath 元素。注意该范围是不推荐使用的（你应该一直尽量去从公共或定制的 Maven 仓库中引用依赖）</p>]]></content>
-    
-    <summary type="html">
-    
-      compile/system/test/runtime/provided
-    
-    </summary>
-    
-      <category term="Maven" scheme="http://blog.linzhongtai.cn/categories/Maven/"/>
-    
-    
-      <category term="小知识" scheme="http://blog.linzhongtai.cn/tags/%E5%B0%8F%E7%9F%A5%E8%AF%86/"/>
-    
-      <category term="Maven" scheme="http://blog.linzhongtai.cn/tags/Maven/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>cron表达式</title>
-    <link href="http://blog.linzhongtai.cn/2018/06/cron%E8%A1%A8%E8%BE%BE%E5%BC%8F/"/>
-    <id>http://blog.linzhongtai.cn/2018/06/cron表达式/</id>
-    <published>2018-06-15T09:10:33.000Z</published>
-    <updated>2018-06-15T09:10:33.000Z</updated>
-    
-    <content type="html"><![CDATA[<a id="more"></a><h2 id="语法格式"><a href="#语法格式" class="headerlink" title="语法格式"></a>语法格式</h2><p>1、Seconds Minutes Hours DayofMonth Month DayofWeek Year<br>2、Seconds Minutes Hours DayofMonth Month DayofWeek</p><h2 id="对应的含义"><a href="#对应的含义" class="headerlink" title="对应的含义"></a>对应的含义</h2><p>Seconds:可出现”, - <em> /“四个字符，有效范围为0-59的整数<br>Minutes:可出现”, - </em> /“四个字符，有效范围为0-59的整数<br>Hours:可出现”, - <em> /“四个字符，有效范围为0-23的整数<br>DayofMonth:可出现”, - </em> / ? L W C”八个字符，有效范围为0-31的整数<br>Month:可出现”, - <em> /“四个字符，有效范围为1-12的整数或JAN-DEc<br>DayofWeek:可出现”, - </em> / ? L C #”八个字符，有效范围为1-7的整数或SUN-SAT两个范围。<br>1表示星期天，2表示星期一， 依次类推<br>Year:可出现”, - * /“四个字符，有效范围为1970-2099年</p><h2 id="特殊字符含义"><a href="#特殊字符含义" class="headerlink" title="特殊字符含义"></a>特殊字符含义</h2><ul><li>* 表示所有值</li><li>? 表示未说明的值，即不关心它为何值</li><li>- 表示一个指定的范围</li><li>, 表示附加一个可能值</li><li>/ 符号前表示开始时间，符号后表示每次递增的值</li><li>L</li></ul><p>用在day-of-month字段意思是 “这个月最后一天”；<br>用在 day-of-week字段, 它简单意思是 “7” or “SAT”。 如果在day-of-week字段里和数字联合使用，<br>它的意思就是 “这个月的最后一个星期几” – 例如： “6L” means “这个月的最后一个星期五”. 当我们用“L”时，不指明一个列表值或者范围是很重要的，不然的话，我们会得到一些意想不到的结果</p><ul><li><p>W<br>只能用在day-of-month字段。用来描叙最接近指定天的工作日（周一到周五）。<br>例如：在day-of-month字段用“15W”指“最接近这个 月第15天的工作日”，即如果这个月第15天是周六，<br>那么触发器将会在这个月第14天即周五触发；<br>如果这个月第15天是周日，那么触发器将会在这个月第16天即周一触发；<br>如果这个月第15天是周二，那么就在触发器这天触发。注意一点：这个用法只会在当前月计算值，不会越过当前月。<br>“W”字符仅能在 day-of-month指明一天，不能是一个范围或列表。也可以用“LW”来指定这个月的最后一个工作日。</p></li><li><p>#</p></li></ul><p>只能用在day-of-week字段。用来指定这个月的第几个周几。<br>例：在day-of-week字段用”6#3”指这个月第3个周五（6指周五，3指第3个）。如果指定的日期不存在，触发器就不会触发</p><ul><li>C<br>指和calendar联系后计算过的值。<br>例：在day-of-month字段用“5C”指在这个月第5天或之后包括calendar的第一天；<br>在day-of-week字段用“1C”指在这周日或之后包括calendar的第一天</li></ul><h2 id="范例"><a href="#范例" class="headerlink" title="范例"></a>范例</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">每隔5秒执行一次：*/5 * * * * ?</span><br><span class="line"></span><br><span class="line">每隔1分钟执行一次：0 */1 * * * ?</span><br><span class="line"></span><br><span class="line">每天23点执行一次：0 0 23 * * ?</span><br><span class="line"></span><br><span class="line">每天凌晨1点执行一次：0 0 1 * * ?</span><br><span class="line"></span><br><span class="line">每月1号凌晨1点执行一次：0 0 1 1 * ?</span><br><span class="line"></span><br><span class="line">每月最后一天23点执行一次：0 0 23 L * ?</span><br><span class="line"></span><br><span class="line">每周星期天凌晨1点实行一次：0 0 1 ? * L</span><br><span class="line"></span><br><span class="line">在26分、29分、33分执行一次：0 26,29,33 * * * ?</span><br><span class="line"></span><br><span class="line">每天的0点、13点、18点、21点都执行一次：0 0 0,13,18,21 * * ?</span><br><span class="line"></span><br><span class="line">每隔5分钟执行一次：0 0/5 * * * ?</span><br><span class="line"></span><br><span class="line">每天中午12点触发 ：0 0 12 * * ?</span><br><span class="line"></span><br><span class="line">每天上午10:15触发 :0 15 10 ? * *</span><br><span class="line"></span><br><span class="line">每天上午10:15触发 :0 15 10 * * ?</span><br><span class="line"></span><br><span class="line">每天上午10:15触发：0 15 10 * * ? *</span><br><span class="line"></span><br><span class="line">2005年的每天上午10:15触发 ：0 15 10 * * ? 2005</span><br><span class="line"></span><br><span class="line">在每天下午2点到下午2:59期间的每1分钟触发 ：0 * 14 * * ?</span><br><span class="line"></span><br><span class="line">在每天下午2点到下午2:55期间的每5分钟触发 ：0 0/5 14 * * ?</span><br><span class="line"></span><br><span class="line">在每天下午2点到2:55期间和下午6点到6:55期间的每5分钟触发 ：0 0/5 14,18 * * ?</span><br><span class="line"></span><br><span class="line">在每天下午2点到下午2:05期间的每1分钟触发 ：0 0-5 14 * * ?</span><br><span class="line"></span><br><span class="line">每年三月的星期三的下午2:10和2:44触发 ：0 10,44 14 ? 3 WED</span><br><span class="line"></span><br><span class="line">周一至周五的上午10:15触发 ：0 15 10 ? * MON-FRI</span><br><span class="line"></span><br><span class="line">每月15日上午10:15触发 ：0 15 10 15 * ?</span><br><span class="line"></span><br><span class="line">每月最后一日的上午10:15触发 ：0 15 10 L * ?</span><br><span class="line"></span><br><span class="line">每月的最后一个星期五上午10:15触发 ：0 15 10 ? * 6L</span><br><span class="line"></span><br><span class="line">2002年至2005年的每月的最后一个星期五上午10:15触发 ：0 15 10 ? * 6L 2002-2005</span><br><span class="line"></span><br><span class="line">每月的第三个星期五上午10:15触发 ：0 15 10 ? * 6#3</span><br></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      cron表达式语法以及范例
-    
-    </summary>
-    
-      <category term="cron" scheme="http://blog.linzhongtai.cn/categories/cron/"/>
-    
-    
-      <category term="小知识" scheme="http://blog.linzhongtai.cn/tags/%E5%B0%8F%E7%9F%A5%E8%AF%86/"/>
-    
-      <category term="cron" scheme="http://blog.linzhongtai.cn/tags/cron/"/>
     
   </entry>
   

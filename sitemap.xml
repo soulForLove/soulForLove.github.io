@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.linzhongtai.cn/about/index.html</loc>
+    
+    <lastmod>2019-03-31T05:57:11.476Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.linzhongtai.cn/2019/03/%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8B%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%EF%BC%9A%E8%87%AA%E6%97%8B%E9%94%81/</loc>
     
     <lastmod>2019-03-31T05:49:48.000Z</lastmod>
@@ -163,27 +170,6 @@
   </url>
   
   <url>
-    <loc>http://blog.linzhongtai.cn/tags/index.html</loc>
-    
-    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.linzhongtai.cn/about/index.html</loc>
-    
-    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.linzhongtai.cn/categories/index.html</loc>
-    
-    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://blog.linzhongtai.cn/googleddf2510b177a27a8.html</loc>
     
     <lastmod>2018-05-24T02:45:26.000Z</lastmod>
@@ -192,6 +178,20 @@
   
   <url>
     <loc>http://blog.linzhongtai.cn/photos/index.html</loc>
+    
+    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.linzhongtai.cn/tags/index.html</loc>
+    
+    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.linzhongtai.cn/categories/index.html</loc>
     
     <lastmod>2018-05-24T02:45:26.000Z</lastmod>
     

@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2019/04/重温系列之多线程并发：AtomicInteger/
+http://blog.linzhongtai.cn/2019/04/重温系列之多线程并发：阻塞队列/

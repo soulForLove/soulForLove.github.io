@@ -1,6 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[重温系列之多线程并发：阻塞队列]]></title>
+    <url>%2F2019%2F04%2F%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8B%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%EF%BC%9A%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97%2F</url>
+    <content type="text"><![CDATA[在阻塞队列中，线程阻塞有这样的两种情况： 当队列中没有数据的情况下，消费者端的所有线程都会被自动阻塞（挂起），直到有数据放入队列。 当队列中填满数据的情况下，生产者端的所有线程都会被自动阻塞（挂起），直到队列中有空的位置，线程被自动唤醒。 阻塞队列的主要方法 方法类型 抛出异常 特殊值 阻塞 超时 插入 add(e) offer(e) put(e) offer(e,time,unit) 移除 remove() poll() take() poll(time,unit) 检查 element() peek() 不可用 不可用 抛出异常：抛出一个异常 特殊值：返回一个特殊值（null 或 false,视情况而定） 阻塞：在成功操作之前，一直阻塞线程 超时：放弃前只在最大的时间内阻塞 插入操作 public abstract boolean add(E paramE)：将指定元素插入此队列中（如果立即可行且不会违反容量限制），成功时返回 true，如果当前没有可用的空间，则抛出IllegalStateException。如果该元素是 NULL，则会抛出 NullPointerException 异常。 public abstract boolean offer(E paramE)：将指定元素插入此队列中（如果立即可行且不会违反容量限制），成功时返回 true，如果当前没有可用的空间，则返回false。 public abstract void put(E paramE) throws InterruptedException： 将指定元素插入此队列中，将等待可用的空间（如果有必要） 12345678910111213public void put(E paramE) throws InterruptedException &#123; checkNotNull(paramE); ReentrantLock localReentrantLock = this.lock; localReentrantLock.lockInterruptibly(); try &#123; while (this.count == this.items.length) this.notFull.await();//如果队列满了，则线程阻塞等待 enqueue(paramE); localReentrantLock.unlock(); &#125; finally &#123; localReentrantLock.unlock(); &#125;&#125; offer(E o, long timeout, TimeUnit unit)：可以设定等待的时间，如果在指定的时间内，还不能往队列中加入 BlockingQueue，则返回失败。 获取数据操作 ： poll(time):取走 BlockingQueue 里排在首位的对象,若不能立即取出,则可以等 time 参数规定的时间,取不到时返回 null; poll(long timeout, TimeUnit unit)：从 BlockingQueue 取出一个队首的对象，如果在指定时间内，队列一旦有数据可取，则立即返回队列中的数据。否则直到时间超时还没有数据可取，返回失败。 take():取走 BlockingQueue 里排在首位的对象,若 BlockingQueue 为空,阻断进入等待状态直到 BlockingQueue 有新的数据被加入。 drainTo():一次性从 BlockingQueue 获取所有可用的数据对象（还可以指定获取数据的个数），通过该方法，可以提升获取数据效率；不需要多次分批加锁或释放锁。 Java 中的阻塞队列 ArrayBlockingQueue ：由数组结构组成的有界阻塞队列 公平、非公平 用数组实现的有界阻塞队列。此队列按照先进先出（FIFO）的原则对元素进行排序。默认情况下不保证访问者公平的访问队列，所谓公平访问队列是指阻塞的所有生产者线程或消费者线程，当队列可用时，可以按照阻塞的先后顺序访问队列，即先阻塞的生产者线程，可以先往队列里插入元素，先阻塞的消费者线程，可以先从队列里获取元素。通常情况下为了保证公平性会降低吞吐量。我们可以使用以下代码创建一个公平的阻塞队列：1ArrayBlockingQueue fairQueue = new ArrayBlockingQueue(1000,true); LinkedBlockingQueue ：由链表结构组成的有界阻塞队列。 两个独立锁提高并发 基于链表的阻塞队列，同ArrayListBlockingQueue类似，此队列按照先进先出（FIFO）的原则对元素进行排序。而 LinkedBlockingQueue 之所以能够高效的处理并发数据，还因为其对于生产者端和消费者端分别采用了独立的锁来控制数据同步，这也意味着在高并发的情况下生产者和消费者可以并行地操作队列中的数据，以此来提高整个队列的并发性能。LinkedBlockingQueue 会默认一个类似无限大小的容量（Integer.MAX_VALUE）。 PriorityBlockingQueue ：支持优先级排序的无界阻塞队列。 compareTo 排序实现优先 是一个支持优先级的无界队列。默认情况下元素采取自然顺序升序排列。可以自定义实现compareTo()方法来指定元素进行排序规则，或者初始化 PriorityBlockingQueue 时，指定构造参数 Comparator 来对元素进行排序。需要注意的是不能保证同优先级元素的顺序。 DelayQueue：使用优先级队列实现的无界阻塞队列。 缓存失效、定时任务 是一个支持延时获取元素的无界阻塞队列。队列使用PriorityQueue来实现。队列中的元素必须实现 Delayed 接口，在创建元素时可以指定多久才能从队列中获取当前元素。只有在延迟期满时才能从队列中提取元素。我们可以将 DelayQueue 运用在以下应用场景： 缓存系统的设计：可以用 DelayQueue 保存缓存元素的有效期，使用一个线程循环查询DelayQueue，一旦能从 DelayQueue 中获取元素时，表示缓存有效期到了。 定时任务调度：使用 DelayQueue 保存当天将会执行的任务和执行时间，一旦从DelayQueue 中获取到任务就开始执行，从比如 TimerQueue 就是使用 DelayQueue实现的。 SynchronousQueue：不存储元素的阻塞队列。 不存储数据、可用于传递数据 是一个不存储元素的阻塞队列。每一个 put 操作必须等待一个 take 操作，否则不能继续添加元素。SynchronousQueue 可以看成是一个传球手，负责把生产者线程处理的数据直接传递给消费者线程。队列本身并不存储任何元素，非常适合于传递性场景,比如在一个线程中使用的数据，传递给另外一个线程使用，SynchronousQueue的吞吐量高于LinkedBlockingQueue 和ArrayBlockingQueue。 LinkedTransferQueue：由链表结构组成的无界阻塞队列。是 一 个 由 链 表 结 构 组 成 的 无 界 阻 塞 TransferQueue 队 列 。 相 对 于 其 他 阻 塞 队 列 ，LinkedTransferQueue 多了 tryTransfer 和 transfer 方法。 transfer 方法：如果当前有消费者正在等待接收元素（消费者使用 take()方法或带时间限制的poll()方法时），transfer 方法可以把生产者传入的元素立刻 transfer（传输）给消费者。如果没有消费者在等待接收元素，transfer 方法会将元素存放在队列的 tail 节点，并等到该元素被消费者消费了才返回。 tryTransfer 方法。则是用来试探下生产者传入的元素是否能直接传给消费者。如果没有消费者等待接收元素，则返回 false。和 transfer 方法的区别是 tryTransfer 方法无论消费者是否接收，方法立即返回。而 transfer 方法是必须等到消费者消费了才返回。 对于带有时间限制的 tryTransfer(E e, long timeout, TimeUnit unit)方法，则是试图把生产者传入的元素直接传给消费者，但是如果没有消费者消费该元素则等待指定的时间再返回，如果超时还没消费元素，则返回 false，如果在超时时间内消费了元素，则返回 true。 LinkedBlockingDeque：由链表结构组成的双向阻塞队列是一个由链表结构组成的双向阻塞队列。所谓双向队列指的你可以从队列的两端插入和移出元素。双端队列因为多了一个操作队列的入口，在多线程同时入队时，也就减少了一半的竞争。相比其他的阻塞队列，LinkedBlockingDeque 多了 addFirst，addLast，offerFirst，offerLast，peekFirst，peekLast 等方法，以 First 单词结尾的方法，表示插入，获取（peek）或移除双端队列的第一个元素。以 Last 单词结尾的方法，表示插入，获取或移除双端队列的最后一个元素。另外插入方法 add 等同于 addLast，移除方法 remove 等效于 removeFirst。但是 take 方法却等同于 takeFirst，不知道是不是 Jdk 的 bug，使用时还是用带有 First 和 Last 后缀的方法更清楚。在初始化 LinkedBlockingDeque 时可以设置容量防止其过渡膨胀。另外双向阻塞队列可以运用在“工作窃取”模式中。]]></content>
+      <categories>
+        <category>并发编程</category>
+      </categories>
+      <tags>
+        <tag>并发编程</tag>
+        <tag>重温</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[重温系列之多线程并发：线程池原理]]></title>
+    <url>%2F2019%2F04%2F%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8B%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%EF%BC%9A%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%8E%9F%E7%90%86%2F</url>
+    <content type="text"><![CDATA[线程池做的工作主要是控制运行的线程的数量，处理过程中将任务放入队列，然后在线程创建后启动这些任务，如果线程数量超过了最大数量则超出数量的线程排队等候，等其它线程执行完毕，再从队列中取出任务来执行。他的主要特点为：线程复用、控制最大并发数、管理线程。 线程复用每一个 Thread 的类都有一个 start 方法。 当调用 start 启动线程时 Java 虚拟机会调用该类的 run方法。 那么该类的 run() 方法中就是调用了 Runnable 对象的 run() 方法。 我们可以继承重写Thread 类，在其 start 方法中添加不断循环调用传递过来的 Runnable 对象。 这就是线程池的实现原理。循环方法中不断获取 Runnable 是用 Queue 实现的，在获取下一个 Runnable 之前可以是阻塞的。 线程池的组成 线程池管理器：用于创建并管理线程池 工作线程：线程池中的线程 任务接口：每个任务必须实现的接口，用于工作线程调度其运行 任务队列：用于存放待处理的任务，提供一种缓冲机制 Java 中的线程池是通过 Executor 框架实现的，该框架中用到了 Executor，Executors，ExecutorService，ThreadPoolExecutor ，Callable 和 Future、FutureTask 这几个类。ThreadPoolExecutor 的构造方法如下：12345public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue&lt;Runnable&gt; workQueue) &#123; this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,Executors.defaultThreadFactory(), defaultHandler);&#125; corePoolSize：指定了线程池中的线程数量。 maximumPoolSize：指定了线程池中的最大线程数量。 keepAliveTime：当前线程池数量超过 corePoolSize 时，多余的空闲线程的存活时间，即多次时间内会被销毁。 unit：keepAliveTime 的单位。 workQueue：任务队列，被提交但尚未被执行的任务。 threadFactory：线程工厂，用于创建线程，一般用默认的即可。 handler：拒绝策略，当任务太多来不及处理，如何拒绝任务。 拒绝策略线程池中的线程已经用完了，无法继续为新任务服务，同时，等待队列也已经排满了，再也塞不下新任务了。这时候我们就需要拒绝策略机制合理的处理这个问题。JDK 内置的拒绝策略如下： AbortPolicy ： 直接抛出异常，阻止系统正常运行。 CallerRunsPolicy ： 只要线程池未关闭，该策略直接在调用者线程中，运行当前被丢弃的任务。显然这样做不会真的丢弃任务，但是，任务提交线程的性能极有可能会急剧下降。 DiscardOldestPolicy ： 丢弃最老的一个请求，也就是即将被执行的一个任务，并尝试再次提交当前任务。 DiscardPolicy ： 该策略默默地丢弃无法处理的任务，不予任何处理。如果允许任务丢失，这是最好的一种方案。 以上内置拒绝策略均实现了 RejectedExecutionHandler 接口，若以上策略仍无法满足实际需要，完全可以自己扩展 RejectedExecutionHandler 接口。 Java线程池工作过程 线程池刚创建时，里面没有一个线程。任务队列是作为参数传进来的。不过，就算队列里面有任务，线程池也不会马上执行它们。 当调用 execute() 方法添加一个任务时，线程池会做如下判断：a) 如果正在运行的线程数量小于 corePoolSize，那么马上创建线程运行这个任务；b) 如果正在运行的线程数量大于或等于 corePoolSize，那么将这个任务放入队列；c) 如果这时候队列满了，而且正在运行的线程数量小于 maximumPoolSize，那么还是要创建非核心线程立刻运行这个任务；d) 如果队列满了，而且正在运行的线程数量大于或等于 maximumPoolSize，那么线程池会抛出异常 RejectExecutionException。 当一个线程完成任务时，它会从队列中取下一个任务来执行。 当一个线程无事可做，超过一定的时间（keepAliveTime）时，线程池会判断，如果当前运行的线程数大于 corePoolSize，那么这个线程就被停掉。所以线程池的所有任务完成后，它最终会收缩到 corePoolSize 的大小。]]></content>
+      <categories>
+        <category>并发编程</category>
+      </categories>
+      <tags>
+        <tag>并发编程</tag>
+        <tag>重温</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[重温系列之多线程并发：锁的优化]]></title>
+    <url>%2F2019%2F04%2F%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8B%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%EF%BC%9A%E9%94%81%E7%9A%84%E4%BC%98%E5%8C%96%2F</url>
+    <content type="text"><![CDATA[减少锁持有时间 只用在需要线程安全的方法上加锁 减小锁粒度将大对象（这个对象可能会被很多线程访问），拆成小对象，大大增加并行度，降低锁竞争。降低了锁的竞争，偏向锁，轻量级锁成功率才会提高。最最典型的减小锁粒度的案例就是ConcurrentHashMap。 锁分离最常见的锁分离就是读写锁 ReadWriteLock，根据功能进行分离成读锁和写锁，这样读读不互斥，读写互斥，写写互斥，即保证了线程安全，又提高了性能。读写分离思想可以延伸，只要操作互不影响，锁就可以分离。比如下面的LinkedBlockingQueue 从头部取出，从尾部放数据 锁粗化通常情况下，为了保证多线程间的有效并发，会要求每个线程持有锁的时间尽量短，即在使用完公共资源后，应该立即释放锁。但是，凡事都有一个度，如果对同一个锁不停的进行请求、同步和释放，其本身也会消耗系统宝贵的资源，反而不利于性能的优化 。 123456789public void demoMethod()&#123; synchronized(lock)&#123; //do sth. &#125; //做其他不需要的同步的工作，但能很快执行完毕 synchronized(lock)&#123; //do sth. &#125; &#125; 这种情况，根据锁粗化的思想，应该合并1234567public void demoMethod()&#123; //整合成一次锁请求 synchronized(lock)&#123; //do sth. //做其他不需要的同步的工作，但能很快执行完毕 &#125;&#125; 当然这是有前提的，前提就是中间的那些不需要同步的工作是很快执行完成的。 锁消除 在即时编译器时，如果发现不可能被共享的对象，则可以消除这些对象的锁操作。 也许你会觉得奇怪，既然有些对象不可能被多线程访问，那为什么要加锁呢？写代码时直接不加锁不就好了。但是有时，这些锁并不是程序员所写的，有的是JDK实现中就有锁的，比如Vector和StringBuffer这样的类，它们中的很多方法都是有锁的。当我们在一些不会有线程安全的情况下使用这些类的方法时，达到某些条件时，编译器会将锁消除来提高性能。 123456789101112131415public static void main(String args[]) throws InterruptedException &#123; long start = System.currentTimeMillis(); for (int i = 0; i &lt; 2000000; i++) &#123; createStringBuffer("JVM", "Diagnosis"); &#125; long bufferCost = System.currentTimeMillis() - start; System.out.println("craeteStringBuffer: " + bufferCost + " ms"); &#125; public static String createStringBuffer(String s1, String s2) &#123; StringBuffer sb = new StringBuffer(); sb.append(s1); sb.append(s2); return sb.toString(); &#125; StringBuffer.append是一个同步操作，但是StringBuffer却是一个局部变量，并且方法也并没有把StringBuffer返回，所以不可能会有多线程去访问它，那么此时StringBuffer中的同步操作就是没有意义的。 开启锁消除是在JVM参数上设置的，当然需要在server模式下：1-server -XX:+DoEscapeAnalysis -XX:+EliminateLocks 并且要开启逃逸分析。 逃逸分析的作用呢，就是看看变量是否有可能逃出作用域的范围：比如上述的StringBuffer，上述代码中craeteStringBuffer的返回是一个String，所以这个局部变量StringBuffer在其他地方都不会被使用。如果将craeteStringBuffer改成123456public static StringBuffer craeteStringBuffer(String s1, String s2) &#123; StringBuffer sb = new StringBuffer(); sb.append(s1); sb.append(s2); return sb;&#125; 那么这个 StringBuffer被返回后，是有可能被任何其他地方所使用的（譬如被主函数将返回结果put进map啊等等）。那么JVM的逃逸分析可以分析出，这个局部变量 StringBuffer逃出了它的作用域。所以基于逃逸分析，JVM可以判断，如果这个局部变量StringBuffer并没有逃出它的作用域，那么可以确定这个StringBuffer并不会被多线程所访问，那么就可以把这些多余的锁给去掉来提高性能]]></content>
+      <categories>
+        <category>并发编程</category>
+      </categories>
+      <tags>
+        <tag>并发编程</tag>
+        <tag>重温</tag>
+        <tag>锁</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[重温系列之多线程并发：锁分类]]></title>
+    <url>%2F2019%2F04%2F%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8B%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%EF%BC%9A%E9%94%81%E5%88%86%E7%B1%BB%2F</url>
+    <content type="text"><![CDATA[可重入锁 可重入锁，也叫做递归锁，指的是同一线程 外层函数获得锁之后 ，内层递归函数仍然有获取该锁的代码，但不受影响。在 JAVA 环境下 ReentrantLock 和 synchronized 都是 可重入锁。 ReadWriteLock 读写锁为了提高性能，Java 提供了读写锁，在读的地方使用读锁，在写的地方使用写锁，灵活控制，如果没有写锁的情况下，读是无阻塞的,在一定程度上提高了程序的执行效率。读写锁分为读锁和写锁，多个读锁不互斥，读锁与写锁互斥，这是由 jvm 自己控制的，你只要上好相应的锁即可。 读锁如果你的代码只读数据，可以很多人同时读，但不能同时写，那就上读锁 写锁如果你的代码修改数据，只能有一个人在写，且不能同时读取，那就上写锁。总之，读的时候上读锁，写的时候上写锁。Java中读写锁有个接口：java.util.concurrent.locks.ReadWriteLock，也有具体的实现ReentrantReadWriteLock。 共享锁和独占锁 java 并发包提供的加锁模式分为独占锁和共享锁 独占锁独占锁模式下，每次只能有一个线程能持有锁，ReentrantLock 就是以独占方式实现的互斥锁。独占锁是一种悲观保守的加锁策略，它避免了读/读冲突，如果某个只读线程获取锁，则其他读线程都只能等待，这种情况下就限制了不必要的并发性，因为读操作并不会影响数据的一致性。 共享锁共享锁则允许多个线程同时获取锁，并发访问 共享资源，如：ReadWriteLock。共享锁则是一种乐观锁，它放宽了加锁策略，允许多个执行读操作的线程同时访问共享资源。 AQS 的内部类 Node 定义了两个常量 SHARED 和 EXCLUSIVE，他们分别标识 AQS 队列中等待线程的锁获取模式。 java 的并发包中提供了 ReadWriteLock，读-写锁。它允许一个资源可以被多个读操作访问，或者被一个 写操作访问，但两者不能同时进行。 公平锁与非公平锁公平锁（ Fair ） 加锁前检查是否有排队等待的线程，优先排队等待的线程，先来先得 非公平锁（ Nonfair ） 加锁时不考虑排队等待问题，直接尝试获取锁，获取不到自动到队尾等待 非公平锁性能比公平锁高 5~10 倍，因为公平锁需要在多核的情况下维护一个队列 Java 中的 synchronized 是非公平锁，ReentrantLock 默认的 lock()方法采用的是非公平锁。 偏向锁/轻量级锁/重量级锁 锁可以从偏向锁升级到轻量级锁，再升级到重量级锁。这种升级过程叫做锁膨胀。【但是锁的升级是单向的，也就是说只能从低到高升级，不会出现锁的降级】 锁 优点 缺点 使用场景 偏向锁 加锁和解锁不需要额外的消耗，和执行非同步方法比仅存在纳秒级的差距。 如果线程间存在锁竞争，会带来额外的锁撤销的消耗。 适用于只有一个线程访问同步块场景。 轻量级锁 竞争的线程不会阻塞，提高了程序的响应速度。 如果始终得不到锁竞争的线程使用自旋会消耗CPU。 追求响应时间。同步块执行速度非常快。 重量级锁 线程竞争不使用自旋，不会消耗CPU。 线程阻塞，响应时间缓慢。 追求吞吐量。同步块执行速度较长。 偏向锁Hotspot 的作者经过以往的研究发现大多数情况下锁不仅不存在多线程竞争，而且总是由同一线程多次获得。偏向锁的目的是在某个线程获得锁之后，消除这个线程锁重入（CAS）的开销，看起来让这个线程得到了偏护。引入偏向锁是为了在无多线程竞争的情况下尽量减少不必要的轻量级锁执行路径，因为轻量级锁的获取及释放依赖多次 CAS 原子指令，而偏向锁只需要在置换ThreadID 的时候依赖一次 CAS 原子指令（由于一旦出现多线程竞争的情况就必须撤销偏向锁，所以偏向锁的撤销操作的性能损耗必须小于节省下来的 CAS 原子指令的性能消耗）。上面说过，轻量级锁是为了在线程交替执行同步块时提高性能，而偏向锁则是在只有一个线程执行同步块时进一步提高性能。 轻量级锁“轻量级”是相对于使用操作系统互斥量来实现的传统锁而言的。但是，首先需要强调一点的是，轻量级锁并不是用来代替重量级锁的，它的本意是在没有多线程竞争的前提下，减少传统的重量级锁使用产生的性能消耗。在解释轻量级锁的执行过程之前，先明白一点，轻量级锁所适应的场景是线程交替执行同步块的情况，如果存在同一时间访问同一锁的情况，就会导致轻量级锁膨胀为重量级锁。 重量级锁(Mutex Lock)Synchronized 是通过对象内部的一个叫做监视器锁（monitor）来实现的。但是监视器锁本质又是依赖于底层的操作系统的 Mutex Lock 来实现的。而操作系统实现线程之间的切换这就需要从用户态转换到核心态，这个成本非常高，状态之间的转换需要相对比较长的时间，这就是为什么Synchronized 效率低的原因。因此，这种依赖于操作系统 Mutex Lock 所实现的锁我们称之为“重量级锁”。JDK 中对 Synchronized 做的种种优化，其核心都是为了减少这种重量级锁的使用。JDK1.6 以后，为了减少获得锁和释放锁所带来的性能消耗，提高性能，引入了“轻量级锁”和“偏向锁”。 分段锁 分段锁并非一种实际的锁，而是一种思想ConcurrentHashMap的segment是学习分段锁的最好实践 HashTable容器在竞争激烈的并发环境下表现出效率低下的原因是所有访问HashTable的线程都必须竞争同一把锁，假如容器里有多把锁，每一把锁用于锁容器其中一部分数据，那么当多线程访问容器里不同数据段的数据时，线程间就不会存在锁竞争，从而可以有效提高并发访问效率，这就是ConcurrentHashMap所使用的锁分段技术。首先将数据分成一段一段地存储，然后给每一段数据配一把锁，当一个线程占用锁访问其中一个段数据的时候，其他段的数据也能被其他线程访问]]></content>
+      <categories>
+        <category>并发编程</category>
+      </categories>
+      <tags>
+        <tag>并发编程</tag>
+        <tag>重温</tag>
+        <tag>锁</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[重温系列之多线程并发：AtomicInteger]]></title>
     <url>%2F2019%2F04%2F%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8B%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%EF%BC%9AAtomicInteger%2F</url>
     <content type="text"><![CDATA[此处 AtomicInteger，一个提供原子操作的 Integer 的类，常见的还有AtomicBoolean、AtomicInteger、AtomicLong、AtomicReference 等，他们的实现原理相同，区别在与运算对象类型的不同。令人兴奋地，还可以通过 AtomicReference将一个对象的所有操作转化成原子操作。 在多线程程序中，诸如++i 或 i++等运算不具有原子性，是不安全的线程操作之一。通常我们会使用 synchronized 将该操作变成一个原子操作，但JVM为此类操作特意提供了一些同步类，使得使用更方便，且使程序运行效率变得更高。通过相关资料显示，通常AtomicInteger的性能是 ReentrantLock 的好几倍。]]></content>
@@ -9,7 +59,7 @@
       </categories>
       <tags>
         <tag>并发编程</tag>
-        <tag>锁</tag>
+        <tag>重温</tag>
       </tags>
   </entry>
   <entry>
@@ -21,6 +71,7 @@
       </categories>
       <tags>
         <tag>并发编程</tag>
+        <tag>重温</tag>
         <tag>锁</tag>
       </tags>
   </entry>
@@ -33,6 +84,7 @@
       </categories>
       <tags>
         <tag>并发编程</tag>
+        <tag>重温</tag>
         <tag>锁</tag>
       </tags>
   </entry>
@@ -45,6 +97,7 @@
       </categories>
       <tags>
         <tag>并发编程</tag>
+        <tag>重温</tag>
         <tag>锁</tag>
       </tags>
   </entry>
@@ -57,6 +110,7 @@
       </categories>
       <tags>
         <tag>并发编程</tag>
+        <tag>重温</tag>
         <tag>锁</tag>
       </tags>
   </entry>
@@ -69,6 +123,7 @@
       </categories>
       <tags>
         <tag>并发编程</tag>
+        <tag>重温</tag>
         <tag>锁</tag>
       </tags>
   </entry>
@@ -81,12 +136,20 @@
       </categories>
       <tags>
         <tag>并发编程</tag>
+        <tag>重温</tag>
       </tags>
   </entry>
   <entry>
     <title><![CDATA[重温系列之多线程并发：线程生命周期]]></title>
     <url>%2F2019%2F03%2F%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8B%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%EF%BC%9A%E7%BA%BF%E7%A8%8B%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%2F</url>
     <content type="text"><![CDATA[当线程被创建并启动以后，它既不是一启动就进入了执行状态，也不是一直处于执行状态。在线程的生命周期中，它要经过新建(New)、就绪(Runnable)、运行(Running)、阻塞(Blocked)和死亡(Dead)这5 种状态。尤其是当线程启动以后，它不可能一直”霸占”着 CPU 独自运行，所以 CPU 需要在多条线程之间切换，于是线程状态也会多次在运行、阻塞之间切换。 新建状态NEW当程序使用 new 关键字创建了一个线程之后，该线程就处于新建状态，此时仅由 JVM 为其分配内存，并初始化其成员变量的值 就绪状态(RUNNABLE )当线程对象调用了 start()方法之后，该线程处于就绪状态。Java 虚拟机会为其创建方法调用栈和程序计数器，等待调度运行。 运行状态(RUNNING)如果处于就绪状态的线程获得了 CPU，开始执行 run()方法的线程执行体，则该线程处于运行状态。 阻塞状态(BLOCKED) 阻塞状态是指线程因为某种原因放弃了 cpu 使用权，也即让出了 cpu timeslice，暂时停止运行。直到线程进入可运行/就绪(runnable)状态，才有机会再次获得 cpu timeslice 转到运行(running)状态。 阻塞的情况分三种： 等待阻塞( o.wait-&gt; 等待对列)：运行(running)的线程执行 o.wait()方法，JVM 会把该线程放入等待队列(waitting queue)中 同步阻塞 (lock-&gt; 锁池)：运行(running)的线程在获取对象的同步锁时，若该同步锁被别的线程占用，则 JVM 会把该线程放入锁池(lock pool)中 其他阻塞 (sleep/join)：运行(running)的线程执行 Thread.sleep(long ms)或 t.join()方法，或者发出了 I/O 请求时，JVM 会把该线程置为阻塞状态。当 sleep()状态超时、join()等待线程终止或者超时、或者 I/O处理完毕时，线程重新转入可运行(runnable)状态。 线程死亡(DEAD)线程会以下面三种方式结束，结束后就是死亡状态。 正常结束run()或 call()方法执行完成，线程正常结束 异常结束线程抛出一个未捕获的 Exception 或 Error 调用stop-已废弃直接调用该线程的 stop()方法来结束该线程(该方法通常容易导致死锁，不推荐使用)终止线程四种方式 正常运行结束 使用退出标志退出线程一般 run()方法执行完，线程就会正常结束，但是有些线程需要长时间的运行，只有在外部某些条件满足的情况下，才能关闭这些线程。使用一个变量来控制循环，例如：最直接的方法就是设一个boolean 类型的标志，并通过设置这个标志为 true或 false 来控制 while循环是否退出 12345678public class ThreadSafe extends Thread &#123; public volatile boolean exit = false;// volatile保证数据可见性，使得exit值同步 public void run() &#123; while (!exit)&#123; //do something &#125; &#125;&#125; Interrupt 方法结束线程使用 interrupt()方法来中断线程有两种情况： 线程处于阻塞状态 如使用了 sleep/同步锁的 wait/socket 中的 receiver,accept 等方法时，会使线程处于阻塞状态。当调用线程的 interrupt()方法时，会抛出InterruptException 异常。通常很多人认为只要调用 interrupt 方法线程就会结束，实际上是错的， 一定要先捕获 InterruptedException 异常之后通过 break 来跳出循环，才能正常结束 run 方法 线程未处于阻塞状态 使用 isInterrupted()判断线程的中断标志来退出循环。当使用interrupt()方法时，中断标志就会置 true，和使用自定义的标志来控制循环是一样的道理 123456789101112public class ThreadSafe extends Thread &#123; public void run() &#123; while (!isInterrupted())&#123; //非阻塞过程中通过判断中断标志来退出 try&#123; Thread.sleep(5*1000);//阻塞过程捕获中断异常来退出 &#125;catch(InterruptedException e)&#123; e.printStackTrace(); break;//捕获到异常之后，执行 break 跳出循环 &#125; &#125; &#125;&#125; stop 方法终止线程（线程不安全，已废弃） thread.stop()调用之后，创建子线程的线程就会抛出 ThreadDeatherror 的错误，并且会释放子线程所持有的所有锁。 一般任何进行加锁的代码块，都是为了保护数据的一致性，如果在调用thread.stop()后导致了该线程所持有的所有锁的突然释放(不可控制)，那么被保护数据就有可能呈现不一致性，其他线程在使用这些被破坏的数据时，有可能导致一些很奇怪的应用程序错误。因此，并不推荐使用 stop 方法来终止线程。]]></content>
+      <categories>
+        <category>并发编程</category>
+      </categories>
+      <tags>
+        <tag>并发编程</tag>
+        <tag>重温</tag>
+      </tags>
   </entry>
   <entry>
     <title><![CDATA[重温系列之多线程并发：Java线程实现/创建方式]]></title>
@@ -97,6 +160,7 @@
       </categories>
       <tags>
         <tag>并发编程</tag>
+        <tag>重温</tag>
       </tags>
   </entry>
   <entry>
@@ -587,8 +651,8 @@
         <category>ActiveMQ</category>
       </categories>
       <tags>
-        <tag>ActiveMQ</tag>
         <tag>linux</tag>
+        <tag>ActiveMQ</tag>
       </tags>
   </entry>
   <entry>

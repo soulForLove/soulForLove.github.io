@@ -119,18 +119,18 @@
 <meta property="og:site_name" content="林林总总">
 <meta property="og:description" content="RabbitMQ是一个开源的AMQP实现，服务器端用Erlang语言编写，支持多种客户端，如：Python、Ruby、.NET、Java、JMS、C、PHP、ActionScript、XMPP、STOMP等，支持AJAX。用于在分布式系统中存储转发消息，在易用性、扩展性、高可用性等方面表现不俗。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://otkzd4sua.bkt.clouddn.com/RabbitMQ.png">
-<meta property="og:image" content="http://otkzd4sua.bkt.clouddn.com/RabbitMQ-1.png">
-<meta property="og:image" content="http://otkzd4sua.bkt.clouddn.com/RabbitMQ-2.png">
-<meta property="og:image" content="http://otkzd4sua.bkt.clouddn.com/RabbitMQ-3.png">
-<meta property="og:image" content="http://otkzd4sua.bkt.clouddn.com/RabbitMQ-4.png">
-<meta property="og:image" content="http://otkzd4sua.bkt.clouddn.com/RabbitMQ-5.png">
-<meta property="og:image" content="http://otkzd4sua.bkt.clouddn.com/RabbitMQ-6.png">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-f66767edb93e0702.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-476ce35e74ad3d47.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-54cca945812a1cb4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-6fbd6fb8d89bf1c3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-4ab28968005ade24.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-57761096c996509e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-92f1e0239b803674.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 <meta property="og:updated_time" content="2018-03-22T12:41:00.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="九浅一深之RabbitMQ">
 <meta name="twitter:description" content="RabbitMQ是一个开源的AMQP实现，服务器端用Erlang语言编写，支持多种客户端，如：Python、Ruby、.NET、Java、JMS、C、PHP、ActionScript、XMPP、STOMP等，支持AJAX。用于在分布式系统中存储转发消息，在易用性、扩展性、高可用性等方面表现不俗。">
-<meta name="twitter:image" content="http://otkzd4sua.bkt.clouddn.com/RabbitMQ.png">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5937589-f66767edb93e0702.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
 
 
@@ -442,12 +442,15 @@
       
 
       
-        <p><a id="more"></a>&gt; RabbitMQ是一个开源的AMQP实现：AMQP，即Advanced Message Queuing Protocol，高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。消息中间件主要用于组件之间的解耦，消息的发送者无需知道消息使用者的存在，反之亦然。 AMQP的主要特征是面向消息、队列、路由（包括点对点和发布/订阅）、可靠性、安全。</p>
+        <a id="more"></a>
+<blockquote>
+<p>RabbitMQ是一个开源的AMQP实现：AMQP，即Advanced Message Queuing Protocol，高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。消息中间件主要用于组件之间的解耦，消息的发送者无需知道消息使用者的存在，反之亦然。 AMQP的主要特征是面向消息、队列、路由（包括点对点和发布/订阅）、可靠性、安全。</p>
+</blockquote>
 <hr>
 <blockquote>
 <p>ConnectionFactory、Connection、Channel都是RabbitMQ对外提供的API中最基本的对象。Connection是RabbitMQ的socket链接，它封装了socket协议相关部分逻辑。ConnectionFactory为Connection的制造工厂。 Channel是我们与RabbitMQ打交道的最重要的一个接口，我们大部分的业务操作是在Channel这个接口中完成的，包括定义Queue、定义Exchange、绑定Queue与Exchange、发布消息等。</p>
 </blockquote>
-<p><img src="http://otkzd4sua.bkt.clouddn.com/RabbitMQ.png" alt=""></p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5937589-f66767edb93e0702.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="5015984-367dd717d89ae5db.png"></p>
 <h2 id="RabbitMQ"><a href="#RabbitMQ" class="headerlink" title="RabbitMQ"></a>RabbitMQ</h2><h3 id="Message"><a href="#Message" class="headerlink" title="Message"></a>Message</h3><p>消息，消息是不具名的，它由消息头和消息体组成。消息体是不透明的，而消息头则由一系列的可选属性组成，这些属性包括routing-key（路由键）、priority（相对于其他消息的优先权）、delivery-mode（指出该消息可能需要持久性存储）等。</p>
 <h3 id="Publisher"><a href="#Publisher" class="headerlink" title="Publisher"></a>Publisher</h3><p>消息的生产者，也是一个向交换器发布消息的客户端应用程序。</p>
 <h3 id="Exchange"><a href="#Exchange" class="headerlink" title="Exchange"></a>Exchange</h3><p>交换器，用来接收生产者发送的消息并将这些消息路由给服务器中的队列。</p>
@@ -461,18 +464,20 @@
 <h2 id="AMQP-中的消息路由"><a href="#AMQP-中的消息路由" class="headerlink" title="AMQP 中的消息路由"></a>AMQP 中的消息路由</h2><blockquote>
 <p>AMQP 中消息的路由过程和 Java 开发者熟悉的 JMS 存在一些差别，AMQP 中增加了 Exchange 和 Binding 的角色。生产者把消息发布到 Exchange 上，消息最终到达队列并被消费者接收，而 Binding 决定交换器的消息应该发送到那个队列。</p>
 </blockquote>
-<p><img src="http://otkzd4sua.bkt.clouddn.com/RabbitMQ-1.png" alt=""></p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5937589-476ce35e74ad3d47.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="borker.png"></p>
 <h2 id="Exchange-类型"><a href="#Exchange-类型" class="headerlink" title="Exchange 类型"></a>Exchange 类型</h2><p>Exchange分发消息时根据类型的不同分发策略有区别，目前共四种类型：direct、fanout、topic、headers 。headers 匹配 AMQP 消息的 header 而不是路由键，此外 headers 交换器和 direct 交换器完全一致，但性能差很多，目前几乎用不到了</p>
-<h3 id="direct"><a href="#direct" class="headerlink" title="direct"></a>direct</h3><p><img src="http://otkzd4sua.bkt.clouddn.com/RabbitMQ-2.png" alt=""><br>消息中的路由键（routing key）如果和 Binding 中的 binding key 一致， 交换器就将消息发到对应的队列中。路由键与队列名完全匹配，如果一个队列绑定到交换机要求路由键为“dog”，则只转发 routing key 标记为“dog”的消息，不会转发“dog.puppy”，也不会转发“dog.guard”等等。它是完全匹配、单播的模式。</p>
-<h3 id="fanout"><a href="#fanout" class="headerlink" title="fanout"></a>fanout</h3><p><img src="http://otkzd4sua.bkt.clouddn.com/RabbitMQ-3.png" alt=""><br>每个发到 fanout 类型交换器的消息都会分到所有绑定的队列上去。fanout 交换器不处理路由键，只是简单的将队列绑定到交换器上，每个发送到交换器的消息都会被转发到与该交换器绑定的所有队列上。很像子网广播，每台子网内的主机都获得了一份复制的消息。fanout 类型转发消息是最快的。</p>
-<h3 id="topic"><a href="#topic" class="headerlink" title="topic"></a>topic</h3><p><img src="http://otkzd4sua.bkt.clouddn.com/RabbitMQ-4.png" alt=""><br><img src="http://otkzd4sua.bkt.clouddn.com/RabbitMQ-5.png" alt=""></p>
+<h3 id="direct"><a href="#direct" class="headerlink" title="direct"></a>direct</h3><p><img src="https://upload-images.jianshu.io/upload_images/5937589-54cca945812a1cb4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="direct.png"></p>
+<p>消息中的路由键（routing key）如果和 Binding 中的 binding key 一致， 交换器就将消息发到对应的队列中。路由键与队列名完全匹配，如果一个队列绑定到交换机要求路由键为“dog”，则只转发 routing key 标记为“dog”的消息，不会转发“dog.puppy”，也不会转发“dog.guard”等等。它是完全匹配、单播的模式。</p>
+<h3 id="fanout"><a href="#fanout" class="headerlink" title="fanout"></a>fanout</h3><p><img src="https://upload-images.jianshu.io/upload_images/5937589-6fbd6fb8d89bf1c3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="fanout.png"></p>
+<p>每个发到 fanout 类型交换器的消息都会分到所有绑定的队列上去。fanout 交换器不处理路由键，只是简单的将队列绑定到交换器上，每个发送到交换器的消息都会被转发到与该交换器绑定的所有队列上。很像子网广播，每台子网内的主机都获得了一份复制的消息。fanout 类型转发消息是最快的。</p>
+<h3 id="topic"><a href="#topic" class="headerlink" title="topic"></a>topic</h3><p><img src="https://upload-images.jianshu.io/upload_images/5937589-4ab28968005ade24.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="topic.png"><br><img src="https://upload-images.jianshu.io/upload_images/5937589-57761096c996509e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="topic2.png"></p>
 <ul>
 <li>routing key为一个句点号“. ”分隔的字符串（我们将被句点号“. ”分隔开的每一段独立的字符串称为一个单词），如“stock.usd.nyse”、“nyse.vmw”、“quick.orange.rabbit”</li>
 <li>binding key与routing key一样也是句点号“. ”分隔的字符串</li>
 <li>binding key中可以存在两种特殊字符’*’与“#”，用于做模糊匹配，其中“**”用于匹配一个单词，“#”用于匹配多个单词（可以是零个）</li>
 </ul>
 <h3 id="header"><a href="#header" class="headerlink" title="header"></a>header</h3><p>headers类型的Exchange不依赖于routing key与binding key的匹配规则来路由消息，而是根据发送的消息内容中的headers属性进行匹配。 在绑定Queue与Exchange时指定一组键值对；当消息发送到Exchange时，RabbitMQ会取到该消息的headers（也是一个键值对的形式），对比其中的键值对是否完全匹配Queue与Exchange绑定时指定的键值对；如果完全匹配则消息会路由到该Queue，否则不会路由到该Queue。</p>
-<h2 id="RPC"><a href="#RPC" class="headerlink" title="RPC"></a>RPC</h2><p>MQ本身是基于异步的消息处理，前面的示例中所有的生产者（P）将消息发送到RabbitMQ后不会知道消费者（C）处理成功或者失败（甚至连有没有消费者来处理这条消息都不知道）。 但实际的应用场景中，我们很可能需要一些同步处理，需要同步等待服务端将我的消息处理完成后再进行下一步处理。这相当于RPC（Remote Procedure Call，远程过程调用）。在RabbitMQ中也支持RPC。<br><img src="http://otkzd4sua.bkt.clouddn.com/RabbitMQ-6.png" alt=""></p>
+<h2 id="RPC"><a href="#RPC" class="headerlink" title="RPC"></a>RPC</h2><p>MQ本身是基于异步的消息处理，前面的示例中所有的生产者（P）将消息发送到RabbitMQ后不会知道消费者（C）处理成功或者失败（甚至连有没有消费者来处理这条消息都不知道）。 但实际的应用场景中，我们很可能需要一些同步处理，需要同步等待服务端将我的消息处理完成后再进行下一步处理。这相当于RPC（Remote Procedure Call，远程过程调用）。在RabbitMQ中也支持RPC。<br><img src="https://upload-images.jianshu.io/upload_images/5937589-92f1e0239b803674.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="rpc.png"></p>
 <p>  RabbitMQ  中实现RPC 的机制是：</p>
 <ul>
 <li>客户端发送请求（消息）时，在消息的属性（MessageProperties ，在AMQP 协议中定义了14中properties ，这些属性会随着消息一起发送）中设置两个值replyTo （一个Queue 名称，用于告诉服务器处理完成后将通知我的消息发送到这个Queue 中）和correlationId （此次请求的标识号，服务器处理完成后需要将此属性返还，客户端将根据这个id了解哪条请求被成功执行了或执行失败）</li>

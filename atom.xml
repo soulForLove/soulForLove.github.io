@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.linzhongtai.cn/"/>
-  <updated>2019-04-01T11:48:51.000Z</updated>
+  <updated>2019-04-29T09:13:17.000Z</updated>
   <id>http://blog.linzhongtai.cn/</id>
   
   <author>
@@ -15,6 +15,50 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Redis缓存淘汰策略</title>
+    <link href="http://blog.linzhongtai.cn/2019/04/Redis%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5/"/>
+    <id>http://blog.linzhongtai.cn/2019/04/Redis缓存淘汰策略/</id>
+    <published>2019-04-29T09:13:17.000Z</published>
+    <updated>2019-04-29T09:13:17.000Z</updated>
+    
+    <content type="html"><![CDATA[<a id="more"></a><h2 id="常用的淘汰算法"><a href="#常用的淘汰算法" class="headerlink" title="常用的淘汰算法"></a>常用的淘汰算法</h2><ul><li>FIFO：First In First Out，先进先出。判断被存储的时间，离目前最远的数据优先被淘汰。</li><li>LRU：Least Recently Used，最近最少使用。判断最近被使用的时间，目前最远的数据优先被淘汰。</li><li>LFU：Least Frequently Used，最不经常使用。在一段时间内，数据被使用次数最少的，优先被淘汰。</li></ul><h2 id="Redis提供的淘汰策略："><a href="#Redis提供的淘汰策略：" class="headerlink" title="Redis提供的淘汰策略："></a>Redis提供的淘汰策略：</h2><ul><li>noeviction：达到内存限额后返回错误，客户尝试可以导致更多内存使用的命令（大部分写命令，但DEL和一些例外）</li><li>allkeys-lru：为了给新增加的数据腾出空间，驱逐键先试图移除一部分最近使用较少的（LRC）。</li><li>volatile-lru：为了给新增加的数据腾出空间，驱逐键先试图移除一部分最近使用较少的（LRC），但只限于过期设置键。</li><li>allkeys-random: 为了给新增加的数据腾出空间，驱逐任意键</li><li>volatile-random: 为了给新增加的数据腾出空间，驱逐任意键，但只限于有过期设置的驱逐键。</li><li>volatile-ttl: 为了给新增加的数据腾出空间，驱逐键只有秘钥过期设置，并且首先尝试缩短存活时间的驱逐键</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      LRU
+    
+    </summary>
+    
+      <category term="redis" scheme="http://blog.linzhongtai.cn/categories/redis/"/>
+    
+    
+      <category term="redis" scheme="http://blog.linzhongtai.cn/tags/redis/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Redis中keys与scan特点</title>
+    <link href="http://blog.linzhongtai.cn/2019/04/Redis%E4%B8%ADkeys%E4%B8%8Escan%E7%89%B9%E7%82%B9/"/>
+    <id>http://blog.linzhongtai.cn/2019/04/Redis中keys与scan特点/</id>
+    <published>2019-04-29T09:06:41.000Z</published>
+    <updated>2019-04-29T09:06:41.000Z</updated>
+    
+    <content type="html"><![CDATA[<a id="more"></a><h2 id="keys缺点"><a href="#keys缺点" class="headerlink" title="keys缺点"></a>keys缺点</h2><ol><li>没有offset、limit参数，不能限制查询个数</li><li>keys是遍历算法，复杂度O(n)，数据量大的时候会导致redis卡顿</li></ol><h2 id="scan"><a href="#scan" class="headerlink" title="scan"></a>scan</h2><ol><li>复杂度O(n)，但是scan是通过游标分步进行，不阻塞</li><li>提供limit，可控制返回结果数</li><li>同keys一样，提供模式匹配</li><li>服务器不需要为游标保存状态，唯一状态是scan返回客户端的游标整数</li><li><strong>返回结果可能重复，需要客户端去重</strong></li><li>如果遍历过程中有数据修改，改动后的数据不保证同步</li><li>单次返回结果是空的，不表示遍历结束，而要看返回的游标值是否为0</li></ol>]]></content>
+    
+    <summary type="html">
+    
+      keys VS scan
+    
+    </summary>
+    
+      <category term="redis" scheme="http://blog.linzhongtai.cn/categories/redis/"/>
+    
+    
+      <category term="redis" scheme="http://blog.linzhongtai.cn/tags/redis/"/>
+    
+  </entry>
   
   <entry>
     <title>重温系列之多线程并发：阻塞队列</title>
@@ -459,52 +503,6 @@
       <category term="jvm" scheme="http://blog.linzhongtai.cn/tags/jvm/"/>
     
       <category term="重温" scheme="http://blog.linzhongtai.cn/tags/%E9%87%8D%E6%B8%A9/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>重温系列之JVM：内存区域</title>
-    <link href="http://blog.linzhongtai.cn/2019/03/%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8BJVM%EF%BC%9A%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/"/>
-    <id>http://blog.linzhongtai.cn/2019/03/重温系列之JVM：内存区域/</id>
-    <published>2019-03-27T09:42:53.000Z</published>
-    <updated>2019-03-27T09:42:53.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="JVM内存区域"><a href="#JVM内存区域" class="headerlink" title="JVM内存区域"></a>JVM内存区域</h1><p><img src="http://blog2019.oss-cn-shenzhen.aliyuncs.com/1553675182%281%29.jpg" alt=""></p><ul><li>线程私有：【程序计数器、虚拟机栈、本地方法栈】</li><li>线程共享：【方法区（永久区）、Java堆】—–线程共享区域随虚拟机的启动/关闭而创建/销毁</li><li>直接内存：直接内存并不是 JVM 运行时数据区的一部分, 但也会被频繁的使用: 在 JDK 1.4 引入的 NIO 提供了基于 Channel 与 Buffer 的 IO 方式, 它可以使用 Native 函数库直接分配堆外内存, 然后使用DirectByteBuffer 对象作为这块内存的引用进行操作(详见: Java I/O 扩展), 这样就避免了在 Java堆和 Native 堆中来回复制数据, 因此在一些场景中可以显著提高性能。<blockquote><p>线程私有数据区域生命周期与线程相同, 依赖用户线程的启动/结束 而 创建/销毁(在 Hotspot VM内， 每个线程都与操作系统的本地线程直接映射, 因此这部分内存区域的存/否跟随本地线程的生/死对应）</p></blockquote></li></ul><p><img src="http://blog2019.oss-cn-shenzhen.aliyuncs.com/1553675939%281%29.jpg" alt=""></p><h2 id="程序计数器-线程私有"><a href="#程序计数器-线程私有" class="headerlink" title="程序计数器( 线程私有)"></a>程序计数器( 线程私有)</h2><p>一块较小的内存空间, 是当前线程所执行的字节码的行号指示器，每条线程都要有一个独立的程序计数器，这类内存也称为“线程私有”的内存。<br>正在执行 java 方法的话，计数器记录的是虚拟机字节码指令的地址（当前指令的地址）。如果还是 Native 方法，则为空。<br><strong>这个内存区域是唯一一个在虚拟机中没有规定任何 OutOfMemoryError 情况的区域。</strong></p><h2 id="虚拟机栈-线程私有"><a href="#虚拟机栈-线程私有" class="headerlink" title="虚拟机栈( 线程私有)"></a>虚拟机栈( 线程私有)</h2><p><strong>虚拟机栈是描述java方法执行的内存模型，每个方法在执行的同时都会创建一个栈帧（Stack Frame）用于存储局部变量表、操作数栈、动态链接、方法出口等信息。</strong><br>每一个方法从调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中入栈到出栈的过程。<br>栈帧（ Frame）是用来存储数据和部分过程结果的数据结构，同时也被用来处理动态链接(Dynamic Linking)、 方法返回值和异常分派（ Dispatch Exception）。栈帧随着方法调用而创建，随着方法结束而销毁——无论方法是正常完成还是异常完成（抛出了在方法内未被捕获的异常）都算作方法结束。</p><h2 id="本地方法区-线程私有"><a href="#本地方法区-线程私有" class="headerlink" title="本地方法区( 线程私有)"></a>本地方法区( 线程私有)</h2><p>本地方法区和 Java Stack 作用类似, <strong>区别是虚拟机栈为执行 Java 方法服务, 而本地方法栈则为Native 方法服务</strong>, 如果一个 VM 实现使用 C-linkage 模型来支持 Native 调用, 那么该栈将会是一个C 栈，但 HotSpot VM 直接就把本地方法栈和虚拟机栈合二为一。</p><h2 id="堆（Heap-线程共享）-运行时数据区"><a href="#堆（Heap-线程共享）-运行时数据区" class="headerlink" title="堆（Heap- 线程共享）- 运行时数据区"></a>堆（Heap- 线程共享）- 运行时数据区</h2><p>是被线程共享的一块内存区域，<strong>创建的对象和数组都保存在 Java 堆内存中，也是垃圾收集器进行垃圾收集的最重要的内存区域。</strong>由于现代 VM 采用分代收集算法, 因此 Java 堆从 GC 的角度还可以细分为: 新生代( Eden 区 、 From Survivor 区 和 To Survivor 区 )和老年代。<br>如果在堆中没有内存完成实例分配，并且堆也无法再扩展时，将会抛出OutOfMemoryError异常。</p><h2 id="方法区-永久代（线程共享）"><a href="#方法区-永久代（线程共享）" class="headerlink" title="方法区/永久代（线程共享）"></a>方法区/永久代（线程共享）</h2><p><strong>永久代(Permanent Generation), 用于存储被 JVM 加载的类信息、常量、静态变量、即时编译器编译后的代码等数据。</strong> HotSpot VM把GC分代收集扩展至方法区, 即使用Java堆的永久代来实现方法区, 这样 HotSpot 的垃圾收集器就可以像管理 Java 堆一样管理这部分内存,而不必为方法区开发专门的内存管理器(永久带的内存回收的主要目标是针对常量池的回收和类型的卸载, 因此收益一般很小)。</p><p><strong>运行时常量池（Runtime Constant Pool）</strong>是方法区的一部分。Class 文件中除了有类的版本、字段、方法、接口等描述等信息外，还有一项信息是常量池（Constant Pool Table），用于存放编译期生成的各种字面量和符号引用，这部分内容将在类加载后存放到方法区的运行时常量池中。 Java 虚拟机对 Class 文件的每一部分（自然也包括常量池）的格式都有严格的规定，每一个字节用于存储哪种数据都必须符合规范上的要求，这样才会被虚拟机认可、装载和执行。</p><h1 id="JVM运行时内存"><a href="#JVM运行时内存" class="headerlink" title="JVM运行时内存"></a>JVM运行时内存</h1><blockquote><p>Java 堆从 GC 的角度还可以细分为: 新生代( Eden 区 、 From Survivor 区 和 To Survivor 区 )和老年代。</p></blockquote><p><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/1553678879%281%29.jpg" alt=""></p><h2 id="新生代"><a href="#新生代" class="headerlink" title="新生代"></a>新生代</h2><blockquote><p>是用来存放新生的对象。一般占据堆的1/3空间。由于频繁创建对象，所以新生代会频繁触发MinorGC 进行垃圾回收。新生代又分为 Eden 区、FromSurvivor、ToSurvivor 三个区。</p></blockquote><h3 id="Eden区"><a href="#Eden区" class="headerlink" title="Eden区"></a>Eden区</h3><p>Java新对象的出生地（如果新创建的对象占用内存很大，则直接分配到老<br>年代）。当Eden区内存不够的时候就会触发MinorGC，对新生代区进行<br>一次垃圾回收。</p><h3 id="From-Survivor"><a href="#From-Survivor" class="headerlink" title="From Survivor"></a>From Survivor</h3><p>上一次 GC 的幸存者，作为这一次 GC 的被扫描者。</p><h3 id="To-Survivor"><a href="#To-Survivor" class="headerlink" title="To Survivor"></a>To Survivor</h3><p>保留了一次 MinorGC 过程中的幸存者。</p><h3 id="MinorGC的过程（复制-gt-清空-gt-互换）"><a href="#MinorGC的过程（复制-gt-清空-gt-互换）" class="headerlink" title="MinorGC的过程（复制-&gt;清空-&gt;互换）"></a>MinorGC的过程（复制-&gt;清空-&gt;互换）</h3><p>MinorGC 采用复制算法。</p><ol><li><strong>Eden、FromSurvivor复制到 ToSurvivor，年龄+1</strong><br>首先，把 Eden和 FromSurvivor区域中存活的对象复制到 ToSurvivor区域（如果有对象的年龄以及达到了老年的标准，则复制到老年代区），同时把这些对象的年龄+1（如果 ToSurvivor不够位置了就放到老年区）；</li><li><strong>清空 Eden 、 FromSurvivor</strong><br>然后，清空 Eden 和 FromSurvivor中的对象；</li><li>ToSurvivor和 FromSurvivor互换<br>最后，ToSurvivor和 FromSurvivor互换，原 ToSurvivor成为下一次 GC 时的 FromSurvivor区。</li></ol><h2 id="老年代"><a href="#老年代" class="headerlink" title="老年代"></a>老年代</h2><blockquote><p>主要存放应用程序中生命周期长的内存对象。</p></blockquote><p>老年代的对象比较稳定，所以 MajorGC 不会频繁执行。在进行 MajorGC 前一般都先进行了一次 MinorGC，使得有新生代的对象晋身入老年代，导致空间不够用时才触发。当无法找到足够大的连续空间分配给新创建的较大对象时也会提前触发一次 MajorGC 进行垃圾回收腾出空间。</p><p><strong>MajorGC 采用标记清除算法</strong>：首先扫描一次所有老年代，标记出存活的对象，然后回收没有标记的对象。MajorGC 的耗时比较长，因为要扫描再回收。MajorGC 会产生内存碎片，为了减少内存损耗，我们一般需要进行合并或者标记出来方便下次直接分配。当老年代也满了装不下的时候，就会抛出 OOM（Out of Memory）异常。</p><h2 id="永久代"><a href="#永久代" class="headerlink" title="永久代"></a>永久代</h2><p>指内存的永久保存区域，主要存放 Class 和 Meta（元数据）的信息,Class 在被加载的时候被放入永久区域，它和和存放实例的区域不同,GC 不会在主程序运行期对永久区域进行清理。所以这也导致了永久代的区域会随着加载的 Class 的增多而胀满，最终抛出 OOM 异常。</p><h3 id="JAVA8-与元数据"><a href="#JAVA8-与元数据" class="headerlink" title="JAVA8 与元数据"></a>JAVA8 与元数据</h3><p>在Java8中，永久代已经被移除，被一个称为“元数据区”（元空间）的区域所取代。元空间的本质和永久代类似，元空间与永久代之间最大的区别在于：元空间并不在虚拟机中，而是使用本地内存。因此，默认情况下，元空间的大小仅受本地内存限制。类的元数据放入 nativememory, 字符串池和类的静态变量放入 java 堆中，这样可以加载多少类的元数据就不再由MaxPermSize 控制, 而由系统的实际可用空间来控制。</p>]]></content>
-    
-    <summary type="html">
-    
-      回顾学习之旅
-    
-    </summary>
-    
-      <category term="jvm" scheme="http://blog.linzhongtai.cn/categories/jvm/"/>
-    
-    
-      <category term="jvm" scheme="http://blog.linzhongtai.cn/tags/jvm/"/>
-    
-      <category term="重温" scheme="http://blog.linzhongtai.cn/tags/%E9%87%8D%E6%B8%A9/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>最近</title>
-    <link href="http://blog.linzhongtai.cn/2018/12/%E6%9C%80%E8%BF%91/"/>
-    <id>http://blog.linzhongtai.cn/2018/12/最近/</id>
-    <published>2018-12-12T06:05:35.000Z</published>
-    <updated>2018-12-12T06:05:35.000Z</updated>
-    
-    <content type="html"><![CDATA[<a id="more"></a><blockquote><p>做一个有想法的人。</p></blockquote><article><br>    年初的目标还没有完成，却已到了年底啊啊啊啊啊啊啊。<br>    有很多想做想学想去改变的东西，三分钟热度撑不住想法，坚持才行。<br>    五月份，在选择的关卡，其实并没有深入的去了解自己想去想做的事情，很片面，也很幼稚的去做出决定。一段较为纠结的时间段，可能让自己学到的，就是知道了自己不想做什么事情，想做什么。<br>    十一月份是新的开始，也是新的挑战，一个人，能做事，且做好。<br>    世界很大，我想去看看，更想带你去看看。<br>    是随便乱写的哈哈哈，希望明年的自己更Xiang Yang。<br></article>]]></content>
-    
-    <summary type="html">
-    
-      2018年
-    
-    </summary>
-    
-      <category term="我的" scheme="http://blog.linzhongtai.cn/categories/%E6%88%91%E7%9A%84/"/>
-    
-    
-      <category term="我的" scheme="http://blog.linzhongtai.cn/tags/%E6%88%91%E7%9A%84/"/>
     
   </entry>
   

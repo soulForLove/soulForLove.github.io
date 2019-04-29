@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[CyclicBarrier、CountDownLatch、Semaphore的用法]]></title>
+    <url>%2F2019%2F04%2FCyclicBarrier%E3%80%81CountDownLatch%E3%80%81Semaphore%E7%9A%84%E7%94%A8%E6%B3%95%2F</url>
+    <content type="text"><![CDATA[CyclicBarrier回环栅栏 等待至 barrier 状态再全部同时执行可重用 通过它可以实现让一组线程等待至某个状态之后再全部同时执行。叫做回环是因为当所有等待线程都被释放以后，CyclicBarrier 可以被重用。 CyclicBarrier 中最重要的方法就是 await 方法，它有 2 个重载版本： public int await()：用来挂起当前线程，直至所有线程都到达 barrier 状态再同时执行后续任务； public int await(long timeout, TimeUnit unit)：让这些线程等待至一定的时间，如果还有线程没有到达 barrier 状态就直接让到达 barrier 的线程执行后续任务 12345678910111213141516171819202122232425public static void main(String[] args) &#123; int N = 4; CyclicBarrier barrier = new CyclicBarrier(N); for(int i=0;i&lt;N;i++) new Writer(barrier).start(); &#125; static class Writer extends Thread&#123; private CyclicBarrier cyclicBarrier; public Writer(CyclicBarrier cyclicBarrier) &#123; this.cyclicBarrier = cyclicBarrier; &#125; @Override public void run() &#123; try &#123; Thread.sleep(5000); //以睡眠来模拟线程需要预定写入数据操作 System.out.println(&quot;线程&quot;+Thread.currentThread().getName()+&quot;写入数据完毕，等待其他线程写入完毕&quot;); cyclicBarrier.await(); &#125; catch (InterruptedException e) &#123; e.printStackTrace(); &#125;catch(BrokenBarrierException e)&#123; e.printStackTrace(); &#125; System.out.println(&quot;所有线程写入完毕，继续处理其他任务，比如数据操作&quot;); &#125;&#125; CyclicBarrier(int parties)：参数表示屏障拦截的线程数，每个线程调用await方法告CyclicBarrier已到达屏障，然后阻塞当前线程。 CounDownLatch线程计数器 任务A，需要等其他四个任务完毕后，才执行。不可重用 1234567891011121314151617181920final CountDownLatch latch = new CountDownLatch(2); new Thread()&#123;public void run() &#123; System.out.println(&quot;子线程&quot;+Thread.currentThread().getName()+&quot;正在执行&quot;); Thread.sleep(3000); System.out.println(&quot;子线程&quot;+Thread.currentThread().getName()+&quot;执行完毕&quot;); latch.countDown(); &#125;;&#125;.start(); new Thread()&#123; public void run() &#123; System.out.println(&quot;子线程&quot;+Thread.currentThread().getName()+&quot;正在执行&quot;); Thread.sleep(3000); System.out.println(&quot;子线程&quot;+Thread.currentThread().getName()+&quot;执行完毕&quot;); latch.countDown(); &#125;;&#125;.start();System.out.println(&quot;等待 2 个子线程执行完毕...&quot;);latch.await();System.out.println(&quot;2 个子线程已经执行完毕&quot;);System.out.println(&quot;继续执行主线程&quot;);&#125; 等待N个线程，调用countDown，N减1，CountDownLatch的await方法会阻塞当前线程，直到N变成0，countDown可以放在线程中，也可以放到执行步骤中。 SemaPhore信号量 控制同时访问的线程个数.通过acquire() 获取一个许可，如果没有就等待，而 release() 释放一个许可。 Semaphore 类中比较重要的几个方法： public void acquire(): 用来获取一个许可，若无许可能够获得，则会一直等待，直到获得许可。 public void acquire(int permits):获取 permits 个许可 public void release() { } :释放许可。注意，在释放许可之前，必须先获获得许可。 public void release(int permits) { }:释放 permits 个许可 上面 4 个方法都会被阻塞，如果想立即得到执行结果，可以使用下面几个方法 public boolean tryAcquire():尝试获取一个许可，若获取成功，则立即返回 true，若获取失败，则立即返回 false public boolean tryAcquire(long timeout, TimeUnit unit):尝试获取一个许可，若在指定的时间内获取成功，则立即返回 true，否则则立即返回 false public boolean tryAcquire(int permits):尝试获取 permits 个许可，若获取成功，则立即返回 true，若获取失败，则立即返回 false public boolean tryAcquire(int permits, long timeout, TimeUnit unit): 尝试获取 permits个许可，若在指定的时间内获取成功，则立即返回 true，否则则立即返回 false 还可以通过 availablePermits()方法得到可用的许可数目。 例子：若一个工厂有5 台机器，但是有8个工人，一台机器同时只能被一个工人使用，只有使用完了，其他工人才能继续使用。那么我们就可以通过 Semaphore 来实现：123456789101112131415161718192021222324252627int N = 8; //工人数Semaphore semaphore = new Semaphore(5); //机器数目for(int i=0;i&lt;N;i++)&#123; new Worker(i,semaphore).start();&#125;static class Worker extends Thread&#123;private int num;private Semaphore semaphore;public Worker(int num,Semaphore semaphore)&#123; this.num = num; this.semaphore = semaphore;&#125;@Overridepublic void run() &#123; try &#123; semaphore.acquire(); System.out.println(&quot;工人&quot;+this.num+&quot;占用一个机器在生产...&quot;); Thread.sleep(2000); System.out.println(&quot;工人&quot;+this.num+&quot;释放出机器&quot;); semaphore.release(); &#125; catch (InterruptedException e) &#123; e.printStackTrace(); &#125;&#125;]]></content>
+      <categories>
+        <category>JAVA</category>
+      </categories>
+      <tags>
+        <tag>JAVA</tag>
+        <tag>并发编程</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[AQS与CAS]]></title>
+    <url>%2F2019%2F04%2FAQS%E4%B8%8ECAS%2F</url>
+    <content type="text"><![CDATA[AQS（AbstractQueueSynchronizer）抽象队列同步器 维护了一个 int state（代表共享资源，volatile修饰）和一个 FIFO 线程等待队列（多线程争用资源被阻塞时会进入此队列） 资源共享方式 独占—&gt;ReentrantLock 共享—&gt;Semaphore/CountDownLatch 独占+共享—&gt;ReentrantReadWriteLock CAS（Compare And Swap/Set）比较并交换-乐观锁机制-锁自旋 当且仅当内存值V等于预期值A，才会将内存值设置为新值N 锁自旋—&gt;AtomicInteger.getAndIncrement ABA问题—&gt;版本号解决]]></content>
+      <categories>
+        <category>JAVA</category>
+      </categories>
+      <tags>
+        <tag>JAVA</tag>
+        <tag>小知识</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[Redis缓存淘汰策略]]></title>
     <url>%2F2019%2F04%2FRedis%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5%2F</url>
     <content type="text"><![CDATA[常用的淘汰算法 FIFO：First In First Out，先进先出。判断被存储的时间，离目前最远的数据优先被淘汰。 LRU：Least Recently Used，最近最少使用。判断最近被使用的时间，目前最远的数据优先被淘汰。 LFU：Least Frequently Used，最不经常使用。在一段时间内，数据被使用次数最少的，优先被淘汰。 Redis提供的淘汰策略： noeviction：达到内存限额后返回错误，客户尝试可以导致更多内存使用的命令（大部分写命令，但DEL和一些例外） allkeys-lru：为了给新增加的数据腾出空间，驱逐键先试图移除一部分最近使用较少的（LRC）。 volatile-lru：为了给新增加的数据腾出空间，驱逐键先试图移除一部分最近使用较少的（LRC），但只限于过期设置键。 allkeys-random: 为了给新增加的数据腾出空间，驱逐任意键 volatile-random: 为了给新增加的数据腾出空间，驱逐任意键，但只限于有过期设置的驱逐键。 volatile-ttl: 为了给新增加的数据腾出空间，驱逐键只有秘钥过期设置，并且首先尝试缩短存活时间的驱逐键]]></content>
@@ -410,8 +434,8 @@
         <category>JAVA</category>
       </categories>
       <tags>
-        <tag>并发编程</tag>
         <tag>JAVA</tag>
+        <tag>并发编程</tag>
       </tags>
   </entry>
   <entry>
@@ -558,8 +582,8 @@
         <category>JAVA</category>
       </categories>
       <tags>
-        <tag>小知识</tag>
         <tag>JAVA</tag>
+        <tag>小知识</tag>
       </tags>
   </entry>
   <entry>
@@ -696,8 +720,8 @@
         <category>linux</category>
       </categories>
       <tags>
-        <tag>linux</tag>
         <tag>小知识</tag>
+        <tag>linux</tag>
       </tags>
   </entry>
   <entry>
@@ -775,8 +799,8 @@
         <category>Bug</category>
       </categories>
       <tags>
-        <tag>Bug</tag>
         <tag>小知识</tag>
+        <tag>Bug</tag>
       </tags>
   </entry>
   <entry>
@@ -809,8 +833,8 @@
         <category>JAVA</category>
       </categories>
       <tags>
-        <tag>小知识</tag>
         <tag>JAVA</tag>
+        <tag>小知识</tag>
       </tags>
   </entry>
   <entry>

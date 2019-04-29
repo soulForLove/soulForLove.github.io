@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.linzhongtai.cn/"/>
-  <updated>2019-04-29T09:13:17.000Z</updated>
+  <updated>2019-04-29T09:49:05.000Z</updated>
   <id>http://blog.linzhongtai.cn/</id>
   
   <author>
@@ -15,6 +15,54 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>CyclicBarrier、CountDownLatch、Semaphore的用法</title>
+    <link href="http://blog.linzhongtai.cn/2019/04/CyclicBarrier%E3%80%81CountDownLatch%E3%80%81Semaphore%E7%9A%84%E7%94%A8%E6%B3%95/"/>
+    <id>http://blog.linzhongtai.cn/2019/04/CyclicBarrier、CountDownLatch、Semaphore的用法/</id>
+    <published>2019-04-29T09:49:05.000Z</published>
+    <updated>2019-04-29T09:49:05.000Z</updated>
+    
+    <content type="html"><![CDATA[<a id="more"></a><h2 id="CyclicBarrier回环栅栏"><a href="#CyclicBarrier回环栅栏" class="headerlink" title="CyclicBarrier回环栅栏"></a>CyclicBarrier回环栅栏</h2><blockquote><p>等待至 barrier 状态再全部同时执行<br><strong>可重用</strong></p></blockquote><p>通过它可以实现让一组线程等待至某个状态之后再全部同时执行。叫做回环是因为当所有等待线程都被释放以后，CyclicBarrier 可以被重用。</p><p>CyclicBarrier 中最重要的方法就是 await 方法，它有 2 个重载版本：</p><ol><li>public int await()：用来挂起当前线程，直至所有线程都到达 barrier 状态再同时执行后续任务；</li><li>public int await(long timeout, TimeUnit unit)：让这些线程等待至一定的时间，如果还有线程没有到达 barrier 状态就直接让到达 barrier 的线程执行后续任务</li></ol><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String[] args) &#123;</span><br><span class="line">  int N = 4;</span><br><span class="line">  CyclicBarrier barrier = new CyclicBarrier(N);</span><br><span class="line">  for(int i=0;i&lt;N;i++)</span><br><span class="line">    new Writer(barrier).start();</span><br><span class="line">  &#125;</span><br><span class="line">  static class Writer extends Thread&#123;</span><br><span class="line">    private CyclicBarrier cyclicBarrier;</span><br><span class="line">    public Writer(CyclicBarrier cyclicBarrier) &#123;</span><br><span class="line">      this.cyclicBarrier = cyclicBarrier;</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void run() &#123;</span><br><span class="line">      try &#123;</span><br><span class="line">        Thread.sleep(5000); //以睡眠来模拟线程需要预定写入数据操作</span><br><span class="line">        System.out.println(&quot;线程&quot;+Thread.currentThread().getName()+&quot;写入数据完毕，等待其他线程写入完毕&quot;);</span><br><span class="line">        cyclicBarrier.await();</span><br><span class="line">      &#125; catch (InterruptedException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">      &#125;catch(BrokenBarrierException e)&#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">      &#125;</span><br><span class="line">      System.out.println(&quot;所有线程写入完毕，继续处理其他任务，比如数据操作&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>CyclicBarrier(int parties)：参数表示屏障拦截的线程数，每个线程调用await方法告CyclicBarrier已到达屏障，然后阻塞当前线程。</p><h2 id="CounDownLatch线程计数器"><a href="#CounDownLatch线程计数器" class="headerlink" title="CounDownLatch线程计数器"></a>CounDownLatch线程计数器</h2><blockquote><p>任务A，需要等其他四个任务完毕后，才执行。<br><strong>不可重用</strong></p></blockquote><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">final CountDownLatch latch = new CountDownLatch(2);</span><br><span class="line">  new Thread()&#123;public void run() &#123;</span><br><span class="line">      System.out.println(&quot;子线程&quot;+Thread.currentThread().getName()+&quot;正在执行&quot;);</span><br><span class="line">      Thread.sleep(3000);</span><br><span class="line">      System.out.println(&quot;子线程&quot;+Thread.currentThread().getName()+&quot;执行完毕&quot;);</span><br><span class="line">      latch.countDown();</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;.start();</span><br><span class="line">  new Thread()&#123; public void run() &#123;</span><br><span class="line">      System.out.println(&quot;子线程&quot;+Thread.currentThread().getName()+&quot;正在执行&quot;);</span><br><span class="line">       Thread.sleep(3000);</span><br><span class="line">      System.out.println(&quot;子线程&quot;+Thread.currentThread().getName()+&quot;执行完毕&quot;);</span><br><span class="line">      latch.countDown();</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;.start();</span><br><span class="line">System.out.println(&quot;等待 2 个子线程执行完毕...&quot;);</span><br><span class="line">latch.await();</span><br><span class="line">System.out.println(&quot;2 个子线程已经执行完毕&quot;);</span><br><span class="line">System.out.println(&quot;继续执行主线程&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>等待N个线程，调用countDown，N减1，CountDownLatch的await方法会阻塞当前线程，直到N变成0，countDown可以放在线程中，也可以放到执行步骤中。</p><h2 id="SemaPhore信号量"><a href="#SemaPhore信号量" class="headerlink" title="SemaPhore信号量"></a>SemaPhore信号量</h2><blockquote><p>控制同时访问的线程个数.<br>通过acquire() 获取一个许可，如果没有就等待，而 release() 释放一个许可。</p></blockquote><p>Semaphore 类中比较重要的几个方法：</p><ol><li>public void acquire(): 用来获取一个许可，若无许可能够获得，则会一直等待，直到获得许可。</li><li>public void acquire(int permits):获取 permits 个许可</li><li>public void release() { } :释放许可。注意，在释放许可之前，必须先获获得许可。</li><li>public void release(int permits) { }:释放 permits 个许可</li></ol><p>上面 4 个方法都会被阻塞，如果想立即得到执行结果，可以使用下面几个方法</p><ol><li>public boolean tryAcquire():尝试获取一个许可，若获取成功，则立即返回 true，若获取失败，则立即返回 false</li><li>public boolean tryAcquire(long timeout, TimeUnit unit):尝试获取一个许可，若在指定的时间内获取成功，则立即返回 true，否则则立即返回 false</li><li>public boolean tryAcquire(int permits):尝试获取 permits 个许可，若获取成功，则立即返回 true，若获取失败，则立即返回 false</li><li>public boolean tryAcquire(int permits, long timeout, TimeUnit unit): 尝试获取 permits个许可，若在指定的时间内获取成功，则立即返回 true，否则则立即返回 false</li><li>还可以通过 availablePermits()方法得到可用的许可数目。</li></ol><p>例子：若一个工厂有5 台机器，但是有8个工人，一台机器同时只能被一个工人使用，只有使用完了，其他工人才能继续使用。那么我们就可以通过 Semaphore 来实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">int N = 8; //工人数</span><br><span class="line">Semaphore semaphore = new Semaphore(5); //机器数目</span><br><span class="line">for(int i=0;i&lt;N;i++)&#123;</span><br><span class="line">  new Worker(i,semaphore).start();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static class Worker extends Thread&#123;</span><br><span class="line"></span><br><span class="line">private int num;</span><br><span class="line">private Semaphore semaphore;</span><br><span class="line">public Worker(int num,Semaphore semaphore)&#123;</span><br><span class="line">  this.num = num;</span><br><span class="line">  this.semaphore = semaphore;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void run() &#123;</span><br><span class="line">  try &#123;</span><br><span class="line">    semaphore.acquire();</span><br><span class="line">    System.out.println(&quot;工人&quot;+this.num+&quot;占用一个机器在生产...&quot;);</span><br><span class="line">    Thread.sleep(2000);</span><br><span class="line">    System.out.println(&quot;工人&quot;+this.num+&quot;释放出机器&quot;);</span><br><span class="line">    semaphore.release();</span><br><span class="line">  &#125; catch (InterruptedException e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>]]></content>
+    
+    <summary type="html">
+    
+      回环栅栏、线程计数器、信号量
+    
+    </summary>
+    
+      <category term="JAVA" scheme="http://blog.linzhongtai.cn/categories/JAVA/"/>
+    
+    
+      <category term="JAVA" scheme="http://blog.linzhongtai.cn/tags/JAVA/"/>
+    
+      <category term="并发编程" scheme="http://blog.linzhongtai.cn/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>AQS与CAS</title>
+    <link href="http://blog.linzhongtai.cn/2019/04/AQS%E4%B8%8ECAS/"/>
+    <id>http://blog.linzhongtai.cn/2019/04/AQS与CAS/</id>
+    <published>2019-04-29T09:29:16.000Z</published>
+    <updated>2019-04-29T09:29:16.000Z</updated>
+    
+    <content type="html"><![CDATA[<a id="more"></a><h2 id="AQS（AbstractQueueSynchronizer）抽象队列同步器"><a href="#AQS（AbstractQueueSynchronizer）抽象队列同步器" class="headerlink" title="AQS（AbstractQueueSynchronizer）抽象队列同步器"></a>AQS（AbstractQueueSynchronizer）抽象队列同步器</h2><blockquote><p>维护了一个 int state（代表共享资源，volatile修饰）和一个 FIFO 线程等待队列（多线程争用资源被<br>阻塞时会进入此队列）</p></blockquote><h3 id="资源共享方式"><a href="#资源共享方式" class="headerlink" title="资源共享方式"></a>资源共享方式</h3><ul><li>独占—&gt;ReentrantLock</li><li>共享—&gt;Semaphore/CountDownLatch</li><li>独占+共享—&gt;ReentrantReadWriteLock</li></ul><h2 id="CAS（Compare-And-Swap-Set）比较并交换-乐观锁机制-锁自旋"><a href="#CAS（Compare-And-Swap-Set）比较并交换-乐观锁机制-锁自旋" class="headerlink" title="CAS（Compare And Swap/Set）比较并交换-乐观锁机制-锁自旋"></a>CAS（Compare And Swap/Set）比较并交换-乐观锁机制-锁自旋</h2><blockquote><p>当且仅当内存值V等于预期值A，才会将内存值设置为新值N</p></blockquote><ul><li>锁自旋—&gt;AtomicInteger.getAndIncrement</li><li>ABA问题—&gt;版本号解决</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      什么是AQS？什么是CAS？
+    
+    </summary>
+    
+      <category term="JAVA" scheme="http://blog.linzhongtai.cn/categories/JAVA/"/>
+    
+    
+      <category term="JAVA" scheme="http://blog.linzhongtai.cn/tags/JAVA/"/>
+    
+      <category term="小知识" scheme="http://blog.linzhongtai.cn/tags/%E5%B0%8F%E7%9F%A5%E8%AF%86/"/>
+    
+  </entry>
   
   <entry>
     <title>Redis缓存淘汰策略</title>
@@ -446,54 +494,6 @@
     <summary type="html">
     
       重点了解下CMS、G1收集器
-    
-    </summary>
-    
-      <category term="jvm" scheme="http://blog.linzhongtai.cn/categories/jvm/"/>
-    
-    
-      <category term="jvm" scheme="http://blog.linzhongtai.cn/tags/jvm/"/>
-    
-      <category term="重温" scheme="http://blog.linzhongtai.cn/tags/%E9%87%8D%E6%B8%A9/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>重温系列之JVM：Java引用类型</title>
-    <link href="http://blog.linzhongtai.cn/2019/03/%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8BJVM%EF%BC%9AJava%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B/"/>
-    <id>http://blog.linzhongtai.cn/2019/03/重温系列之JVM：Java引用类型/</id>
-    <published>2019-03-27T13:31:32.000Z</published>
-    <updated>2019-03-27T13:31:32.000Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="强引用"><a href="#强引用" class="headerlink" title="强引用"></a>强引用</h2><p>在 Java 中最常见的就是强引用，把一个对象赋给一个引用变量，这个引用变量就是一个强引用。当一个对象被强引用变量引用时，它处于可达状态，它是不可能被垃圾回收机制回收的，即使该对象以后永远都不会被用到 JVM 也不会回收。因此强引用是造成 Java 内存泄漏的主要原因之一。</p><h2 id="软引用"><a href="#软引用" class="headerlink" title="软引用"></a>软引用</h2><p>软引用需要用 SoftReference 类来实现，对于只有软引用的对象来说，当系统内存足够时它不会被回收，当系统内存空间不足时它会被回收。软引用通常用在对内存敏感的程序中。</p><h2 id="弱引用"><a href="#弱引用" class="headerlink" title="弱引用"></a>弱引用</h2><p>弱引用需要用 WeakReference 类来实现，它比软引用的生存期更短，对于只有弱引用的对象来说，只要垃圾回收机制一运行，不管 JVM 的内存空间是否足够，总会回收该对象占用的内存。</p><h2 id="虚引用"><a href="#虚引用" class="headerlink" title="虚引用"></a>虚引用</h2><p>虚引用需要 PhantomReference 类来实现，它不能单独使用，必须和引用队列联合使用。虚引用的主要作用是跟踪对象被垃圾回收的状态。</p>]]></content>
-    
-    <summary type="html">
-    
-      强软弱虚
-    
-    </summary>
-    
-      <category term="jvm" scheme="http://blog.linzhongtai.cn/categories/jvm/"/>
-    
-    
-      <category term="jvm" scheme="http://blog.linzhongtai.cn/tags/jvm/"/>
-    
-      <category term="重温" scheme="http://blog.linzhongtai.cn/tags/%E9%87%8D%E6%B8%A9/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>重温系列之JVM：垃圾回收与算法</title>
-    <link href="http://blog.linzhongtai.cn/2019/03/%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8BJVM%EF%BC%9A%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    <id>http://blog.linzhongtai.cn/2019/03/重温系列之JVM：垃圾回收与算法/</id>
-    <published>2019-03-27T13:30:19.000Z</published>
-    <updated>2019-03-27T13:30:19.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="http://upload-images.jianshu.io/upload_images/5937589-7184030af256a415.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p><h2 id="如何确定垃圾"><a href="#如何确定垃圾" class="headerlink" title="如何确定垃圾"></a>如何确定垃圾</h2><h3 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h3><p>在 Java 中，引用和对象是有关联的。如果要操作对象则必须用引用进行。因此，很显然一个简单的办法是通过引用计数来判断一个对象是否可以回收。<br><strong>每个对象有一个引用计数属性，新增一个引用时计数加1，引用释放时计数减1，计数为0时可以回收。此方法简单，无法解决对象相互循环引用的问题。</strong></p><h3 id="可达性分析"><a href="#可达性分析" class="headerlink" title="可达性分析"></a>可达性分析</h3><p>从GC Roots开始向下搜索，搜索所走过的路径称为引用链。当一个对象到GC Roots没有任何引用链相连时，则证明此对象是不可用的。不可达对象。</p><p>在Java语言中，GC Roots包括：</p><ul><li>虚拟机栈中引用的对象。</li><li>方法区中类静态属性实体引用的对象。</li><li>方法区中常量引用的对象。</li><li>本地方法栈中JNI引用的对象。</li></ul><p><strong>要注意的是，不可达对象不等价于可回收对象，不可达对象变为可回收对象至少要经过两次标记过程。两次标记后仍然是可回收对象，则将面临回收。</strong></p><h2 id="标记-清除算法"><a href="#标记-清除算法" class="headerlink" title="标记-清除算法"></a>标记-清除算法</h2><p>“标记-清除”（Mark-Sweep）算法，如它的名字一样，算法分为“标记”和“清除”两个阶段：首先标记出所有需要回收的对象，在标记完成后统一回收掉所有被标记的对象。之所以说它是最基础的收集算法，是因为后续的收集算法都是基于这种思路并对其缺点进行改进而得到的。<br>主要缺点有两个：一个是<strong>效率问题，标记和清除过程的效率都不高</strong>；另外一个是<strong>空间问题，标记清除之后会产生大量不连续的内存碎片</strong>，空间碎片太多可能会导致，当程序在以后的运行过程中需要分配较大对象时无法找到足够的连续内存而不得不提前触发另一次垃圾收集动作。<br><img src="http://upload-images.jianshu.io/upload_images/5937589-f7a1f6e35a3a742a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p><h2 id="复制算法"><a href="#复制算法" class="headerlink" title="复制算法"></a>复制算法</h2><p>“复制”（Copying）的收集算法，它将可用内存按容量划分为大小相等的两块，每次只使用其中的一块。当这一块的内存用完了，就将还存活着的对象复制到另外一块上面，然后再把已使用过的内存空间一次清理掉。<br>这种算法虽然<strong>实现简单，内存效率高，不易产生碎片</strong>，但是最大的问题是<strong>可用内存被压缩到了原本的一半</strong>。且存活对象增多的话，Copying 算法的效率会大大降低。<br>[图片上传失败…(image-580a95-1553689761459)]</p><h2 id="标记-整理算法"><a href="#标记-整理算法" class="headerlink" title="标记-整理算法"></a>标记-整理算法</h2><p>标记过程仍然与“标记-清除”算法一样，但后续步骤不是直接对可回收对象进行清理，而是让所有存活的对象都向一端移动，然后直接清理掉端边界以外的内存。<br>[图片上传失败…(image-26ac3c-1553689761459)]</p><h2 id="分代收集算法"><a href="#分代收集算法" class="headerlink" title="分代收集算法"></a>分代收集算法</h2><p>GC分代的基本假设：绝大部分对象的生命周期都非常短暂，存活时间短。<br>“分代收集”（Generational Collection）算法，把Java堆分为新生代和老年代，这样就可以根据各个年代的特点采用最适当的收集算法。在新生代中，每次垃圾收集时都发现有大批对象死去，只有少量存活，那就选用复制算法，只需要付出少量存活对象的复制成本就可以完成收集。而老年代中因为对象存活率高、没有额外空间对它进行分配担保，就必须使用“标记-清理”或“标记-整理”算法来进行回收。</p><h2 id="内存分配与回收策略"><a href="#内存分配与回收策略" class="headerlink" title="内存分配与回收策略"></a>内存分配与回收策略</h2><h3 id="内存分配的2种方式："><a href="#内存分配的2种方式：" class="headerlink" title="内存分配的2种方式："></a>内存分配的2种方式：</h3><blockquote><p><strong>选择哪种分配方式由Java堆是否规整决定，而Java堆是否规整又由所采用的垃圾收集器是否带有压缩整理功能决定</strong></p></blockquote><ul><li><strong>指针碰撞</strong><br>Java堆中内存是绝对规整的，所有用过的内存都放在一边，空闲的内存放在另一边，中间放着一个指针作为分界点的指示器，那所分配内存就仅仅是把那个指针向空闲空间那边挪动一段与对象大小相等的距离</li><li><strong>空闲列表</strong><br>Java堆中的内存并不是规整的，已使用的内存和空闲的内存相互交错，那就没有办法简单地进行指针碰撞了，虚拟机就必须维护一个列表，记录上哪些内存块是可用的，在分配的时候从列表中找到一块足够大的空间划分给对象实例，并更新列表上的记录<h3 id="回收策略"><a href="#回收策略" class="headerlink" title="回收策略"></a>回收策略</h3></li></ul><ol><li>对象优先在Eden区分配<br>大多数情况下，对象在新生代Eden区分配。当Eden区没有足够的空间进行分配时，虚拟机将发起一次MinorGC。</li><li>大对象直接进入老年代<br>所谓的大对象，指的是需要大量连续内存空间的Java对象，典型的大对象就是那种很长的字符串或数组。</li><li>长期存活的对象将进入老年代（-XX:MaxTenuringThreshold）<br>当对象在 Survivor 区躲过一次 GC 后，其年龄就会+1。默认情况下年龄到达 15 的对象会被移到老生代中。</li><li>动态年龄判断<br>如果在Survivor空间中相同年龄的所有对象大小的总和大于Survivor空间的一半，年龄大于或等于该年龄的对象就直接进入老年代，无须等到MaxTenuringThreshold中要求的年龄</li><li>空间分配担保<br>虚拟机会先检查老年代最大可用的连续空间是否大于新生代所有对象总空间，如果这个条件成立，那么Minor GC可以确保是安全的。如果不成立，则虚拟机会查看HandlePromotionFailure设置值是否允许担保失败。如果允许，那么会继续检查老年代最大可用的连续空间是否大于历次晋升到老年代对象的平均大小，如果大于，将尝试着进行一次Minor GC，尽管这次的Minor GC是有风险的；如果小于，或者HandlePromotionFailure设置不允许冒险，那这时也要改为进行一次Full GC。</li></ol><blockquote><p>Minor GC与Full GC有什么不一样？</p></blockquote><ul><li>新生代GC（MinorGC）：指发生在新生代的垃圾收集动作，因为Java对象大都具备朝生夕灭的特性，所以Minor GC 非常频繁，一般回收速度也比较快；</li><li>老年代GC（Major GC / Full GC）：指发生在老年代的GC，出现了Major GC，经常会伴随至少一次的Minor GC（但非绝对的，在Parallel Scavenge收集器的收集策略里就有直接进行Major GC的策略选择过程）。Major GC的速度一般会比Minor GC慢10倍以上。</li></ul>]]></content>
-    
-    <summary type="html">
-    
-      新生代-复制算法，老年代-标记-清除/整理算法
     
     </summary>
     

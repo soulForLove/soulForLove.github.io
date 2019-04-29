@@ -463,13 +463,13 @@
 <p><strong>corePoolSize</strong>: 表示需要设置的线程个数；<strong>maximumPoolSize</strong>: 线程池允许的最大线程个数； <strong>keepAliveTime</strong>: 空闲线程存活的时间，超过这个时间就会被回收； unit: 存活时间的单位；<strong>workQueue</strong>: 需要执行的任务队列。<strong>threadFactory</strong>: 线程工厂，用于创建线程，一般用默认的即可；<strong>handler</strong>: 拒绝策略，当任务太多来不及处理，如何拒绝任务； 拒绝策略： 直接丢弃（DiscardPolicy） 丢弃队列中最老的任务(DiscardOldestPolicy) 抛异常(AbortPolicy) 将任务分给调用线程来执行(CallerRunsPolicy)</p>
 <h4 id="newCachedThreadPool：可缓存线程池"><a href="#newCachedThreadPool：可缓存线程池" class="headerlink" title="newCachedThreadPool：可缓存线程池"></a>newCachedThreadPool：<strong>可缓存线程池</strong></h4><blockquote>
 <p>如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。</p>
+</blockquote>
 <ul>
 <li>工作线程的创建数量几乎没有限制(数目限制为Interger. MAX_VALUE), 可灵活的往线程池中添加线程。</li>
 <li>如果长时间没有往线程池中提交任务，即如果工作线程空闲了指定的时间(默认为1分钟)，则该工作线程将自动终止。终止后，如果你又提交了新的任务，则线程池重新创建一个工作线程。</li>
 <li>在使用CachedThreadPool时，一定要注意控制任务的数量，否则，由于大量线程同时运行，很有可能会造成系统瘫痪。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public static ExecutorService newCachedThreadPool() &#123;</span><br><span class="line">        return new ThreadPoolExecutor(0, Integer.MAX_VALUE,</span><br><span class="line">                                      60L, TimeUnit.SECONDS,</span><br><span class="line">                                      new SynchronousQueue&lt;Runnable&gt;());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-</blockquote>
 <p><strong>SynchronousQueue</strong>：<br>SynchronousQueue是无界的，是一种无缓冲的等待队列，但是由于该Queue本身的特性，<strong>在某次添加元素put后必须等待其他线程取走take后才能继续添加</strong>；可以认为SynchronousQueue是一个缓存值为1的阻塞队列，但是 isEmpty()方法永远返回是true，remainingCapacity() 方法永远返回是0，remove()和removeAll() 方法永远返回是false，iterator()方法永远返回空，peek()方法永远返回null。<br>声明一个SynchronousQueue有两种不同的方式，它们之间有着不太一样的行为。<br><strong>公平模式和非公平模式的区别</strong>:如果采用公平模式：SynchronousQueue会采用公平锁，并配合一个FIFO先进先出队列来阻塞多余的生产者和消费者，从而体系整体的公平策略；但如果是非公平模式（SynchronousQueue默认）：SynchronousQueue采用非公平锁，同时配合一个LIFO后进先出队列来管理多余的生产者和消费者，而后一种模式，如果生产者和消费者的处理速度有差距，则很容易出现饥渴的情况，即可能有某些生产者或者是消费者的数据永远都得不到处理。</p>
 <h4 id="newFixedThreadPool"><a href="#newFixedThreadPool" class="headerlink" title="newFixedThreadPool"></a>newFixedThreadPool</h4><blockquote>
 <p>创建一个可重用固定线程数的线程池，以共享的无界队列方式来运行这些线程。(可控制线程最大并发数，超出的线程会在队列中等待)</p>
@@ -494,9 +494,7 @@
 </ul>
 <p><strong>DelayedWorkQueue</strong></p>
 <blockquote>
-<blockquote>
 <p>使用优先级队列DelayedWorkQueue，保证添加到队列中的任务，会按照任务的延时时间进行排序，延时时间少的任务首先被获取。</p>
-</blockquote>
 </blockquote>
 <ol>
 <li>元素个数超过数组长度，就会调用grow()方法，进行数组扩容。</li>

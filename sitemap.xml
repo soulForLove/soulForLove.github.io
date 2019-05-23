@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.linzhongtai.cn/2018/04/%E3%80%8A%E4%B9%A6%E5%8D%95%E3%80%8B/</loc>
+    
+    <lastmod>2019-05-19T11:52:33.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.linzhongtai.cn/2019/04/CyclicBarrier%E3%80%81CountDownLatch%E3%80%81Semaphore%E7%9A%84%E7%94%A8%E6%B3%95/</loc>
     
     <lastmod>2019-04-29T09:49:05.000Z</lastmod>
@@ -254,13 +261,6 @@
   </url>
   
   <url>
-    <loc>http://blog.linzhongtai.cn/tags/index.html</loc>
-    
-    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://blog.linzhongtai.cn/googleddf2510b177a27a8.html</loc>
     
     <lastmod>2018-05-24T02:45:26.000Z</lastmod>
@@ -276,6 +276,13 @@
   
   <url>
     <loc>http://blog.linzhongtai.cn/categories/index.html</loc>
+    
+    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.linzhongtai.cn/tags/index.html</loc>
     
     <lastmod>2018-05-24T02:45:26.000Z</lastmod>
     
@@ -348,13 +355,6 @@
     <loc>http://blog.linzhongtai.cn/2018/04/SpringBoot%E5%AD%A6%E4%B9%A0%E4%B9%8Bactuator/</loc>
     
     <lastmod>2018-04-12T08:50:14.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.linzhongtai.cn/2018/04/%E3%80%8A%E4%B9%A6%E5%8D%95%E3%80%8B/</loc>
-    
-    <lastmod>2018-04-09T11:52:33.000Z</lastmod>
     
   </url>
   

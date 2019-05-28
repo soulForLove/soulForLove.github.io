@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[Spring Boot 属性加载顺序]]></title>
+    <url>%2F2019%2F05%2FSpring-Boot-%E5%B1%9E%E6%80%A7%E5%8A%A0%E8%BD%BD%E9%A1%BA%E5%BA%8F%2F</url>
+    <content type="text"><![CDATA[在命令行中传入的参数 SPRING_APPLICATION_JSON 中的属性，SPRING_APPLICATION_JSON 是以JSON格式配置在系统环境变量中的内容 java:comp/env 中的JNI属性 Java的系统属性，可以通过System.getProperties()获得的内容 操作系统的环境变量 通过random.* 配置的随机属性 位于当前应用 jar 包之外，针对不同{profile}环境的配置文件内容；例如application-{profile}.properties或是YAML定义的配置文件 位于当前应用 jar 包之内，针对不同{profile}环境的配置文件内容；例如application-{profile}.properties或是YAML定义的配置文件 位于当前应用 jar 包之外的application.properties和YAML配置内容 位于当前应用 jar 包之内的application.properties和YAML配置内容 在@Configuration注解修改的类中，通过@PropertiesSource注解定义的属性 应用默认属性，使用SpringApplication.setDefaultProperties定义的内容 优先级由高到低，数字越小，优先级越高 第7，9都是用应用jar包之外来读取配置文件，因此可以从此处进行切入，指定外部配置文件的加载位置来取代jar包之内的配置内容。]]></content>
+      <categories>
+        <category>SpringBoot</category>
+      </categories>
+      <tags>
+        <tag>SpringBoot</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[SpringBoot常用配置]]></title>
     <url>%2F2019%2F05%2FSpringBoot%E5%B8%B8%E7%94%A8%E9%85%8D%E7%BD%AE%2F</url>
     <content type="text"><![CDATA[Bean的Scope Singleton：一个Spring容器中只有一个Bean的实例，此为Spring的默认配置，全容器共享一个实例 Prototype：每次调用新建一个Bean的实例 Request：Web项目中，给每一个http request新建一个Bean实例 Session：Web项目中，给每一个http session新建一个Bean实例 GlobalSession：只在portal应用中有用，给每一个global http session新建一个Bean实例 Spring EL 和资源调节Spring主要在注解@Value的参数中使用表达式： 注入普通字符串 注入操作系统属性 注入表达式运算结果 注入其他Bean的属性 注入文件内容 注入网址内容 注入属性文件 Bean的初始化和销毁 在Bean使用之前或者之后要做些必要的操作，Spring对Bean的生命周期的操作提供了支持 Java配置方式：使用@Bean的initMethod和destoryMethod（相当于xml配置的init-method和destory-method） 注解方式：利用JSR-250的@PostConstruct和@PreDestory 多线程使用ThreadPoolTaskExecutor可实现一个基于线程池的TaskExecutor 在配置类中通过@EnableAsync开启对异步任务的支持，并通过在执行方法中使用@Async注解赖声明为异步任务 计划任务 首先在配置类注解@EnableScheduling来开启对计划任务的支持，然后在执行计划任务的方法上注解@Scheduled，声明为计划任务 @Scheduled支持多种类型的计划任务，包含cron、fixDelay、fixRate等等]]></content>

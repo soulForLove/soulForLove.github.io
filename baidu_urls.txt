@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2019/05/SpringBoot常用配置/
+http://blog.linzhongtai.cn/2019/05/Spring-Boot-属性加载顺序/

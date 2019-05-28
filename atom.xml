@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.linzhongtai.cn/"/>
-  <updated>2019-04-29T09:49:05.000Z</updated>
+  <updated>2019-05-28T01:42:17.000Z</updated>
   <id>http://blog.linzhongtai.cn/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>SpringBoot常用配置</title>
+    <link href="http://blog.linzhongtai.cn/2019/05/SpringBoot%E5%B8%B8%E7%94%A8%E9%85%8D%E7%BD%AE/"/>
+    <id>http://blog.linzhongtai.cn/2019/05/SpringBoot常用配置/</id>
+    <published>2019-05-28T01:42:17.000Z</published>
+    <updated>2019-05-28T01:42:17.000Z</updated>
+    
+    <content type="html"><![CDATA[<a id="more"></a><h2 id="Bean的Scope"><a href="#Bean的Scope" class="headerlink" title="Bean的Scope"></a>Bean的Scope</h2><ul><li>Singleton：一个Spring容器中只有一个Bean的实例，此为Spring的默认配置，全容器共享一个实例</li><li>Prototype：每次调用新建一个Bean的实例</li><li>Request：Web项目中，给每一个http request新建一个Bean实例</li><li>Session：Web项目中，给每一个http session新建一个Bean实例</li><li>GlobalSession：只在portal应用中有用，给每一个global http session新建一个Bean实例</li></ul><h2 id="Spring-EL-和资源调节"><a href="#Spring-EL-和资源调节" class="headerlink" title="Spring EL 和资源调节"></a>Spring EL 和资源调节</h2><p>Spring主要在注解@Value的参数中使用表达式：</p><ol><li>注入普通字符串</li><li>注入操作系统属性</li><li>注入表达式运算结果</li><li>注入其他Bean的属性</li><li>注入文件内容</li><li>注入网址内容</li><li>注入属性文件</li></ol><h2 id="Bean的初始化和销毁"><a href="#Bean的初始化和销毁" class="headerlink" title="Bean的初始化和销毁"></a>Bean的初始化和销毁</h2><blockquote><p>在Bean使用之前或者之后要做些必要的操作，Spring对Bean的生命周期的操作提供了支持</p></blockquote><ol><li>Java配置方式：使用@Bean的initMethod和destoryMethod（相当于xml配置的init-method和destory-method）</li><li>注解方式：利用JSR-250的@PostConstruct和@PreDestory</li></ol><h2 id="多线程"><a href="#多线程" class="headerlink" title="多线程"></a>多线程</h2><p>使用ThreadPoolTaskExecutor可实现一个基于线程池的TaskExecutor</p><blockquote><p> 在配置类中通过<strong>@EnableAsync</strong>开启对异步任务的支持，并通过在执行方法中使用<strong>@Async</strong>注解赖声明为异步任务</p></blockquote><h2 id="计划任务"><a href="#计划任务" class="headerlink" title="计划任务"></a>计划任务</h2><blockquote><p>首先在配置类注解<strong>@EnableScheduling</strong>来开启对计划任务的支持，然后在执行计划任务的方法上注解<strong>@Scheduled</strong>，声明为计划任务</p></blockquote><p>@Scheduled支持多种类型的计划任务，包含cron、fixDelay、fixRate等等</p>]]></content>
+    
+    <summary type="html">
+    
+      SpringBoot常用配置
+    
+    </summary>
+    
+      <category term="SpringBoot" scheme="http://blog.linzhongtai.cn/categories/SpringBoot/"/>
+    
+    
+      <category term="SpringBoot" scheme="http://blog.linzhongtai.cn/tags/SpringBoot/"/>
+    
+  </entry>
   
   <entry>
     <title>CyclicBarrier、CountDownLatch、Semaphore的用法</title>
@@ -470,30 +492,6 @@
     <summary type="html">
     
       加载-连接(验证-准备-解析)-初始化-使用-卸载
-    
-    </summary>
-    
-      <category term="jvm" scheme="http://blog.linzhongtai.cn/categories/jvm/"/>
-    
-    
-      <category term="jvm" scheme="http://blog.linzhongtai.cn/tags/jvm/"/>
-    
-      <category term="重温" scheme="http://blog.linzhongtai.cn/tags/%E9%87%8D%E6%B8%A9/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>重温系列之JVM：GC垃圾收集器</title>
-    <link href="http://blog.linzhongtai.cn/2019/03/%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8BJVM%EF%BC%9AGC%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/"/>
-    <id>http://blog.linzhongtai.cn/2019/03/重温系列之JVM：GC垃圾收集器/</id>
-    <published>2019-03-27T13:32:37.000Z</published>
-    <updated>2019-03-27T13:32:37.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Java 堆内存被划分为新生代和年老代两部分，新生代主要使用复制算法 ；年老代主要使用标记-整理和标记-清除垃圾回收算法，因此 java 虚拟中针对新生代和年老代分别提供了多种不同的垃圾收集器，JDK1.6 中 Sun HotSpot 虚拟机的垃圾收集器如下：<br><img src="http://upload-images.jianshu.io/upload_images/5937589-12919617c472286d.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p><h2 id="Serial-收集器（单线程、-复制算法）"><a href="#Serial-收集器（单线程、-复制算法）" class="headerlink" title="Serial 收集器（单线程、 复制算法）"></a>Serial 收集器（单线程、 复制算法）</h2><p><strong>Serial是最基本垃圾收集器，使用复制算法。</strong><br>Serial 垃圾收集器虽然在收集垃圾过程中需要暂停所有其他的工作线程，但是它简单高效，对于限定单个 CPU 环境来说，没有线程交互的开销，可以获得最高的单线程垃圾收集效率，因此 <strong>Serial垃圾收集器依然是 java 虚拟机运行在 Client 模式下默认的新生代垃圾收集器</strong></p><h2 id="ParNew-收集器（Serial-多线程-多线程）"><a href="#ParNew-收集器（Serial-多线程-多线程）" class="headerlink" title="ParNew 收集器（Serial+多线程 多线程）"></a>ParNew 收集器（Serial+多线程 多线程）</h2><p>ParNew 垃圾收集器其实<strong>是 Serial 收集器的多线程版本</strong>，也使用复制算法，除了使用多线程进行垃圾收集之外，其余的行为和 Serial 收集器完全一样，ParNew 垃圾收集器在垃圾收集过程中同样也要暂停所有其他的工作线程。<br>ParNew 收集器默认开启和 CPU 数目相同的线程数，可通过-XX:ParallelGCThreads参数来限制垃圾收集器的线程数<br>ParNew虽然是除了多线程外和Serial收集器几乎完全一样，但是<strong>ParNew垃圾收集器是很多java虚拟机运行在 Server 模式下新生代的默认垃圾收集器</strong></p><h2 id="Parallel-Scavenge-收集器（多线程复制算法、高效）"><a href="#Parallel-Scavenge-收集器（多线程复制算法、高效）" class="headerlink" title="Parallel Scavenge 收集器（多线程复制算法、高效）"></a>Parallel Scavenge 收集器（多线程复制算法、高效）</h2><p>Parallel Scavenge 收集器也是一个新生代垃圾收集器，同样使用复制算法，也是一个多线程的垃圾收集器，它<strong>重点关注的是程序达到一个可控制的吞吐量</strong>（Thoughput，CPU 用于运行用户代码的时间/CPU 总消耗时间，即吞吐量=运行用户代码时间/(运行用户代码时间+垃圾收集时间)），高吞吐量可以最高效率地利用 CPU 时间，尽快地完成程序的运算任务，主要适用于在后台运算而不需要太多交互的任务。<br><strong>自适应调节策略也是ParallelScavenge 收集器与 ParNew 收集器的一个重要区别。</strong></p><h2 id="Serial-Old-收集器（单线程标记整理算法）"><a href="#Serial-Old-收集器（单线程标记整理算法）" class="headerlink" title="Serial Old 收集器（单线程标记整理算法）"></a>Serial Old 收集器（单线程标记整理算法）</h2><p>Serial Old 是 Serial 垃圾收集器年老代版本，它同样是个单线程的收集器，使用标记-整理算法，这个收集器也<strong>主要是运行在 Client 默认的 java 虚拟机默认的年老代垃圾收集器。</strong></p><h2 id="Parallel-Old-收集器（多线程标记整理算法）"><a href="#Parallel-Old-收集器（多线程标记整理算法）" class="headerlink" title="Parallel Old 收集器（多线程标记整理算法）"></a>Parallel Old 收集器（多线程标记整理算法）</h2><p>Parallel Old收集器是Parallel Scavenge的年老代版本，使用多线程的标记-整理算法，在JDK1.6才开始提供。<br>在 JDK1.6 之前，新生代使用 ParallelScavenge 收集器只能搭配年老代的 Serial Old 收集器，只能保证新生代的吞吐量优先，无法保证整体的吞吐量，<strong>Parallel Old 正是为了在年老代同样提供吞吐量优先的垃圾收集器</strong>，如果系统对吞吐量要求比较高，可以优先考虑新生代 Parallel Scavenge和年老代 Parallel Old 收集器的搭配策略。</p><h2 id="CMS-收集器（多线程标记清除算法）"><a href="#CMS-收集器（多线程标记清除算法）" class="headerlink" title="CMS 收集器（多线程标记清除算法）"></a>CMS 收集器（多线程标记清除算法）</h2><blockquote><p><strong>CMS(Concurrent Mark Sweep)收集器是一种以获取最短回收停顿时间为目标的收集器。是基于多线程的“标记-清除”算法。</strong></p></blockquote><ol><li>初始标记（Stop The World）<br>只是标记一下 GC Roots 能直接关联的对象，速度很快，仍然需要暂停所有的工作线程。</li><li>并发标记（Stop The World）<br>进行 GC Roots 跟踪的过程，和用户线程一起工作，不需要暂停工作线程。</li><li>重新标记<br>为了修正在并发标记期间，因用户程序继续运行而导致标记产生变动的那一部分对象的标记记录，仍然需要暂停所有的工作线程。</li><li>并发清除<br>清除 GC Roots 不可达对象，和用户线程一起工作，不需要暂停工作线程。由于耗时最长的并发标记和并发清除过程中，垃圾收集线程可以和用户现在一起并发工作，所以总体上来看<strong>CMS 收集器的内存回收和用户线程是一起并发地执行。</strong></li></ol><p>CMS 收集器工作过程：<br><img src="http://upload-images.jianshu.io/upload_images/5937589-6f5c41a61b10b6f2.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image"></p><p>优点：</p><ul><li>并发收集</li><li>低停顿</li></ul><p>缺点：</p><ul><li>对CPU资源非常敏感</li><li>无法处理浮动垃圾，可能出现“Concurrent Mode Failure”失败而导致另一次的Full GC的产生。</li><li>使用“标记-清除”算法会导致大量内存空间碎片（碎片过多，当分配大对象的时候可能无法找到足够大的连续空间进行分配，从而提前触发Full GC）</li></ul><h2 id="G1收集器"><a href="#G1收集器" class="headerlink" title="G1收集器"></a>G1收集器</h2><p>Garbage first 垃圾收集器是目前垃圾收集器理论发展的最前沿成果，相比与 CMS 收集器，G1 收集器两个最突出的改进是：</p><ol><li>基于标记-整理算法，不产生内存碎片。</li><li>可以非常精确控制停顿时间，在不牺牲吞吐量前提下，实现低停顿垃圾回收。</li></ol><p>G1是一款面向服务端应用的垃圾收集器。</p><ul><li>并行与并发</li><li>分代收集</li><li>空间整合</li><li>可预测的停顿</li></ul><p>G1把堆内存划分为分为多个大小相等的独立区域（Region），虽然还保留有新生代和老年代的概念，但是新生代和老年代不再是物理隔离的了，而是一部分Region(不需要连续)的集合。<br><strong>G1跟踪各个Region里面的垃圾堆积的价值大小</strong>(回收所获得的空间大小以及回收所需时间的经验值)，<strong>在后台维护一个优先列表，每次根据允许的收集时间，优先回收价值最大的Region</strong>(这也是Garbage-First名称的由来)。这种使用Rrgion划分内存空间以及有优先级的区域回收方式，保证了G1收集器在有限的时间内可以获取尽可能高的收集效率。</p><p>G1收集器的运作大致可划分为以下几个步骤：</p><ol><li>初始标记</li><li>并发标记</li><li>最终标记</li><li>筛选回收</li></ol>]]></content>
-    
-    <summary type="html">
-    
-      重点了解下CMS、G1收集器
     
     </summary>
     

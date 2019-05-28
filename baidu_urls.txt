@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2019/04/CyclicBarrier、CountDownLatch、Semaphore的用法/
+http://blog.linzhongtai.cn/2019/05/SpringBoot常用配置/

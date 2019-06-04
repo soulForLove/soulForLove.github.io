@@ -17,9 +17,9 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Unix与Java的IO模型</title>
-    <link href="http://blog.linzhongtai.cn/2019/06/Unix%E4%B8%8EJava%E7%9A%84IO%E6%A8%A1%E5%9E%8B/"/>
-    <id>http://blog.linzhongtai.cn/2019/06/Unix与Java的IO模型/</id>
+    <title>网络IO模型</title>
+    <link href="http://blog.linzhongtai.cn/2019/06/%E7%BD%91%E7%BB%9CIO%E6%A8%A1%E5%9E%8B/"/>
+    <id>http://blog.linzhongtai.cn/2019/06/网络IO模型/</id>
     <published>2019-06-04T04:20:58.000Z</published>
     <updated>2019-06-04T04:20:58.000Z</updated>
     
@@ -31,10 +31,8 @@
     
     </summary>
     
-      <category term="JAVA" scheme="http://blog.linzhongtai.cn/categories/JAVA/"/>
+      <category term="IO" scheme="http://blog.linzhongtai.cn/categories/IO/"/>
     
-    
-      <category term="JAVA" scheme="http://blog.linzhongtai.cn/tags/JAVA/"/>
     
       <category term="IO" scheme="http://blog.linzhongtai.cn/tags/IO/"/>
     

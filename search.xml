@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[Unix与Java的IO模型]]></title>
+    <url>%2F2019%2F06%2FUnix%E4%B8%8EJava%E7%9A%84IO%E6%A8%A1%E5%9E%8B%2F</url>
+    <content type="text"><![CDATA[网络IO的模型大致包括下面几种 同步模型（synchronous IO） 阻塞IO（bloking IO） 非阻塞IO（non-blocking IO） 多路复用IO（multiplexing IO） 信号驱动式IO（signal-driven IO） 异步IO（asynchronous IO） 异步IO 网络IO的本质是socket的读取，socket在linux系统被抽象为流，IO可以理解为对流的操作。对于一次IO访问，数据会先被拷贝到操作系统内核的缓冲区中，然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间，所以一般会经历两个阶段： 等待所有数据都准备好或者一直在等待数据，有数据的时候将数据拷贝到系统内核； 将内核缓存中数据拷贝到用户进程中； 对于socket流而言： 等待网络上的数据分组到达，然后被复制到内核的某个缓冲区； 把数据从内核缓冲区复制到应用进程缓冲区中； 同步阻塞IO 在JDK 1.4之前，主要就是同步阻塞IO模型，在Java里叫做BIO。 在Java代码里调用IO相关接口，发起IO操作之后，Java程序就会同步等待，这个同步指的是Java程序调用IO API接口的层面而言。而IO API在底层的IO操作是基于阻塞IO来的，向操作系统内核发起IO请求，系统内核会等待数据就位之后，才会执行IO操作，执行完毕了才会返回。 同步非阻塞NIO 在JDK 1.4之后提供了NIO，概念是同步非阻塞。 如果你调用NIO接口去执行IO操作，其实还是同步等待的，但是在底层的IO操作上 ，会对系统内核发起非阻塞IO请求，以非阻塞的形式来执行IO。也就是说，如果底层数据没到位，那么内核返回异常信息，不会阻塞住，但是NIO接口内部会采用非阻塞方式过一会儿再次调用内核发起IO请求，直到成功为止。但是之所以说是同步非阻塞，这里的“同步”指的就是因为在你的Java代码调用NIO接口层面是同步的，你还是要同步等待底层IO操作真正完成了才可以返回，只不过在执行底层IO的时候采用了非阻塞的方式来执行罢了。 IO多路复用之前的同步非阻塞方式需要用户进程不停的轮询，但是IO多路复用不需要不停的轮询，而是派别人去帮忙循环查询多个任务的完成状态，UNIX/Linux 下的 select、poll、epoll 就是干这个的；select调用是内核级别的，select轮询相对非阻塞的轮询的区别在于—前者可以等待多个socket，能实现同时对多个IO端口进行监听，当其中任何一个socket的数据准好了，就能返回进行可读，然后进程再进行recvform系统调用，将数据由内核拷贝到用户进程，当然这个过程是阻塞的。select或poll调用之后，会阻塞进程，与blocking IO阻塞不同在于，此时的select不是等到socket数据全部到达再处理, 而是有了一部分数据（网络上的数据是分组到达的）就会调用用户进程来处理。监视的事情交给了内核，内核负责数据到达的处理。 以上总结就是： 对多个socket进行监听，只要任何一个socket数据准备好就返回可读； 不等一个socket数据全部到达再处理，而是一部分socket的数据到达了就通知用户进程； 其实 select、poll、epoll 的原理就是不断的遍历所负责的所有的socket完成状态，当某个socket有数据到达了，就返回可读并通知用户进程来处理； AIO以及异步IO JDK 1.7之后，又支持了AIO，也叫做NIO 2.0，他就支持异步IO模型。 我们先说一下异步IO模型是什么意思。简单来说，就是你的Java程序可以基于AIO API发起一个请求，比如说接收网络数据，AIO API底层会基于异步IO模型来调用操作系统内核。此时不需要去管这个IO是否成功了，AIO接口会直接返回，你的Java程序也会直接返回。因为BIO、NIO都是同步的，你发起IO请求，都必须同步等待IO操作完成。但是这里你发起一个IO请求，直接AIO接口就返回了，你就可以干别的事儿了，纯异步的方式。不过你需要提供一个回调函数给AIO接口，一旦底层系统内核完成了具体的IO请求，比如网络读写之类的，就会回调你提供的回调函数。比如说你要是通过网络读取数据，那么此时AIO接口就会把操作系统异步读取到的数据交给你的回调函数。整个过程如下图：]]></content>
+      <categories>
+        <category>JAVA</category>
+      </categories>
+      <tags>
+        <tag>JAVA</tag>
+        <tag>IO</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[Spring Boot 属性加载顺序]]></title>
     <url>%2F2019%2F05%2FSpring-Boot-%E5%B1%9E%E6%80%A7%E5%8A%A0%E8%BD%BD%E9%A1%BA%E5%BA%8F%2F</url>
     <content type="text"><![CDATA[在命令行中传入的参数 SPRING_APPLICATION_JSON 中的属性，SPRING_APPLICATION_JSON 是以JSON格式配置在系统环境变量中的内容 java:comp/env 中的JNI属性 Java的系统属性，可以通过System.getProperties()获得的内容 操作系统的环境变量 通过random.* 配置的随机属性 位于当前应用 jar 包之外，针对不同{profile}环境的配置文件内容；例如application-{profile}.properties或是YAML定义的配置文件 位于当前应用 jar 包之内，针对不同{profile}环境的配置文件内容；例如application-{profile}.properties或是YAML定义的配置文件 位于当前应用 jar 包之外的application.properties和YAML配置内容 位于当前应用 jar 包之内的application.properties和YAML配置内容 在@Configuration注解修改的类中，通过@PropertiesSource注解定义的属性 应用默认属性，使用SpringApplication.setDefaultProperties定义的内容 优先级由高到低，数字越小，优先级越高 第7，9都是用应用jar包之外来读取配置文件，因此可以从此处进行切入，指定外部配置文件的加载位置来取代jar包之内的配置内容。]]></content>
@@ -42,8 +54,8 @@
         <category>JAVA</category>
       </categories>
       <tags>
-        <tag>JAVA</tag>
         <tag>小知识</tag>
+        <tag>JAVA</tag>
       </tags>
   </entry>
   <entry>
@@ -604,8 +616,8 @@
         <category>JAVA</category>
       </categories>
       <tags>
-        <tag>JAVA</tag>
         <tag>小知识</tag>
+        <tag>JAVA</tag>
       </tags>
   </entry>
   <entry>
@@ -821,8 +833,8 @@
         <category>Bug</category>
       </categories>
       <tags>
-        <tag>小知识</tag>
         <tag>Bug</tag>
+        <tag>小知识</tag>
       </tags>
   </entry>
   <entry>
@@ -855,8 +867,8 @@
         <category>JAVA</category>
       </categories>
       <tags>
-        <tag>JAVA</tag>
         <tag>小知识</tag>
+        <tag>JAVA</tag>
       </tags>
   </entry>
   <entry>

@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.linzhongtai.cn/2019/06/Linux%E5%B8%B8%E7%94%A8%E6%96%87%E4%BB%B6%E6%90%9C%E7%B4%A2%E5%91%BD%E4%BB%A4/</loc>
+    
+    <lastmod>2019-06-13T02:59:46.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.linzhongtai.cn/about/index.html</loc>
     
     <lastmod>2019-06-04T04:52:40.252Z</lastmod>
@@ -275,20 +282,6 @@
   </url>
   
   <url>
-    <loc>http://blog.linzhongtai.cn/tags/index.html</loc>
-    
-    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.linzhongtai.cn/photos/index.html</loc>
-    
-    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://blog.linzhongtai.cn/categories/index.html</loc>
     
     <lastmod>2018-05-24T02:45:26.000Z</lastmod>
@@ -297,6 +290,20 @@
   
   <url>
     <loc>http://blog.linzhongtai.cn/googleddf2510b177a27a8.html</loc>
+    
+    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.linzhongtai.cn/tags/index.html</loc>
+    
+    <lastmod>2018-05-24T02:45:26.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.linzhongtai.cn/photos/index.html</loc>
     
     <lastmod>2018-05-24T02:45:26.000Z</lastmod>
     

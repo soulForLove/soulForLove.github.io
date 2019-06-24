@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2019/06/Linux常用文件搜索命令/
+http://blog.linzhongtai.cn/2019/06/SpringBoot如何解决项目启动时初始化资源/

@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2019/06/SpringBoot如何解决项目启动时初始化资源/
+http://blog.linzhongtai.cn/2019/07/Spring @Component派生性/

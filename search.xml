@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[Spring @Component派生性]]></title>
+    <url>%2F2019%2F07%2FSpring%20%40Component%E6%B4%BE%E7%94%9F%E6%80%A7%2F</url>
+    <content type="text"><![CDATA[Spring核心部分提供了几种内建模式的注解，如@Component、@Service、@Repository、@Controller、@RestController以及@Configrution，但是Spring Framework并不限于这些内建模式注解，也可以自定义模式注解，Spring模式注解可理解为@Component”派生”注解 Spring Framework 2.x只支持单层的@Component派生 Spring Framework 3.0.0.RELEASE 后开始支持@Component，但是仅仅支持两层@Component派生（AnnotationAttributesReadingVisitor仅支持了两个for循环） Spring Framework 4.0.0.RELEASE 后开始支持多层次的@Component派生（AnnotationAttributesReadingVisitor采用递归） ClassPathBeanDefinitionScanner允许自定义类型过滤规则，因此，Dubbo的@Service在没有标注@Component的情况下，通过scanner.addIncludeFilter(newAnnotationTypeFilter(Service.class))的方式达到了识别@Service所标注类的目的，不过这种方式没有用到@Component的派生性]]></content>
+      <categories>
+        <category>JAVA</category>
+      </categories>
+      <tags>
+        <tag>JAVA</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[SpringBoot如何解决项目启动时初始化资源]]></title>
     <url>%2F2019%2F06%2FSpringBoot%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E9%A1%B9%E7%9B%AE%E5%90%AF%E5%8A%A8%E6%97%B6%E5%88%9D%E5%A7%8B%E5%8C%96%E8%B5%84%E6%BA%90%2F</url>
     <content type="text"><![CDATA[本文转发自《纯洁的微笑》，原文链接：Spring Boot 如何解决项目启动时初始化资源 在我们实际工作中，总会遇到这样需求，在项目启动的时候需要做一些初始化的操作，比如初始化线程池，提前加载好加密证书等。今天就给大家介绍一个 Spring Boot 神器，专门帮助大家解决项目启动初始化资源操作。 这个神器就是 CommandLineRunner，CommandLineRunner 接口的 Component 会在所有 Spring Beans 都初始化之后，SpringApplication.run() 之前执行，非常适合在应用程序启动之初进行一些数据初始化的工作。 接下来我们就运用案例测试它如何使用，在测试之前在启动类加两行打印提示，方便我们识别 CommandLineRunner 的执行时机。 12345678@SpringBootApplicationpublic class CommandLineRunnerApplication &#123; public static void main(String[] args) &#123; System.out.println(&quot;The service to start.&quot;); SpringApplication.run(CommandLineRunnerApplication.class, args); System.out.println(&quot;The service has started.&quot;); &#125;&#125; 接下来我们直接创建一个类继承 CommandLineRunner ，并实现它的 run() 方法。1234567@Componentpublic class Runner implements CommandLineRunner &#123; @Override public void run(String... args) throws Exception &#123; System.out.println(&quot;The Runner start to initialize ...&quot;); &#125;&#125; 我们在 run() 方法中打印了一些参数来看出它的执行时机。完成之后启动项目进行测试：123456789101112131415...The service to start. . ____ _ __ _ _ /\\ / ___&apos;_ __ _ _(_)_ __ __ _ \ \ \ \( ( )\___ | &apos;_ | &apos;_| | &apos;_ \/ _` | \ \ \ \ \\/ ___)| |_)| | | | | || (_| | ) ) ) ) &apos; |____| .__|_| |_|_| |_\__, | / / / / =========|_|==============|___/=/_/_/_/ :: Spring Boot :: (v2.0.0.RELEASE)...2018-04-21 22:21:34.706 INFO 27016 --- [ main] o.s.b.w.embedded.tomcat.TomcatWebServer : Tomcat started on port(s): 8080 (http) with context path &apos;&apos;2018-04-21 22:21:34.710 INFO 27016 --- [ main] com.neo.CommandLineRunnerApplication : Started CommandLineRunnerApplication in 3.796 seconds (JVM running for 5.128)The Runner start to initialize ...The service has started. 根据控制台的打印信息我们可以看出 CommandLineRunner 中的方法会在 Spring Boot 容器加载之后执行，执行完成后项目启动完成。 如果我们在启动容器的时候需要初始化很多资源，并且初始化资源相互之间有序，那如何保证不同的 CommandLineRunner 的执行顺序呢？Spring Boot 也给出了解决方案。那就是使用 @Order 注解。 我们创建两个 CommandLineRunner 的实现类来进行测试： 第一个实现类：12345678@Component@Order(1)public class OrderRunner1 implements CommandLineRunner &#123; @Override public void run(String... args) throws Exception &#123; System.out.println(&quot;The OrderRunner1 start to initialize ...&quot;); &#125;&#125; 第二个实现类：12345678@Component@Order(2)public class OrderRunner2 implements CommandLineRunner &#123; @Override public void run(String... args) throws Exception &#123; System.out.println(&quot;The OrderRunner2 start to initialize ...&quot;); &#125;&#125; 添加完成之后重新启动，观察执行顺序：1234567891011121314151617...The service to start. . ____ _ __ _ _ /\\ / ___&apos;_ __ _ _(_)_ __ __ _ \ \ \ \( ( )\___ | &apos;_ | &apos;_| | &apos;_ \/ _` | \ \ \ \ \\/ ___)| |_)| | | | | || (_| | ) ) ) ) &apos; |____| .__|_| |_|_| |_\__, | / / / / =========|_|==============|___/=/_/_/_/ :: Spring Boot :: (v2.0.0.RELEASE)...2018-04-21 22:21:34.706 INFO 27016 --- [ main] o.s.b.w.embedded.tomcat.TomcatWebServer : Tomcat started on port(s): 8080 (http) with context path &apos;&apos;2018-04-21 22:21:34.710 INFO 27016 --- [ main] com.neo.CommandLineRunnerApplication : Started CommandLineRunnerApplication in 3.796 seconds (JVM running for 5.128)The OrderRunner1 start to initialize ...The OrderRunner2 start to initialize ...The Runner start to initialize ...The service has started. 通过控制台的输出我们发现，添加 @Order 注解的实现类最先执行，并且@Order()里面的值越小启动越早。]]></content>
@@ -75,8 +86,8 @@
         <category>JAVA</category>
       </categories>
       <tags>
-        <tag>JAVA</tag>
         <tag>小知识</tag>
+        <tag>JAVA</tag>
       </tags>
   </entry>
   <entry>
@@ -626,8 +637,8 @@
         <category>JAVA</category>
       </categories>
       <tags>
-        <tag>JAVA</tag>
         <tag>小知识</tag>
+        <tag>JAVA</tag>
       </tags>
   </entry>
   <entry>
@@ -843,8 +854,8 @@
         <category>Bug</category>
       </categories>
       <tags>
-        <tag>小知识</tag>
         <tag>Bug</tag>
+        <tag>小知识</tag>
       </tags>
   </entry>
   <entry>
@@ -877,8 +888,8 @@
         <category>JAVA</category>
       </categories>
       <tags>
-        <tag>JAVA</tag>
         <tag>小知识</tag>
+        <tag>JAVA</tag>
       </tags>
   </entry>
   <entry>

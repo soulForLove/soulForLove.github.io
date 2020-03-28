@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2020/02/2、更新语句的执行以及日志/
+http://blog.linzhongtai.cn/2020/03/3、事务隔离/

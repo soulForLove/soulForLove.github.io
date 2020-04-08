@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2020/03/5、全局锁和表锁/
+http://blog.linzhongtai.cn/2020/04/6、行锁：怎么减少行锁对性能的影响？/

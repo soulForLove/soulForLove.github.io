@@ -1,1 +1,1 @@
-http://blog.linzhongtai.cn/2020/04/6、行锁：怎么减少行锁对性能的影响？/
+http://blog.linzhongtai.cn/2020/04/8、聚合函数count/

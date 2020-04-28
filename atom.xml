@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://blog.linzhongtai.cn/"/>
-  <updated>2020-03-14T02:08:41.000Z</updated>
+  <updated>2020-04-05T02:08:41.000Z</updated>
   <id>http://blog.linzhongtai.cn/</id>
   
   <author>
@@ -17,10 +17,58 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>8、聚合函数count</title>
+    <link href="http://blog.linzhongtai.cn/2020/04/8%E3%80%81%E8%81%9A%E5%90%88%E5%87%BD%E6%95%B0count/"/>
+    <id>http://blog.linzhongtai.cn/2020/04/8、聚合函数count/</id>
+    <published>2020-04-05T03:05:05.000Z</published>
+    <updated>2020-04-05T02:08:41.000Z</updated>
+    
+    <content type="html"><![CDATA[<a id="more"></a><h2 id="count-的实现方式"><a href="#count-的实现方式" class="headerlink" title="count(*)的实现方式"></a>count(*)的实现方式</h2><p>在不同的MySQL引擎中，count(*)有不同的实现方式</p><ol><li>MyISAM引擎把一个表的总行数存在了磁盘上，因此执行count(*)的时候会直接返回这个数，效率很高；</li><li>而InnoDB引擎就麻烦了，它执行count(*)的时候，需要把数据一行一行地从引擎里面读出来，然后累积计数。<blockquote><p>以上是没有过滤条件的count(*)，如果加了where 条件的话，MyISAM表也是不能返回得这么快的。</p></blockquote></li></ol><p><strong>为什么InnoDB不跟MyISAM一样，也把数字存起来呢？</strong></p><p>因为即使是在同一个时刻的多个查询，由</p><p>于多版本并发控制（MVCC）的原因，InnoDB表“应该返回多少行”也是不确定的</p><p>假设表t中现在有10000条记录，我们设计了三个用户并行的会话。</p><ul><li>会话A先启动事务并查询一次表的总行数；</li><li>会话B启动事务，插入一行后记录后，查询表的总行数</li><li>会话C先启动一个单独的语句，插入一行记录后，查询表的总行数。</li></ul><p>我们假设从上到下是按照时间顺序执行的，同一行语句是在同一时刻执行的，<br>在最后一个时刻，三个会话A、B、C会同时查询表t的总行数，但拿到的结果却不同。<br><img src="https://upload-images.jianshu.io/upload_images/5937589-cb16263043b2527c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="会话A、B、C的执行流程"><br>这和InnoDB的事务设计有关系，可重复读是它默认的隔离级别，在代码上就是通过多版本并发控制，也就是MVCC来实现的。每一行记录都要判断自己是否对这个会话可见，因此对于count(*)请求来说，InnoDB只好把数据一行一行地读出依次判断，可见的行才能够用于计算“基于这个查询”的表的总行数。</p><p>不过MySQL在执行count(*)操作的时候还是做了优化：<br><strong>MySQL优化器会找到最小的那棵树来遍历。在保证逻辑正确的前提下，尽量减少扫描的数据量，是数据库系统设计的通用法则之一</strong></p><p>小结：</p><ul><li>MyISAM表虽然count(*)很快，但是不支持事务；</li><li>show table status命令虽然返回很快，但是不准确；</li><li>InnoDB表直接count(*)会遍历全表，虽然结果准确，但会导致性能问题。</li></ul><h2 id="用缓存系统保存计数"><a href="#用缓存系统保存计数" class="headerlink" title="用缓存系统保存计数"></a>用缓存系统保存计数</h2><p>对于更新很频繁的库来说，可能会第一时间想到，用缓存系统来支持。<br>用一个Redis服务来保存这个表的总行数。这个表每被插入一行Redis计数就加1，每被删除一行Redis计数就减1。这种方式下，读和更新操作都很快，但是这种方式存在问题：<strong>可能会丢失更新</strong></p><p>Redis的数据不能永久地留在内存里，所以会把这个值定期地持久化存储起来。但即使这样，仍然可能丢失更新。试想如果刚刚在数据表中插入了一行，Redis中保存的值也加了1，然后Redis异常重启了，重启后要从存储redis数据的地方把这个值读回来，而刚刚加1的这个计数操作却丢失了。</p><p>虽然这个场景可以解决：在Redis异常重启以后，到数据库里面单独执行一次count(*)获取真实的行数，再把这个值写回到Redis里。异常重启毕竟不是经常出现的情况，这一次全表扫描的成本，还是可以接受的。<br><strong>不过，将计数保存在缓存系统中的方式，还不只是丢失更新的问题。即使Redis正常工作，这个值还是逻辑上不精确的。</strong></p><p>如果要显示操作记录的总数，同时还要显示最近操作的100条记录。那么，这个页面的逻辑就需要先到Redis里面取出计数，再到数据表里面取数据记录。</p><p>我们是这么定义不精确的：</p><ul><li>一种是，查到的100行结果里面有最新插入记录，而Redis的计数里还没加1；</li><li>另一种是，查到的100行结果里没有最新插入的记录，而Redis的计数里已经加了1。</li></ul><p>这两种情况，都是逻辑不一致的。<br><img src="https://upload-images.jianshu.io/upload_images/5937589-86f048e9821d6bfa.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br><img src="https://upload-images.jianshu.io/upload_images/5937589-2935ff7dc55c076a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p><p>在并发系统里面，无法精确控制不同线程的执行时刻的，因为存在图中的这种操作序列，所以，即使Redis正常工作，这个计数值还是逻辑上不精确的。</p><h2 id="在数据库保存计数"><a href="#在数据库保存计数" class="headerlink" title="在数据库保存计数"></a>在数据库保存计数</h2><p><strong>如果我们把这个计数直接放到数据库里单独的一张计数表C中，又会怎么样呢？</strong></p><p>首先，这解决了崩溃丢失的问题，InnoDB是支持崩溃恢复不丢数据的。<br>其次，由于InnoDB是支持事务的，所以从下图可以看出逻辑上是一致的<br><img src="https://upload-images.jianshu.io/upload_images/5937589-861eaea7cf939ddf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p><h2 id="不同的count用法"><a href="#不同的count用法" class="headerlink" title="不同的count用法"></a>不同的count用法</h2><blockquote><p>count()是一个聚合函数，对于返回的结果集，一行行地判断，如果count函数的参数不是NULL，累计值就加1，否则不加。最后返回累计值。</p></blockquote><ul><li>count(*)、count(主键id)和count(1) 都表示返回满足条件的结果集的总行数；</li><li>count(字段），则表示返回满足条件的数据行里面，参数“字段”不为NULL的总个数。</li></ul><ol><li><p>对于count(主键id)来说：InnoDB引擎会遍历整张表，把每一行的id值都取出来，返回给server层。server层拿到id后，判断是不可能为空的，就按行累加。</p></li><li><p>对于count(1)来说，InnoDB引擎遍历整张表，但不取值。server层对于返回的每一行，放一个数字“1”进去，判断是不可能为空的，按行累加。</p></li></ol><blockquote><p>单看这两个用法的差别的话，你能对比出来，count(1)执行得要比count(主键id)快。因为从引擎返回id会涉及到解析数据行，以及拷贝字段值的操作。</p></blockquote><ol start="3"><li>对于count(字段)来说：</li></ol><ul><li>如果这个“字段”是定义为not null的话，一行行地从记录里面读出这个字段，判断不能为null，按行累加；</li><li>如果这个“字段”定义允许为null，那么执行的时候，判断到有可能是null，还要把值取出来再判断一下，不是null才累加。</li></ul><ol start="4"><li>count(*)是例外，并不会把全部字段取出来，而是专门做了优化，不取值。count(*)肯定不是null，按行累加。</li></ol><blockquote><p>按照效率排序的话，count(字段)&lt;count(主键id)&lt;count(1)≈count(*)，建议尽量使用count(*)。</p></blockquote>]]></content>
+    
+    <summary type="html">
+    
+      count(字段) &lt; count(主键id) &lt; count(1) ≈ count(*)
+    
+    </summary>
+    
+      <category term="Mysql" scheme="http://blog.linzhongtai.cn/categories/Mysql/"/>
+    
+    
+      <category term="Mysql" scheme="http://blog.linzhongtai.cn/tags/Mysql/"/>
+    
+      <category term="MySql实战45讲笔记" scheme="http://blog.linzhongtai.cn/tags/MySql%E5%AE%9E%E6%88%9845%E8%AE%B2%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>7、事务隔离机制</title>
+    <link href="http://blog.linzhongtai.cn/2020/03/7%E3%80%81%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E6%9C%BA%E5%88%B6/"/>
+    <id>http://blog.linzhongtai.cn/2020/03/7、事务隔离机制/</id>
+    <published>2020-03-28T03:04:44.000Z</published>
+    <updated>2020-03-28T02:08:41.000Z</updated>
+    
+    <content type="html"><![CDATA[<a id="more"></a><blockquote><p>RC（Read Committed，读提交）<br>RR（Repeatable Read，可重复读）</p></blockquote><ol><li><p>innodb支持RC和RR隔离级别实现是用的一致性视图(consistent read view)</p></li><li><p>事务在启动时会拍一个快照,这个快照是基于整个库的.<br>基于整个库的意思就是说一个事务内,整个库的修改对于该事务都是不可见的(对于快照读的情况)</p><blockquote><p>增删改数据（DML)，修改表结构的操作（DDL）</p></blockquote></li></ol><p>如果在事务内select t表,另外的事务执行了DDL t表,根据发生时间,要嘛锁住要嘛报错</p><ol start="3"><li><p>事务是如何实现的MVCC呢?<br>(1)每个事务都有一个事务ID,叫做transaction id(严格递增)<br>(2)事务在启动时,找到已提交的最大事务ID记为up_limit_id。<br>(3)事务在更新一条语句时,比如id=1改为了id=2.会把id=1和该行之前的row trx_id写到undo log里,<br>并且在数据页上把id的值改为2,并且把修改这条语句的transaction id记在该行行头<br>(4)再定一个规矩,一个事务要查看一条数据时,必须先用该事务的up_limit_id与该行的transaction id做比对,<br>如果up_limit_id&gt;=transaction id,那么可以看.如果up_limit_id<transaction id,则只能去undo="" log里去取。去undo="" log查找数据的时候,也需要做比对,必须up_limit_id="">transaction id,才返回数据</transaction></p></li><li><p>什么是当前读,由于当前读都是先读后写,只能读当前的值,所以为当前读.会更新事务内的up_limit_id为该事务的transaction id</p></li><li><p>为什么rr能实现可重复读而rc不能,分两种情况<br>(1)快照读的情况下,rr不能更新事务内的up_limit_id,<br>而rc每次会把up_limit_id更新为快照读之前最新已提交事务的transaction id,则rc不能可重复读<br>(2)当前读的情况下,rr是利用record lock+gap lock来实现的,而rc没有gap,所以rc不能可重复读 </p></li></ol>]]></content>
+    
+    <summary type="html">
+    
+      RC RR
+    
+    </summary>
+    
+      <category term="Mysql" scheme="http://blog.linzhongtai.cn/categories/Mysql/"/>
+    
+    
+      <category term="Mysql" scheme="http://blog.linzhongtai.cn/tags/Mysql/"/>
+    
+      <category term="MySql实战45讲笔记" scheme="http://blog.linzhongtai.cn/tags/MySql%E5%AE%9E%E6%88%9845%E8%AE%B2%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
+  
+  <entry>
     <title>6、行锁：怎么减少行锁对性能的影响？</title>
-    <link href="http://blog.linzhongtai.cn/2020/04/6%E3%80%81%E8%A1%8C%E9%94%81%EF%BC%9A%E6%80%8E%E4%B9%88%E5%87%8F%E5%B0%91%E8%A1%8C%E9%94%81%E5%AF%B9%E6%80%A7%E8%83%BD%E7%9A%84%E5%BD%B1%E5%93%8D%EF%BC%9F/"/>
-    <id>http://blog.linzhongtai.cn/2020/04/6、行锁：怎么减少行锁对性能的影响？/</id>
-    <published>2020-04-08T02:08:41.271Z</published>
+    <link href="http://blog.linzhongtai.cn/2020/03/6%E3%80%81%E8%A1%8C%E9%94%81%EF%BC%9A%E6%80%8E%E4%B9%88%E5%87%8F%E5%B0%91%E8%A1%8C%E9%94%81%E5%AF%B9%E6%80%A7%E8%83%BD%E7%9A%84%E5%BD%B1%E5%93%8D%EF%BC%9F/"/>
+    <id>http://blog.linzhongtai.cn/2020/03/6、行锁：怎么减少行锁对性能的影响？/</id>
+    <published>2020-03-14T02:08:41.000Z</published>
     <updated>2020-03-14T02:08:41.000Z</updated>
     
     <content type="html"><![CDATA[<a id="more"></a><h2 id="两阶段锁"><a href="#两阶段锁" class="headerlink" title="两阶段锁"></a>两阶段锁</h2><blockquote><p>在 InnoDB 事务中，行锁是在需要的时候才加上的，但并不是不需要了就立刻释放， 而是要等到事务结束时才释放。</p></blockquote><p><img src="https://upload-images.jianshu.io/upload_images/5937589-2cf396f74bff4b6b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p><ul><li>建议：如果事务中需要锁多个行，要把最可能造成锁冲突、最可能影响并发度的锁尽量往后放。</li></ul><h2 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h2><p>当并发系统中不同线程出现循环资源依赖，涉及的线程都在等待别的线程释放资源时，就会导致这几个线程都进入无限等待的状态。</p><p><img src="https://upload-images.jianshu.io/upload_images/5937589-10c258a7c5377743.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p><ul><li><strong>解决方案：</strong></li></ul><ol><li>通过参数 innodb_lock_wait_timeout 根据实际业务场景来设置超时时间，InnoDB引擎默认值是50s。</li><li>发起死锁检测，发现死锁后，主动回滚死锁链条中的某一个事务，让其他事务得以继续执行。将参数 innodb_deadlock_detect 设置为 on，表示开启这个逻辑（默认是开启状态）。</li></ol><p>在InnoDB中，innodb_lock_wait_timeout的默认值是50s，意味着如果采用第一个策略，当出现死锁以后，第一个被锁住的线程要过50s才会超时退出，然后其他线程才有可能继续执行。对于在线服务来说，这个等待时间往往是无法接受的。</p><p>主动死锁检测在发生死锁的时候，是能够快速发现并进行处理的，但是它也是有额外负担的。（<strong>死锁检测要耗费大量的CPU资源</strong>）<br>比如所有事务都要更新同一行的场景呢？<br>每个新来的被堵住的线程，都要判断会不会由于自己的加入导致了死锁，这是一个时间复杂度是O(n)的操作。假设有1000个并发线程要同时更新同一行，那么死锁检测操作就是100万这个量级的。虽然最终检测的结果是没有死锁，但是这期间要消耗大量的CPU资源。因此，你就会看到CPU利用率很高，但是每秒却执行不了几个事务。</p><ul><li>如何解决热点行更新导致的性能问题？</li></ul><ol><li>如果能确保这个业务一定不会出现死锁，可以临时把死锁检测关闭掉。一般不建议采用</li><li>控制并发度，对应相同行的更新，在进入引擎之前排队。这样在InnoDB内部就不会有大量的死锁检测工作了。</li><li>将热更新的行数据拆分成逻辑上的多行来减少锁冲突，但是业务复杂度可能会大大提高。</li></ol><blockquote><p>innodb行级锁是通过锁索引记录实现的，如果更新的列没建索引是会锁住整个表的。 </p></blockquote>]]></content>
@@ -358,9 +406,9 @@
       <category term="JAVA" scheme="http://blog.linzhongtai.cn/categories/JAVA/"/>
     
     
-      <category term="小知识" scheme="http://blog.linzhongtai.cn/tags/%E5%B0%8F%E7%9F%A5%E8%AF%86/"/>
-    
       <category term="JAVA" scheme="http://blog.linzhongtai.cn/tags/JAVA/"/>
+    
+      <category term="小知识" scheme="http://blog.linzhongtai.cn/tags/%E5%B0%8F%E7%9F%A5%E8%AF%86/"/>
     
   </entry>
   
@@ -429,56 +477,6 @@
       <category term="并发编程" scheme="http://blog.linzhongtai.cn/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
     
       <category term="重温" scheme="http://blog.linzhongtai.cn/tags/%E9%87%8D%E6%B8%A9/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>重温系列之多线程并发：线程池原理</title>
-    <link href="http://blog.linzhongtai.cn/2019/04/%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8B%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%EF%BC%9A%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%8E%9F%E7%90%86/"/>
-    <id>http://blog.linzhongtai.cn/2019/04/重温系列之多线程并发：线程池原理/</id>
-    <published>2019-04-01T11:45:59.000Z</published>
-    <updated>2019-04-01T11:45:59.000Z</updated>
-    
-    <content type="html"><![CDATA[<a id="more"></a><blockquote><p>线程池做的工作主要是控制运行的线程的数量，处理过程中将任务放入队列，然后在线程创建后启动这些任务，如果线程数量超过了最大数量则<strong>超出数量的线程排队等候</strong>，等其它线程执行完毕，再从队列中取出任务来执行。他的主要特点为：<strong>线程复用、控制最大并发数、管理线程</strong>。</p></blockquote><h2 id="线程复用"><a href="#线程复用" class="headerlink" title="线程复用"></a>线程复用</h2><p>每一个 Thread 的类都有一个 start 方法。 当调用 start 启动线程时 Java 虚拟机会调用该类的 run方法。 那么该类的 run() 方法中就是调用了 Runnable 对象的 run() 方法。 <strong>我们可以继承重写Thread 类，在其 start 方法中添加不断循环调用传递过来的 Runnable 对象</strong>。 这就是线程池的实现原理。<strong>循环方法中不断获取 Runnable 是用 Queue 实现的</strong>，在获取下一个 Runnable 之前可以是阻塞的。</p><h2 id="线程池的组成"><a href="#线程池的组成" class="headerlink" title="线程池的组成"></a>线程池的组成</h2><ol><li>线程池管理器：用于创建并管理线程池</li><li>工作线程：线程池中的线程</li><li>任务接口：每个任务必须实现的接口，用于工作线程调度其运行</li><li>任务队列：用于存放待处理的任务，提供一种缓冲机制</li></ol><p>Java 中的线程池是通过 Executor 框架实现的，该框架中用到了 Executor，Executors，ExecutorService，ThreadPoolExecutor ，Callable 和 Future、FutureTask 这几个类。<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/1554104383%281%29.jpg" alt=""><br>ThreadPoolExecutor 的构造方法如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public ThreadPoolExecutor(int corePoolSize,int maximumPoolSize, long keepAliveTime,</span><br><span class="line">                    TimeUnit unit, BlockingQueue&lt;Runnable&gt; workQueue) &#123;</span><br><span class="line">          this(corePoolSize, maximumPoolSize, keepAliveTime, unit, </span><br><span class="line">                workQueue,Executors.defaultThreadFactory(), defaultHandler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><ol><li>corePoolSize：指定了线程池中的线程数量。</li><li>maximumPoolSize：指定了线程池中的最大线程数量。</li><li>keepAliveTime：当前线程池数量超过 corePoolSize 时，多余的空闲线程的存活时间，即多次时间内会被销毁。</li><li>unit：keepAliveTime 的单位。</li><li>workQueue：任务队列，被提交但尚未被执行的任务。</li><li>threadFactory：线程工厂，用于创建线程，一般用默认的即可。</li><li>handler：拒绝策略，当任务太多来不及处理，如何拒绝任务。</li></ol><h2 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h2><p>线程池中的线程已经用完了，无法继续为新任务服务，同时，等待队列也已经排满了，再也塞不下新任务了。这时候我们就需要拒绝策略机制合理的处理这个问题。JDK 内置的拒绝策略如下：</p><ol><li>AbortPolicy ： 直接抛出异常，阻止系统正常运行。</li><li>CallerRunsPolicy ： 只要线程池未关闭，该策略直接在调用者线程中，运行当前被丢弃的任务。显然这样做不会真的丢弃任务，但是，任务提交线程的性能极有可能会急剧下降。</li><li>DiscardOldestPolicy ： 丢弃最老的一个请求，也就是即将被执行的一个任务，并尝试再次提交当前任务。</li><li>DiscardPolicy ： 该策略默默地丢弃无法处理的任务，不予任何处理。如果允许任务丢失，这是最好的一种方案。</li></ol><p>以上内置拒绝策略均实现了 RejectedExecutionHandler 接口，若以上策略仍无法满足实际需要，完全可以自己扩展 RejectedExecutionHandler 接口。</p><h2 id="Java线程池工作过程"><a href="#Java线程池工作过程" class="headerlink" title="Java线程池工作过程"></a>Java线程池工作过程</h2><ol><li>线程池刚创建时，里面没有一个线程。任务队列是作为参数传进来的。不过，就算队列里面有任务，线程池也不会马上执行它们。</li><li>当调用 execute() 方法添加一个任务时，线程池会做如下判断：<br>a)  如果正在运行的线程数量小于 corePoolSize，那么马上创建线程运行这个任务；<br>b) 如果正在运行的线程数量大于或等于 corePoolSize，那么将这个任务放入队列；<br>c)  如果这时候队列满了，而且正在运行的线程数量小于 maximumPoolSize，那么还是要创建非核心线程立刻运行这个任务；<br>d) 如果队列满了，而且正在运行的线程数量大于或等于 maximumPoolSize，那么线程池会抛出异常 RejectExecutionException。</li><li>当一个线程完成任务时，它会从队列中取下一个任务来执行。</li><li>当一个线程无事可做，超过一定的时间（keepAliveTime）时，线程池会判断，如果当前运行的线程数大于 corePoolSize，那么这个线程就被停掉。所以线程池的所有任务完成后，它最终会收缩到 corePoolSize 的大小。<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/java%E7%BA%BF%E7%A8%8B%E6%B1%A0.jpg" alt=""></li></ol>]]></content>
-    
-    <summary type="html">
-    
-      线程复用、控制最大并发数、管理线程
-    
-    </summary>
-    
-      <category term="并发编程" scheme="http://blog.linzhongtai.cn/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
-    
-    
-      <category term="并发编程" scheme="http://blog.linzhongtai.cn/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
-    
-      <category term="重温" scheme="http://blog.linzhongtai.cn/tags/%E9%87%8D%E6%B8%A9/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>重温系列之多线程并发：锁的优化</title>
-    <link href="http://blog.linzhongtai.cn/2019/04/%E9%87%8D%E6%B8%A9%E7%B3%BB%E5%88%97%E4%B9%8B%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%EF%BC%9A%E9%94%81%E7%9A%84%E4%BC%98%E5%8C%96/"/>
-    <id>http://blog.linzhongtai.cn/2019/04/重温系列之多线程并发：锁的优化/</id>
-    <published>2019-04-01T11:44:49.000Z</published>
-    <updated>2019-04-01T11:44:49.000Z</updated>
-    
-    <content type="html"><![CDATA[<a id="more"></a><h2 id="减少锁持有时间"><a href="#减少锁持有时间" class="headerlink" title="减少锁持有时间"></a>减少锁持有时间</h2><blockquote><p>只用在需要线程安全的方法上加锁</p></blockquote><h2 id="减小锁粒度"><a href="#减小锁粒度" class="headerlink" title="减小锁粒度"></a>减小锁粒度</h2><p>将大对象（这个对象可能会被很多线程访问），拆成小对象，大大增加并行度，降低锁竞争。降低了锁的竞争，偏向锁，轻量级锁成功率才会提高。最最典型的减小锁粒度的案例就是ConcurrentHashMap。</p><h2 id="锁分离"><a href="#锁分离" class="headerlink" title="锁分离"></a>锁分离</h2><p>最常见的锁分离就是读写锁 ReadWriteLock，根据功能进行分离成读锁和写锁，这样读读不互斥，读写互斥，写写互斥，即保证了线程安全，又提高了性能。读写分离思想可以延伸，只要操作互不影响，锁就可以分离。比如下面的LinkedBlockingQueue 从头部取出，从尾部放数据<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/%E9%94%81%E5%88%86%E7%A6%BB.png" alt=""></p><h2 id="锁粗化"><a href="#锁粗化" class="headerlink" title="锁粗化"></a>锁粗化</h2><p>通常情况下，为了保证多线程间的有效并发，会要求每个线程持有锁的时间尽量短，即在使用完公共资源后，应该立即释放锁。但是，凡事都有一个度，<strong>如果对同一个锁不停的进行请求、同步和释放，其本身也会消耗系统宝贵的资源，反而不利于性能的优化 。</strong></p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public void demoMethod()&#123;  </span><br><span class="line">synchronized(lock)&#123;   </span><br><span class="line">//do sth.  </span><br><span class="line">&#125;  </span><br><span class="line">//做其他不需要的同步的工作，但能很快执行完毕  </span><br><span class="line">synchronized(lock)&#123;   </span><br><span class="line">//do sth.  </span><br><span class="line">&#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>这种情况，根据锁粗化的思想，应该合并<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public void demoMethod()&#123;  </span><br><span class="line">//整合成一次锁请求 </span><br><span class="line">synchronized(lock)&#123;   </span><br><span class="line">//do sth.   </span><br><span class="line">//做其他不需要的同步的工作，但能很快执行完毕  </span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>当然这是有前提的，前提就是中间的那些不需要同步的工作是很快执行完成的。</p><h2 id="锁消除"><a href="#锁消除" class="headerlink" title="锁消除"></a>锁消除</h2><blockquote><p>在即时编译器时，如果发现不可能被共享的对象，则可以消除这些对象的锁操作。</p></blockquote><p>也许你会觉得奇怪，既然有些对象不可能被多线程访问，那为什么要加锁呢？写代码时直接不加锁不就好了。<br>但是有时，这些锁并不是程序员所写的，有的是JDK实现中就有锁的，比如Vector和StringBuffer这样的类，它们中的很多方法都是有锁的。当我们在一些不会有线程安全的情况下使用这些类的方法时，达到某些条件时，编译器会将锁消除来提高性能。</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line"><span class="keyword">long</span> start = System.currentTimeMillis();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">2000000</span>; i++) &#123;</span><br><span class="line">createStringBuffer(<span class="string">"JVM"</span>, <span class="string">"Diagnosis"</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">long</span> bufferCost = System.currentTimeMillis() - start;</span><br><span class="line">System.out.println(<span class="string">"craeteStringBuffer: "</span> + bufferCost + <span class="string">" ms"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">createStringBuffer</span><span class="params">(String s1, String s2)</span> </span>&#123;</span><br><span class="line">StringBuffer sb = <span class="keyword">new</span> StringBuffer();</span><br><span class="line">sb.append(s1);</span><br><span class="line">sb.append(s2);</span><br><span class="line"><span class="keyword">return</span> sb.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>StringBuffer.append是一个同步操作，但是StringBuffer却是一个局部变量，并且方法也并没有把StringBuffer返回，所以不可能会有多线程去访问它，那么此时StringBuffer中的同步操作就是没有意义的。</p><p>开启锁消除是在JVM参数上设置的，当然需要在server模式下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-server -XX:+DoEscapeAnalysis -XX:+EliminateLocks</span><br></pre></td></tr></table></figure></p><p>并且要开启<strong><a href="http://www.importnew.com/23150.html" target="_blank" rel="noopener">逃逸分析</a></strong>。<br> 逃逸分析的作用呢，就是看看变量是否有可能逃出作用域的范围：<br>比如上述的StringBuffer，上述代码中craeteStringBuffer的返回是一个String，所以这个局部变量StringBuffer在其他地方都不会被使用。如果将craeteStringBuffer改成<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public static StringBuffer craeteStringBuffer(String s1, String s2) &#123;</span><br><span class="line">StringBuffer sb = new StringBuffer();</span><br><span class="line">sb.append(s1);</span><br><span class="line">sb.append(s2);</span><br><span class="line">return sb;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>那么这个 StringBuffer被返回后，是有可能被任何其他地方所使用的（譬如被主函数将返回结果put进map啊等等）。那么JVM的逃逸分析可以分析出，这个局部变量 StringBuffer逃出了它的作用域。<br>所以基于逃逸分析，JVM可以判断，如果这个局部变量StringBuffer并没有逃出它的作用域，那么可以确定这个StringBuffer并不会被多线程所访问，那么就可以把这些多余的锁给去掉来提高性能</p>]]></content>
-    
-    <summary type="html">
-    
-      优化路漫漫
-    
-    </summary>
-    
-      <category term="并发编程" scheme="http://blog.linzhongtai.cn/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
-    
-    
-      <category term="并发编程" scheme="http://blog.linzhongtai.cn/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/"/>
-    
-      <category term="重温" scheme="http://blog.linzhongtai.cn/tags/%E9%87%8D%E6%B8%A9/"/>
-    
-      <category term="锁" scheme="http://blog.linzhongtai.cn/tags/%E9%94%81/"/>
     
   </entry>
   

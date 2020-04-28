@@ -119,12 +119,12 @@
 <meta property="og:site_name" content="林林总总">
 <meta property="og:description" content="根据加锁范围：MySQL里面的锁可以分为：全局锁、表级锁、行级锁">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-75761de2b4c58d4b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-5-1.png">
 <meta property="og:updated_time" content="2020-03-07T08:45:47.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="5、全局锁和表锁">
 <meta name="twitter:description" content="根据加锁范围：MySQL里面的锁可以分为：全局锁、表级锁、行级锁">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5937589-75761de2b4c58d4b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-5-1.png">
 
 
 
@@ -467,7 +467,7 @@
 <li>读锁之间不互斥，因此你可以有多个线程同时对一张表增删改查。</li>
 <li>读写锁之间、写锁之间是互斥的，用来保证变更表结构操作的安全性。因此，如果有两个线程要同时给一个表加字段，其中一个要等另一个执行完才能开始执行。</li>
 </ul>
-<p><img src="https://upload-images.jianshu.io/upload_images/5937589-75761de2b4c58d4b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<p><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-5-1.png" alt="image.png"></p>
 <p>我们可以看到session A先启动，这时候会对表t加一个MDL读锁。由于session B需要的也是MDL读锁，因此可以正常执行。<br>之后session C会被blocked，是因为session A的MDL读锁还没有释放，而session C需要MDL写锁，因此只能被阻塞。<br>如果只有session C自己被阻塞还没什么关系，但是之后所有要在表t上新申请MDL读锁的请求也会被session C阻塞。前面我们说了，所有对表的增删改查操作都需要先申请MDL读锁，就都被锁住，等于这个表现在完全不可读写了。</p>
 <p>如果某个表上的查询语句频繁，而且客户端有重试机制，也就是说超时后会再起一个新session再请求的话，这个库的线程很快就会爆满。</p>
 <p><strong>事务中的MDL锁，在语句执行开始时申请，但是语句结束后并不会马上释放，而会等到整个事务提交后再释放。所以在做表结构变更的时候，一定要小心不要导致锁住线上查询和更新。</strong></p>
@@ -695,7 +695,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">115</span>
+                <span class="site-state-item-count">116</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

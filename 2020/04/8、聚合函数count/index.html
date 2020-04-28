@@ -119,15 +119,15 @@
 <meta property="og:site_name" content="林林总总">
 <meta property="og:description" content="count(字段) &amp;lt; count(主键id) &amp;lt; count(1) ≈ count(*)">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-cb16263043b2527c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-86f048e9821d6bfa.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-2935ff7dc55c076a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-861eaea7cf939ddf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-8-1.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-8-2.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-8-3.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-8-4.png">
 <meta property="og:updated_time" content="2020-04-05T02:08:41.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="8、聚合函数count">
 <meta name="twitter:description" content="count(字段) &amp;lt; count(主键id) &amp;lt; count(1) ≈ count(*)">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5937589-cb16263043b2527c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-8-1.png">
 
 
 
@@ -457,7 +457,7 @@
 <li>会话B启动事务，插入一行后记录后，查询表的总行数</li>
 <li>会话C先启动一个单独的语句，插入一行记录后，查询表的总行数。</li>
 </ul>
-<p>我们假设从上到下是按照时间顺序执行的，同一行语句是在同一时刻执行的，<br>在最后一个时刻，三个会话A、B、C会同时查询表t的总行数，但拿到的结果却不同。<br><img src="https://upload-images.jianshu.io/upload_images/5937589-cb16263043b2527c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="会话A、B、C的执行流程"><br>这和InnoDB的事务设计有关系，可重复读是它默认的隔离级别，在代码上就是通过多版本并发控制，也就是MVCC来实现的。每一行记录都要判断自己是否对这个会话可见，因此对于count(*)请求来说，InnoDB只好把数据一行一行地读出依次判断，可见的行才能够用于计算“基于这个查询”的表的总行数。</p>
+<p>我们假设从上到下是按照时间顺序执行的，同一行语句是在同一时刻执行的，<br>在最后一个时刻，三个会话A、B、C会同时查询表t的总行数，但拿到的结果却不同。<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-8-1.png" alt="会话A、B、C的执行流程"><br>这和InnoDB的事务设计有关系，可重复读是它默认的隔离级别，在代码上就是通过多版本并发控制，也就是MVCC来实现的。每一行记录都要判断自己是否对这个会话可见，因此对于count(*)请求来说，InnoDB只好把数据一行一行地读出依次判断，可见的行才能够用于计算“基于这个查询”的表的总行数。</p>
 <p>不过MySQL在执行count(*)操作的时候还是做了优化：<br><strong>MySQL优化器会找到最小的那棵树来遍历。在保证逻辑正确的前提下，尽量减少扫描的数据量，是数据库系统设计的通用法则之一</strong></p>
 <p>小结：</p>
 <ul>
@@ -474,10 +474,10 @@
 <li>一种是，查到的100行结果里面有最新插入记录，而Redis的计数里还没加1；</li>
 <li>另一种是，查到的100行结果里没有最新插入的记录，而Redis的计数里已经加了1。</li>
 </ul>
-<p>这两种情况，都是逻辑不一致的。<br><img src="https://upload-images.jianshu.io/upload_images/5937589-86f048e9821d6bfa.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br><img src="https://upload-images.jianshu.io/upload_images/5937589-2935ff7dc55c076a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<p>这两种情况，都是逻辑不一致的。<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-8-2.png" alt="image.png"><br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-8-3.png" alt="image.png"></p>
 <p>在并发系统里面，无法精确控制不同线程的执行时刻的，因为存在图中的这种操作序列，所以，即使Redis正常工作，这个计数值还是逻辑上不精确的。</p>
 <h2 id="在数据库保存计数"><a href="#在数据库保存计数" class="headerlink" title="在数据库保存计数"></a>在数据库保存计数</h2><p><strong>如果我们把这个计数直接放到数据库里单独的一张计数表C中，又会怎么样呢？</strong></p>
-<p>首先，这解决了崩溃丢失的问题，InnoDB是支持崩溃恢复不丢数据的。<br>其次，由于InnoDB是支持事务的，所以从下图可以看出逻辑上是一致的<br><img src="https://upload-images.jianshu.io/upload_images/5937589-861eaea7cf939ddf.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<p>首先，这解决了崩溃丢失的问题，InnoDB是支持崩溃恢复不丢数据的。<br>其次，由于InnoDB是支持事务的，所以从下图可以看出逻辑上是一致的<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-8-4.png" alt="image.png"></p>
 <h2 id="不同的count用法"><a href="#不同的count用法" class="headerlink" title="不同的count用法"></a>不同的count用法</h2><blockquote>
 <p>count()是一个聚合函数，对于返回的结果集，一行行地判断，如果count函数的参数不是NULL，累计值就加1，否则不加。最后返回累计值。</p>
 </blockquote>
@@ -723,7 +723,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">115</span>
+                <span class="site-state-item-count">116</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

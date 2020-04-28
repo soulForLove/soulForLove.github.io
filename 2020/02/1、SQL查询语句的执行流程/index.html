@@ -119,13 +119,13 @@
 <meta property="og:site_name" content="林林总总">
 <meta property="og:description" content="客户端-&amp;gt;连接器-&amp;gt;(查询缓存)-&amp;gt;分析器-&amp;gt;优化器-&amp;gt;执行器">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-24498967aefcd1b5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-0771fe040db800c9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-1-1.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-1-2.png">
 <meta property="og:updated_time" content="2020-02-23T02:15:34.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="1、SQL查询语句的执行流程">
 <meta name="twitter:description" content="客户端-&amp;gt;连接器-&amp;gt;(查询缓存)-&amp;gt;分析器-&amp;gt;优化器-&amp;gt;执行器">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5937589-24498967aefcd1b5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-1-1.png">
 
 
 
@@ -438,12 +438,12 @@
 
       
         <a id="more"></a>
-<p><img src="https://upload-images.jianshu.io/upload_images/5937589-24498967aefcd1b5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="执行流程"></p>
+<p><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-1-1.png" alt="执行流程"></p>
 <h2 id="连接器"><a href="#连接器" class="headerlink" title="连接器"></a>连接器</h2><blockquote>
 <p>连接器负责跟客户端建立连接、获取权限、维持和管理连接</p>
 </blockquote>
 <p>连接命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -h$ip -P$port -u$user -p</span><br></pre></td></tr></table></figure></p>
-<p>连接完成后，如果你没有后续的动作，这个连接就处于空闲状态，你可以在show processlist命令中看到:<br><img src="https://upload-images.jianshu.io/upload_images/5937589-0771fe040db800c9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="show processlist"><br>上图便是show processlist的结果，其中的Command列显示为“Sleep”的这一行，就表示现在系统里面有一个空闲连接。</p>
+<p>连接完成后，如果你没有后续的动作，这个连接就处于空闲状态，你可以在show processlist命令中看到:<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-1-2.png" alt="show processlist"><br>上图便是show processlist的结果，其中的Command列显示为“Sleep”的这一行，就表示现在系统里面有一个空闲连接。</p>
 <p><strong>客户端如果太长时间没动静，连接器就会自动将它断开。这个时间是由参数wait_timeout控制的，默认值是8小时。</strong><br>如果在连接被断开之后，客户端再次发送请求的话，就会收到一个错误提醒： Lost connection to MySQL server during query。这时候如果你要继续，就需要重连，然后再执行请求了。<br>数据库里面，长连接是指连接成功后，如果客户端持续有请求，则一直使用同一个连接。短连接则是指每次执行完很少的几次查询就断开连接，下次查询再重新建立一个。<br>建立连<br>接的过程通常是比较复杂的，所以我建议你在使用中要尽量减少建立连接的动作，也就是尽量使用长连接。</p>
 <p>但是全部使用长连接后，你可能会发现，有些时候MySQL占用内存涨得特别快，这是因为MySQL在执行过程中临时使用的内存是管理在连接对象里面的。这些资源会在连接断开的时候才释放。所以如果长连接累积下来，可能导致内存占用太大，被系统强行杀掉（OOM），从现象看就是MySQL异常重启了。</p>
 <p>怎么解决这个问题呢？你可以考虑以下两种方案：</p>
@@ -596,8 +596,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/10/一致性Hash/" rel="next" title="一致性Hash">
-                <i class="fa fa-chevron-left"></i> 一致性Hash
+              <a href="/2019/10/Redis知识点整理/" rel="next" title="Redis知识点整理">
+                <i class="fa fa-chevron-left"></i> Redis知识点整理
               </a>
             
           </div>
@@ -704,7 +704,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">115</span>
+                <span class="site-state-item-count">116</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

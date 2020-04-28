@@ -119,19 +119,19 @@
 <meta property="og:site_name" content="林林总总">
 <meta property="og:description" content="在解决分布式系统中负载均衡的问题时候可以使用Hash算法让固定的一部分请求落到同一台服务器上，这样每台服务器固定处理一部分请求（并维护这些请求的信息），起到负载均衡的作用。但是普通的余数hash（hash(比如用户id)%服务器机器数）算法伸缩性很差，当新增或者下线服务器机器时候，用户id与服务器的映射关系会大量失效，一致性hash则利用hash环对其进行了改进。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-f36a02d459b891e7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-7a45f2ac961c3574.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-a1e6ac80c33db25e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-d861ff3b63be2eeb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-e2c0b21702ba2b6b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-f195c5c8f0b8d060.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-d426ea1c4d751f65.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-481b1a95d6fa2bba.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-1.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-2.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-3.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-4.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-5.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-6.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-7.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-8.png">
 <meta property="og:updated_time" content="2019-10-07T08:50:18.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一致性Hash">
 <meta name="twitter:description" content="在解决分布式系统中负载均衡的问题时候可以使用Hash算法让固定的一部分请求落到同一台服务器上，这样每台服务器固定处理一部分请求（并维护这些请求的信息），起到负载均衡的作用。但是普通的余数hash（hash(比如用户id)%服务器机器数）算法伸缩性很差，当新增或者下线服务器机器时候，用户id与服务器的映射关系会大量失效，一致性hash则利用hash环对其进行了改进。">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5937589-f36a02d459b891e7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-1.png">
 
 
 
@@ -450,21 +450,21 @@
 <p>为了能直观的理解一致性hash原理，这里结合一个简单的例子来讲解，假设有4台服务器，地址为ip1,ip2,ip3,ip4</p>
 </blockquote>
 <ul>
-<li>一致性hash是首先计算四个ip地址对应的hash值<br>hash(ip1),hash(ip2),hash(ip3),hash(ip3)，计算出来的hash值是0~最大正整数直接的一个值，这四个值在一致性hash环上呈现如下图：<br><img src="https://upload-images.jianshu.io/upload_images/5937589-f36a02d459b891e7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></li>
+<li>一致性hash是首先计算四个ip地址对应的hash值<br>hash(ip1),hash(ip2),hash(ip3),hash(ip3)，计算出来的hash值是0~最大正整数直接的一个值，这四个值在一致性hash环上呈现如下图：<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-1.png" alt="image.png"></li>
 <li><p>hash环上顺时针从整数0开始，一直到最大正整数，我们根据四个ip计算的hash值肯定会落到这个hash环上的某一个点，至此我们把服务器的四个ip映射到了一致性hash环</p>
 </li>
 <li><p>当用户在客户端进行请求时候，首先根据hash(用户id)</p>
 </li>
 </ul>
-<p>计算路由规则（hash值），然后看hash值落到了hash环的那个地方，根据hash值在hash环上的位置顺时针找距离最近的ip作为路由ip.<br><img src="https://upload-images.jianshu.io/upload_images/5937589-7a45f2ac961c3574.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>如上图可知user1,user2的请求会落到服务器ip2进行处理，User3的请求会落到服务器ip3进行处理，user4的请求会落到服务器ip4进行处理，user5,user6的请求会落到服务器ip1进行处理</p>
+<p>计算路由规则（hash值），然后看hash值落到了hash环的那个地方，根据hash值在hash环上的位置顺时针找距离最近的ip作为路由ip.<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-2.png" alt="image.png"><br>如上图可知user1,user2的请求会落到服务器ip2进行处理，User3的请求会落到服务器ip3进行处理，user4的请求会落到服务器ip4进行处理，user5,user6的请求会落到服务器ip1进行处理</p>
 <blockquote>
 <p>下面考虑当ip2的服务器挂了的时候会出现什么情况？</p>
 </blockquote>
-<p>当ip2的服务器挂了的时候，一致性hash环大致如下图：<br><img src="https://upload-images.jianshu.io/upload_images/5937589-a1e6ac80c33db25e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>根据顺时针规则可知user1,user2的请求会被服务器ip3进行处理，而其它用户的请求对应的处理服务器不变，也就是只有之前被ip2处理的一部分用户的映射关系被破坏了，并且其负责处理的请求被顺时针下一个节点委托处理</p>
+<p>当ip2的服务器挂了的时候，一致性hash环大致如下图：<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-3.png" alt="image.png"><br>根据顺时针规则可知user1,user2的请求会被服务器ip3进行处理，而其它用户的请求对应的处理服务器不变，也就是只有之前被ip2处理的一部分用户的映射关系被破坏了，并且其负责处理的请求被顺时针下一个节点委托处理</p>
 <blockquote>
 <p>下面考虑当新增机器的时候会出现什么情况？</p>
 </blockquote>
-<p>当新增一个ip5的服务器后，一致性hash环大致如下图：<br><img src="https://upload-images.jianshu.io/upload_images/5937589-d861ff3b63be2eeb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<p>当新增一个ip5的服务器后，一致性hash环大致如下图：<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-4.png" alt="image.png"></p>
 <p>根据顺时针规则可知之前user5的请求应该被ip5服务器处理，现在被新增的ip5服务器处理，其他用户的请求处理服务器不变，也就是新增的服务器顺时针最近的服务器的一部分请求会被新增的服务器所替代</p>
 <h2 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h2><ol>
 <li>单调性(Monotonicity)</li>
@@ -477,10 +477,10 @@
 <ol start="3">
 <li>平衡性(Balance)</li>
 </ol>
-<p>平衡性也就是说负载均衡，是指客户端hash后的请求应该能够分散到不同的服务器上去。一致性hash可以做到每个服务器都进行处理请求，但是不能保证每个服务器处理的请求的数量大致相同，如下图<br><img src="https://upload-images.jianshu.io/upload_images/5937589-e2c0b21702ba2b6b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<p>平衡性也就是说负载均衡，是指客户端hash后的请求应该能够分散到不同的服务器上去。一致性hash可以做到每个服务器都进行处理请求，但是不能保证每个服务器处理的请求的数量大致相同，如下图<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-5.png" alt="image.png"></p>
 <p><strong>服务器ip1,ip2,ip3经过hash后落到了一致性hash环上，从图中hash值分布可知ip1会负责处理大概80%的请求，而ip2和ip3则只会负责处理大概20%的请求，虽然三个机器都在处理请求，但是明显每个机器的负载不均衡，这样称为一致性hash的倾斜，虚拟节点的出现就是为了解决这个问题</strong></p>
-<h2 id="虚拟节点"><a href="#虚拟节点" class="headerlink" title="虚拟节点"></a>虚拟节点</h2><p>当服务器节点比较少的时候会出现上节所说的一致性hash倾斜的问题，一个解决方法是多加机器，但是加机器是有成本的，那么就加虚拟节点，比如上面三个机器，每个机器引入1个虚拟节点后的一致性hash环的图如下：<br><img src="https://upload-images.jianshu.io/upload_images/5937589-f195c5c8f0b8d060.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>其中ip1-1是ip1的虚拟节点，ip2-1是ip2的虚拟节点，ip3-1是ip3的虚拟节点。<br>可知当物理机器数目为M，虚拟节点为N的时候，实际hash环上节点个数为M*N。比如当客户端计算的hash值处于ip2和ip3或者处于ip2-1和ip3-1之间时候使用ip3服务器进行处理。</p>
-<h2 id="均匀一致性hash"><a href="#均匀一致性hash" class="headerlink" title="均匀一致性hash"></a>均匀一致性hash</h2><p>上节我们使用虚拟节点后的图看起来比较均衡，但是如果生成虚拟节点的算法不够好很可能会得到下面的环：<img src="https://upload-images.jianshu.io/upload_images/5937589-d426ea1c4d751f65.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>可知每个服务节点引入1个虚拟节点后，情况相比没有引入前均衡性有所改善，但是并不均衡。<br>均衡的一致性hash应该是如下图：<br><img src="https://upload-images.jianshu.io/upload_images/5937589-481b1a95d6fa2bba.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>均匀一致性hash的目标是如果服务器有N台，客户端的hash值有M个，那么每个服务器应该处理大概M/N个用户的，也就是每台服务器负载尽量均衡。</p>
+<h2 id="虚拟节点"><a href="#虚拟节点" class="headerlink" title="虚拟节点"></a>虚拟节点</h2><p>当服务器节点比较少的时候会出现上节所说的一致性hash倾斜的问题，一个解决方法是多加机器，但是加机器是有成本的，那么就加虚拟节点，比如上面三个机器，每个机器引入1个虚拟节点后的一致性hash环的图如下：<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-6.png" alt="image.png"><br>其中ip1-1是ip1的虚拟节点，ip2-1是ip2的虚拟节点，ip3-1是ip3的虚拟节点。<br>可知当物理机器数目为M，虚拟节点为N的时候，实际hash环上节点个数为M*N。比如当客户端计算的hash值处于ip2和ip3或者处于ip2-1和ip3-1之间时候使用ip3服务器进行处理。</p>
+<h2 id="均匀一致性hash"><a href="#均匀一致性hash" class="headerlink" title="均匀一致性hash"></a>均匀一致性hash</h2><p>上节我们使用虚拟节点后的图看起来比较均衡，但是如果生成虚拟节点的算法不够好很可能会得到下面的环：<img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-7.png" alt="image.png"><br>可知每个服务节点引入1个虚拟节点后，情况相比没有引入前均衡性有所改善，但是并不均衡。<br>均衡的一致性hash应该是如下图：<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/hash-8.png" alt="image.png"><br>均匀一致性hash的目标是如果服务器有N台，客户端的hash值有M个，那么每个服务器应该处理大概M/N个用户的，也就是每台服务器负载尽量均衡。</p>
 
       
     </div>
@@ -603,8 +603,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2020/02/1、SQL查询语句的执行流程/" rel="prev" title="1、SQL查询语句的执行流程">
-                1、SQL查询语句的执行流程 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/10/Redis知识点整理/" rel="prev" title="Redis知识点整理">
+                Redis知识点整理 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -701,7 +701,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">115</span>
+                <span class="site-state-item-count">116</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

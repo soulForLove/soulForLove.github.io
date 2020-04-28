@@ -119,19 +119,19 @@
 <meta property="og:site_name" content="林林总总">
 <meta property="og:description" content="索引的出现其实就是为了提高数据查询的效率，就像书的目录一样。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-8bd9eab946f6fa24.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-193bfdabab7faf09.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-e326cfb5caa507d1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-23d9999932dc57ed.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-1a5da5b9c83c241a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-cc416b738ad436b5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-c75f4110ce8c98be.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-92f6fc80c4e22eb3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-1.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-2.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-3.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-4.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-5.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-6.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-8.png">
+<meta property="og:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-9.png">
 <meta property="og:updated_time" content="2020-03-02T14:05:55.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="4、索引">
 <meta name="twitter:description" content="索引的出现其实就是为了提高数据查询的效率，就像书的目录一样。">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5937589-8bd9eab946f6fa24.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:image" content="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-1.png">
 
 
 
@@ -447,12 +447,12 @@
 <h2 id="索引的常见模型"><a href="#索引的常见模型" class="headerlink" title="索引的常见模型"></a>索引的常见模型</h2><h3 id="哈希表"><a href="#哈希表" class="headerlink" title="哈希表"></a>哈希表</h3><blockquote>
 <p>适用于只有等值查询的场景</p>
 </blockquote>
-<p><img src="https://upload-images.jianshu.io/upload_images/5937589-8bd9eab946f6fa24.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="哈希表示意图"><br>以键-值（key-value）存储数据的结构，只要输入待查找的值即key，就可以找到其对应的值即Value。哈希的思路很简单，把值放在数组里，用一个哈希函数把key换算成一个确定的位置，然后把value放在数组的这个位置。<br>多个key值经过哈希函数的换算，可能会出现同一个值的情况。此时会拉出一个链表（不是有序的，所以做区间查询的速度很慢）。</p>
+<p><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-1.png" alt="哈希表示意图"><br>以键-值（key-value）存储数据的结构，只要输入待查找的值即key，就可以找到其对应的值即Value。哈希的思路很简单，把值放在数组里，用一个哈希函数把key换算成一个确定的位置，然后把value放在数组的这个位置。<br>多个key值经过哈希函数的换算，可能会出现同一个值的情况。此时会拉出一个链表（不是有序的，所以做区间查询的速度很慢）。</p>
 <h3 id="有序数组"><a href="#有序数组" class="headerlink" title="有序数组"></a>有序数组</h3><blockquote>
 <p>在等值查询和范围查询场景中的性能就都非常优秀，当更新的成本太高，所以只适用于静态存储引擎</p>
 </blockquote>
-<p><img src="https://upload-images.jianshu.io/upload_images/5937589-193bfdabab7faf09.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="有序数组示意图"></p>
-<h3 id="搜索树"><a href="#搜索树" class="headerlink" title="搜索树"></a>搜索树</h3><p><img src="https://upload-images.jianshu.io/upload_images/5937589-e326cfb5caa507d1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="二叉搜索树示意图"></p>
+<p><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-2.png" alt="有序数组示意图"></p>
+<h3 id="搜索树"><a href="#搜索树" class="headerlink" title="搜索树"></a>搜索树</h3><p><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-3.png" alt="二叉搜索树示意图"></p>
 <ul>
 <li>每个节点的左儿子小于父节点，父节点又小于右儿子</li>
 <li>查询时间复杂度O(log(N))，更新时间复杂度O(log(N))</li>
@@ -464,7 +464,7 @@
 </blockquote>
 <p>每一个索引在InnoDB里面对应一棵B+树。</p>
 <p>假设，我们有一个主键列为ID的表，表中有字段k，并且在k上有索引。<br>这个表的建表语句是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create table T(</span><br><span class="line">id int primary key, </span><br><span class="line">k int not null, </span><br><span class="line">name varchar(16),</span><br><span class="line">index (k))engine=InnoDB;</span><br></pre></td></tr></table></figure></p>
-<p>表中R1~R5的(ID,k)值分别为(100,1)、(200,2)、(300,3)、(500,5)和(600,6)，两棵树的示例示意图如下。<br><img src="https://upload-images.jianshu.io/upload_images/5937589-23d9999932dc57ed.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="InnoDB的索引组织结构"></p>
+<p>表中R1~R5的(ID,k)值分别为(100,1)、(200,2)、(300,3)、(500,5)和(600,6)，两棵树的示例示意图如下。<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-4.png" alt="InnoDB的索引组织结构"></p>
 <p>从图中不难看出，根据叶子节点的内容，索引类型分为主键索引和非主键索引。<br>主键索引的叶子节点存的是整行数据。在InnoDB里，主键索引也被称为聚簇索引（clustered index）。<br>非主键索引的叶子节点内容是主键的值。在InnoDB里，非主键索引也被称为二级索引（secondary index）。<br>根据上面的索引结构说明，我们来讨论一个问题：<strong>基于主键索引和普通索引的查询有什么区别？</strong></p>
 <ul>
 <li>如果语句是select * from T where ID=500，即主键查询方式，则只需要搜索ID这棵B+树；</li>
@@ -491,7 +491,7 @@
 </ol>
 <p>这就是典型的KV场景，由于没有其他索引，所以也就不用考虑其他索引的叶子节点大小的问题。<br>这时候我们就要优先考虑上一段提到的“尽量使用主键查询”原则，直接将这个索引设置为主键，可以避免每次查询需要搜索两棵树。</p>
 <h2 id="深入索引"><a href="#深入索引" class="headerlink" title="深入索引"></a>深入索引</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create table T (</span><br><span class="line">ID int primary key,</span><br><span class="line">k int NOT NULL DEFAULT 0, </span><br><span class="line">s varchar(16) NOT NULL DEFAULT &apos;&apos;,</span><br><span class="line">index k(k))</span><br><span class="line">engine=InnoDB;</span><br><span class="line"></span><br><span class="line">insert into T values(100,1, &apos;aa&apos;),(200,2,&apos;bb&apos;),(300,3,&apos;cc&apos;),(500,5,&apos;ee&apos;),(600,6,&apos;ff&apos;),(700,7,&apos;gg&apos;);</span><br></pre></td></tr></table></figure>
-<p><img src="https://upload-images.jianshu.io/upload_images/5937589-1a5da5b9c83c241a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="InnoDB的索引组织结构"></p>
+<p><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-5.png" alt="InnoDB的索引组织结构"></p>
 <p>如果执行 select * from T where k between 3 and 5，需要执行几次树的搜索操作，会扫描多少行？</p>
 <p>这条SQL查询语句的执行流程：</p>
 <ol>
@@ -509,7 +509,7 @@
 <h3 id="最左前缀原则"><a href="#最左前缀原则" class="headerlink" title="最左前缀原则"></a>最左前缀原则</h3><blockquote>
 <p>B+树这种索引结构，可以利用索引的“最左前缀”，来定位记录。</p>
 </blockquote>
-<p>为了直观地说明这个概念，我们用（name，age）这个联合索引来分析。<br><img src="https://upload-images.jianshu.io/upload_images/5937589-cc416b738ad436b5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="（name，age）索引示意图"></p>
+<p>为了直观地说明这个概念，我们用（name，age）这个联合索引来分析。<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-6.png" alt="（name，age）索引示意图"></p>
 <p><strong>在建立联合索引的时候，如何安排索引内的字段顺序?</strong></p>
 <ul>
 <li>索引的复用能力<br>因为可以支持最左前缀，所以当已经有了(a,b)这个联合索引后，一般就不需要单独在a上建立索引了<br><strong>如果通过调整顺序，可以少维护一个索引，那么这个顺序往往就是需要优先考虑采用的。</strong></li>
@@ -517,7 +517,7 @@
 <p>如果既有联合查询，又有基于a、b各自的查询呢？查询条件里面只有b的语句，是无法使用(a,b)这个联合索引的，这时候不得不维护另外一个索引，也就是说需要同时维护(a,b)、(b) 这两个索引。</p>
 <p>这时候，要考虑的原则就是空间了。比如上面这个市民表的情况，name字段是比age字段大的 ，那么则建议创建一个（name,age)的联合索引和一个(age)的单字段索引。</p>
 <h3 id="索引下推"><a href="#索引下推" class="headerlink" title="索引下推"></a>索引下推</h3><p>以市民表的联合索引（name, age）为例。如果现在有一个需求：检索出表中“名字第一个字是张，而且年龄是10岁的所有男孩”。那么，SQL语句是这么写的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from tuser where name like &apos;张%&apos; and age=10 and ismale=1;</span><br></pre></td></tr></table></figure></p>
-<p>在MySQL 5.6之前，只能从ID3开始一个个回表。到主键索引上找出数据行，再对比字段值。<br><img src="https://upload-images.jianshu.io/upload_images/5937589-c75f4110ce8c98be.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="无索引下推执行流程"><br>而MySQL 5.6 引入的索引下推优化（index condition pushdown)， 可以在索引遍历过程中，对索引中包含的字段先做判断，直接过滤掉不满足条件的记录，减少回表次数。<br><img src="https://upload-images.jianshu.io/upload_images/5937589-92f6fc80c4e22eb3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="索引下推执行流程"></p>
+<p>在MySQL 5.6之前，只能从ID3开始一个个回表。到主键索引上找出数据行，再对比字段值。<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-8.png" alt="无索引下推执行流程"><br>而MySQL 5.6 引入的索引下推优化（index condition pushdown)， 可以在索引遍历过程中，对索引中包含的字段先做判断，直接过滤掉不满足条件的记录，减少回表次数。<br><img src="https://blog2019.oss-cn-shenzhen.aliyuncs.com/mysql-4-9.png" alt="索引下推执行流程"></p>
 <p>以上这两个图里面，每一个虚线箭头表示回表一次。</p>
 <p>无索引下推的图中，在(name,age)索引里面特意去掉了age的值，这个过程InnoDB并不会去看age的值，只是按顺序把“name第一个字是’张’”的记录一条条取出来回表。因此，需要回表4次。</p>
 <p>而在索引下推的图中，InnoDB在(name,age)索引内部就判断了age是否等于10，对于不等于10的记录，直接判断并跳过。在这个例子中，只需要对ID4、ID5这两条记录回表取数据判断，就只需要回表2次。</p>
@@ -741,7 +741,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">115</span>
+                <span class="site-state-item-count">116</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

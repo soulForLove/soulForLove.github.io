@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.linzhongtai.cn/2019/10/Redis%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/</loc>
+    
+    <lastmod>2020-04-05T08:32:12.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.linzhongtai.cn/2020/04/8%E3%80%81%E8%81%9A%E5%90%88%E5%87%BD%E6%95%B0count/</loc>
     
     <lastmod>2020-04-05T02:08:41.000Z</lastmod>
@@ -359,7 +366,7 @@
   </url>
   
   <url>
-    <loc>http://blog.linzhongtai.cn/categories/index.html</loc>
+    <loc>http://blog.linzhongtai.cn/googleddf2510b177a27a8.html</loc>
     
     <lastmod>2018-05-24T02:45:26.000Z</lastmod>
     
@@ -373,14 +380,14 @@
   </url>
   
   <url>
-    <loc>http://blog.linzhongtai.cn/googleddf2510b177a27a8.html</loc>
+    <loc>http://blog.linzhongtai.cn/tags/index.html</loc>
     
     <lastmod>2018-05-24T02:45:26.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.linzhongtai.cn/tags/index.html</loc>
+    <loc>http://blog.linzhongtai.cn/categories/index.html</loc>
     
     <lastmod>2018-05-24T02:45:26.000Z</lastmod>
     

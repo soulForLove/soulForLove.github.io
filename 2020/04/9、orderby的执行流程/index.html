@@ -93,7 +93,7 @@
 <link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css">
 
 
-  <meta name="keywords" content="redis,">
+  <meta name="keywords" content="Mysql,MySql实战45讲笔记,">
 
 
 
@@ -111,18 +111,30 @@
 
 
 
-<meta name="description" content="redis常用五种数据类型:string,hash,list,set,zset(sorted set).">
-<meta name="keywords" content="redis">
+<meta name="description" content="全字段排序 VS rowid排序">
+<meta name="keywords" content="Mysql,MySql实战45讲笔记">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Redis常见数据类型操作命令">
-<meta property="og:url" content="http://blog.linzhongtai.cn/2018/05/Redis常见数据类型操作命令/index.html">
+<meta property="og:title" content="9、orderby的执行流程">
+<meta property="og:url" content="http://blog.linzhongtai.cn/2020/04/9、orderby的执行流程/index.html">
 <meta property="og:site_name" content="林林总总">
-<meta property="og:description" content="redis常用五种数据类型:string,hash,list,set,zset(sorted set).">
+<meta property="og:description" content="全字段排序 VS rowid排序">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-17T02:46:25.000Z">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-9afb8c7dbfea46a1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-5bf8d8396ee205a2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-ebcb8e88689937d9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-5545f8c7638ae460.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-ca3fc37a0c57b9d3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-66a087e358ec0df3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-77a3ce93939b30eb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-8b9db36f09333a7f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-2ddf0d0e1a3d16a9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-fdd2efa7e90fb990.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/5937589-761d836c00c7e61b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2020-04-12T03:09:59.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Redis常见数据类型操作命令">
-<meta name="twitter:description" content="redis常用五种数据类型:string,hash,list,set,zset(sorted set).">
+<meta name="twitter:title" content="9、orderby的执行流程">
+<meta name="twitter:description" content="全字段排序 VS rowid排序">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/5937589-9afb8c7dbfea46a1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
 
 
 
@@ -150,13 +162,13 @@
 
 
 
-  <link rel="canonical" href="http://blog.linzhongtai.cn/2018/05/Redis常见数据类型操作命令/">
+  <link rel="canonical" href="http://blog.linzhongtai.cn/2020/04/9、orderby的执行流程/">
 
 
 
 
 
-  <title>Redis常见数据类型操作命令 | 林林总总</title>
+  <title>9、orderby的执行流程 | 林林总总</title>
   
 
 
@@ -337,7 +349,7 @@
   
 
   <article class="post post-type-normal " itemscope="" itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://blog.linzhongtai.cn/2018/05/Redis常见数据类型操作命令/">
+    <link itemprop="mainEntityOfPage" href="http://blog.linzhongtai.cn/2020/04/9、orderby的执行流程/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Soul">
@@ -354,7 +366,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Redis常见数据类型操作命令</h1>
+          <h1 class="post-title" itemprop="name headline">9、orderby的执行流程</h1>
         
 
         <div class="post-meta">
@@ -366,8 +378,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-17T10:46:25+08:00">
-                2018-05-17
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-12T11:09:59+08:00">
+                2020-04-12
               </time>
             
 
@@ -389,8 +401,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index">
-                    <span itemprop="name">redis</span>
+                  <a href="/categories/Mysql/" itemprop="url" rel="index">
+                    <span itemprop="name">Mysql</span>
                   </a>
                 </span>
 
@@ -420,7 +432,7 @@
 
           
               <div class="post-description">
-                  redis常用五种数据类型:string,hash,list,set,zset(sorted set).
+                  全字段排序 VS rowid排序
               </div>
           
 
@@ -435,56 +447,87 @@
 
       
         <a id="more"></a>
-<h2 id="Key"><a href="#Key" class="headerlink" title="Key"></a>Key</h2><ul>
-<li>keys *—查询所有key</li>
-<li>exists key—判断key是否存在</li>
-<li>move key db—移除当前库的key值</li>
-<li>expire key  秒钟—设定过期时间</li>
-<li>ttl key —查看多少秒后过期，-1永不过期，-2已过期</li>
-<li>type key —查看key类型</li>
-<li>FLUSHALL—清空所有数据库<h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2></li>
-<li>set/get/del/append（追加）/strlen（获取key长度）</li>
-<li>incr（递增1）/decr（递减1）/incrby（指定递增多少）/decrby（指定递减多少）—数字才行</li>
-<li>getrange（区间范围内取值）/setrange（区间范围内覆盖设值）</li>
-<li>setex（set with expire）设值以及过期时间/setnx（set if not exist 不存在则写入）</li>
-<li>mset（多值设置）/mget（多值获取）/msetnx（全部不存在才进行插入）</li>
-<li>getset 先获取再设值<h2 id="Hash"><a href="#Hash" class="headerlink" title="Hash"></a>Hash</h2></li>
-<li>hset/hget/hmset/hmget/hgetall/hdel</li>
-<li>hlen获取键值个数</li>
-<li>hexist key keyname 判断keyname是否在key中 </li>
-<li>hkeys（获取所有key）/hvals（获取所有values）</li>
-<li>hincrby/hincrbyfloat（指定递增）</li>
-<li>hsetnx（键值不存在则进行设值）<h2 id="List"><a href="#List" class="headerlink" title="List"></a>List</h2></li>
-<li>lpush（添加左边元素）/rpush（添加右边元素）/lrange（LRANGE key start stop 获取列表片段，0 -1 返回整个列表）</li>
-<li>lindex （返回索引的元素值，-1表示从最右边的第一位）</li>
-<li>llen（获取list长度）</li>
-<li>lrem（LREM key count value，返回被删除的个数）<br>count&gt;0，从左边开始删除前count个值为value的元素<br>count&lt;0，从右边开始删除前|count|个值为value的元素<br>count=0，删除所有值为value的元素</li>
-<li>ltrim （根据传入索引截取保留对应列表片段）</li>
-<li>rpoplpush（一个列表右移除转移另一个列表左插入）</li>
-<li>lset（设值元素值）</li>
-<li>linsert key  before/after val01 val02 （在val01之前或者之后插入val02）<h2 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h2></li>
-<li>sadd（新增set元素，去重）/smembers（获取set集合）/sismember（判断是否set里的值）</li>
-<li>scard（返回集合元素个数）</li>
-<li>srem（ 删除集合中一个或多个元素，返回成功删除的个数）</li>
-<li>srandmember（SRANDMEMBER key [count]）<br>根据count不同有不同结果，count大于元素总数时返回全部元素<br>count&gt;0 ，返回集合中count不重复的元素<br>count&lt;0，返回集合中count的绝对值个元素，但元素可能会重复</li>
-<li>spop（随机出栈）</li>
-<li>smove（smove k1 k2 val -&gt;将k1的val剪切到k2上）</li>
-<li>sdiff【差集】（sdiff A B —-&gt;集合A和集合B，差集表示A-B，在A里有的元素B里没有，返回差集合；多个集合(A-B)-C）</li>
-<li>sinter【交集】</li>
-<li>sunion【并集】<h2 id="ZSet"><a href="#ZSet" class="headerlink" title="ZSet"></a>ZSet</h2></li>
-<li>zadd（不存在添加，存在更新）</li>
-<li>zscore（获取元素分数）</li>
-<li>zrange（元素从小到大:加上withscores 返回带元素，即元素，分数，当分数一样时，按元素排序）</li>
-<li>zrevrange（元素从大到小）</li>
-<li>zrangebyscore（指定分数范围元素）<br>返回从小到大的在min和max之间的元素，( 左括号表示不包含，例如：80-100—&gt;(80 100<br>withscore返回带分数<br>limit offest count 向左偏移offest个元素，并获取前count个元素</li>
-<li>zrevrangebyscore（从大到小排序）</li>
-<li>zrem（删除元素）</li>
-<li>zcard（计算集合内个数）</li>
-<li>zcount（计算对应范围内个数）<br>eg：ZCOUNT salary 2000 5000          —-&gt;计算薪水在 2000-5000 之间的人数</li>
-<li>zrank（获取下标值）</li>
-<li>zrevrank（逆序获取下标值）</li>
-<li>zscore（获取对应的分数）</li>
+<p>假设要查询城市是“杭州”的所有人名字，并且按照姓名排序返回前1000个人的姓名、年龄。<br>假设这个表的部分定义是这样的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE `t` (</span><br><span class="line">  `id` int(11) NOT NULL,</span><br><span class="line">  `city` varchar(16) NOT NULL,</span><br><span class="line">  `name` varchar(16) NOT NULL,</span><br><span class="line">  `age` int(11) NOT NULL,</span><br><span class="line">  `addr` varchar(128) DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`),</span><br><span class="line">  KEY `city` (`city`)</span><br><span class="line">) ENGINE=InnoDB;</span><br></pre></td></tr></table></figure></p>
+<p>这时，SQL语句可以这么写：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select city,name,age from t where city=&apos;杭州&apos; order by name limit 1000;</span><br></pre></td></tr></table></figure></p>
+<h2 id="全字段排序"><a href="#全字段排序" class="headerlink" title="全字段排序"></a>全字段排序</h2><p>为避免全表扫描，我们需要在city字段加上索引。<br>在city字段上创建索引之后，用explain命令来看看这个语句的执行情况。<br><img src="https://upload-images.jianshu.io/upload_images/5937589-9afb8c7dbfea46a1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图1 使用explain命令查看语句的执行情况"></p>
+<p>Extra这个字段中的“Using filesort”表示的就是需要排序，MySQL会给每个线程分配一块内存用于排序，称为sort_buffer。<br>为了说明这个SQL查询语句的执行过程，先来看一下city这个索引的示意图。<br><img src="https://upload-images.jianshu.io/upload_images/5937589-5bf8d8396ee205a2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图2 city字段的索引示意图"><br>从图中可以看到，满足city=’杭州’条件的行，是从ID_X到ID_(X+N)的这些记录。</p>
+<p>通常情况下，这个语句执行流程如下所示 ：</p>
+<ol>
+<li>初始化sort_buffer，确定放入name、city、age这三个字段；</li>
+<li>从索引city找到第一个满足city=’杭州’条件的主键id，也就是图中的ID_X；</li>
+<li>到主键id索引取出整行，取name、city、age三个字段的值，存入sort_buffer中；</li>
+<li>从索引city取下一个记录的主键id；</li>
+<li>重复步骤3、4直到city的值不满足查询条件为止，对应的主键id也就是图中的ID_Y；</li>
+<li>对sort_buffer中的数据按照字段name做快速排序；</li>
+<li>按照排序结果取前1000行返回给客户端。</li>
+</ol>
+<p>暂且把这个排序过程，称为全字段排序，执行流程的示意图如下所示:<br><img src="https://upload-images.jianshu.io/upload_images/5937589-ebcb8e88689937d9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图3 全字段排序"><br>图中“按name排序”这个动作，可能在内存中完成，也可能需要使用外部排序，这取决于排序所需的内存和参数sort_buffer_size。<br>sort_buffer_size，就是MySQL为排序开辟的内存（sort_buffer）的大小。如果要排序的数据量小于sort_buffer_size，排序就在内存中完成。但如果排序数据量太大，内存放不下，则不得不利用磁盘临时文件辅助排序。</p>
+<p>用下面介绍的方法，来确定一个排序语句是否使用了临时文件:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">/* 打开optimizer_trace，只对本线程有效 */</span><br><span class="line">SET optimizer_trace=&apos;enabled=on&apos;; </span><br><span class="line"></span><br><span class="line">/* @a保存Innodb_rows_read的初始值 */</span><br><span class="line">select VARIABLE_VALUE into @a from  performance_schema.session_status where variable_name = &apos;Innodb_rows_read&apos;;</span><br><span class="line"></span><br><span class="line">/* 执行语句 */</span><br><span class="line">select city, name,age from t where city=&apos;杭州&apos; order by name limit 1000; </span><br><span class="line"></span><br><span class="line">/* 查看 OPTIMIZER_TRACE 输出 */</span><br><span class="line">SELECT * FROM `information_schema`.`OPTIMIZER_TRACE`\G</span><br><span class="line"></span><br><span class="line">/* @b保存Innodb_rows_read的当前值 */</span><br><span class="line">select VARIABLE_VALUE into @b from performance_schema.session_status where variable_name = &apos;Innodb_rows_read&apos;;</span><br><span class="line"></span><br><span class="line">/* 计算Innodb_rows_read差值 */</span><br><span class="line">select @b-@a;</span><br></pre></td></tr></table></figure></p>
+<p>这个方法是通过查看 OPTIMIZER_TRACE 的结果来确认的，可以从 number_of_tmp_files中看到是否使用了临时文件。<br><img src="https://upload-images.jianshu.io/upload_images/5937589-5545f8c7638ae460.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图4 全排序的OPTIMIZER_TRACE部分结果"></p>
+<p>number_of_tmp_files表示的是，排序过程中使用的临时文件数。为什么需要12个文件？内存放不下时，就需要使用外部排序，外部排序一般使用归并排序算法。可以这么简单理解，MySQL将需要排序的数据分成12份，每一份单独排序后存在这些临时文件中。然后把这12个有序文件再合并成一个有序的大文件。</p>
+<p>如果sort_buffer_size超过了需要排序的数据量的大小，number_of_tmp_files就是0，表示排序可以直接在内存中完成。</p>
+<p>否则就需要放在临时文件中排序。sort_buffer_size越小，需要分成的份数越多，number_of_tmp_files的值就越大。</p>
+<p>示例表中有4000条满足city=’杭州’的记录，所以可以看到 examined_rows=4000，表示参与排序的行数是4000行。</p>
+<p>sort_mode 里面的packed_additional_fields的意思是，排序过程对字符串做了“紧凑”处理。即使name字段的定义是varchar(16)，在排序过程中还是要按照实际长度来分配空间的。</p>
+<p>同时，最后一个查询语句select @b-@a 的返回结果是4000，表示整个执行过程只扫描了4000行。</p>
+<blockquote>
+<p>为了避免对结论造成干扰，把internal_tmp_disk_storage_engine设置成MyISAM。否则，select @b-@a的结果会显示为4001。<br>这是因为查询OPTIMIZER_TRACE这个表时，需要用到临时表，而internal_tmp_disk_storage_engine的默认值是InnoDB。如果使用的是InnoDB引擎的话，把数据从临时表取出来的时候，会让Innodb_rows_read的值加1。</p>
+</blockquote>
+<h2 id="rowid排序"><a href="#rowid排序" class="headerlink" title="rowid排序"></a>rowid排序</h2><p>在上面这个算法过程里面，只对原表的数据读了一遍，剩下的操作都是在sort_buffer和临时文件中执行的。但这个算法有一个问题，就是如果查询要返回的字段很多的话，那么sort_buffer里面要放的字段数太多，这样内存里能够同时放下的行数很少，要分成很多个临时文件，排序的性能会很差。<br>所以如果单行很大，这个方法效率不够好。那么，<strong>如果MySQL认为排序的单行长度太大会怎么做呢？</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET max_length_for_sort_data = 16;</span><br></pre></td></tr></table></figure></p>
+<p>max_length_for_sort_data，是MySQL中专门控制用于排序的行数据的长度的一个参数：如果单行的长度超过这个值，MySQL就认为单行太大，要换一个算法。</p>
+<p>city、name、age 这三个字段的定义总长度是36，把max_length_for_sort_data设置为16，新的算法放入sort_buffer的字段，只有要排序的列（即name字段）和主键id。<br>但这时，排序的结果就因为少了city和age字段的值，不能直接返回了，整个执行流程就变成如下所示的样子：</p>
+<ol>
+<li>初始化sort_buffer，确定放入两个字段，即name和id；</li>
+<li>从索引city找到第一个满足city=’杭州’条件的主键id，也就是图中的ID_X；</li>
+<li>到主键id索引取出整行，取name、id这两个字段，存入sort_buffer中；</li>
+<li>从索引city取下一个记录的主键id；</li>
+<li>重复步骤3、4直到不满足city=’杭州’条件为止，也就是图中的ID_Y；</li>
+<li>对sort_buffer中的数据按照字段name进行排序；</li>
+<li>遍历排序结果，取前1000行，并按照id的值回到原表中取出city、name和age三个字段返回给客户端。</li>
+</ol>
+<p>这个执行流程的示意图如下，把它称为rowid排序：<br><img src="https://upload-images.jianshu.io/upload_images/5937589-ca3fc37a0c57b9d3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图5 rowid排序"><br>对比图3的全字段排序流程图会发现，rowid排序多访问了一次表t的主键索引，就是步骤7。<br>需要说明的是，最后的“结果集”是一个逻辑概念，实际上MySQL服务端从排序后的sort_buffer中依次取出id，然后到原表查到city、name和age这三个字段的结果，不需要在服务端再耗费内存存储结果，是直接返回给客户端的。</p>
+<p>根据这个说明过程和图示，你可以想一下，这个时候执行select @b-@a，结果会是多少呢？</p>
+<p>首先，图中的examined_rows的值还是4000，表示用于排序的数据是4000行。但是select @b-@a这个语句的值变成5000了。</p>
+<p>因为这时候除了排序过程外，在排序完成后，还要根据id去原表取值。由于语句是limit 1000，因此会多读1000行。<br><img src="https://upload-images.jianshu.io/upload_images/5937589-66a087e358ec0df3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图6 rowid排序的OPTIMIZER_TRACE部分输出"><br>从OPTIMIZER_TRACE的结果中，还能看到另外两个信息也变了。</p>
+<ul>
+<li>sort_mode变成了&lt;sort_key, rowid&gt;，表示参与排序的只有name和id这两个字段。</li>
+<li>number_of_tmp_files变成10了，是因为这时候参与排序的行数虽然仍然是4000行，但是每一行都变小了，因此需要排序的总数据量就变小了，需要的临时文件也相应地变少了。</li>
 </ul>
+<h2 id="全字段排序-VS-rowid排序"><a href="#全字段排序-VS-rowid排序" class="headerlink" title="全字段排序 VS rowid排序"></a>全字段排序 VS rowid排序</h2><ul>
+<li><p>如果MySQL实在是担心排序内存太小，会影响排序效率，才会采用rowid排序算法，这样排序过程中一次可以排序更多行，但是需要再回到原表去取数据。</p>
+</li>
+<li><p>如果MySQL认为内存足够大，会优先选择全字段排序，把需要的字段都放到sort_buffer中，这样排序后就会直接从内存里面返回查询结果了，不用再回到原表去取数据。</p>
+</li>
+</ul>
+<p>这也就体现了MySQL的一个设计思想：如果内存够，就要多利用内存，尽量减少磁盘访问。<br>对于InnoDB表来说，rowid排序会要求回表多造成磁盘读，因此不会被优先选择。</p>
+<p>其实，并不是所有的order by语句，都需要排序操作的。从上面分析的执行过程，我们可以看到，MySQL之所以需要生成临时表，并且在临时表上做排序操作，其原因是<strong>原来的数据都是无序的。</strong></p>
+<p>如果能够保证从city这个索引上取出来的行，天然就是按照name递增排序的话，是不是就可以不用再排序？！<br>所以，可以在这个市民表上创建一个city和name的联合索引，对应的SQL语句是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter table t add index city_user(city, name);</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5937589-77a3ce93939b30eb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图7 city和name联合索引示意图"><br>在这个索引里面，依然可以用树搜索的方式定位到第一个满足city=’杭州’的记录，并且额外确保了，接下来按顺序取“下一条记录”的遍历过程中，只要city的值是杭州，name的值就一定是有序的。</p>
+<p>这样整个查询过程的流程就变成了：</p>
+<ol>
+<li>从索引(city,name)找到第一个满足city=’杭州’条件的主键id；</li>
+<li>到主键id索引取出整行，取name、city、age三个字段的值，作为结果集的一部分直接返回；</li>
+<li>从索引(city,name)取下一个记录主键id；</li>
+<li>重复步骤2、3，直到查到第1000条记录，或者是不满足city=’杭州’条件时循环结束。</li>
+</ol>
+<p><img src="https://upload-images.jianshu.io/upload_images/5937589-8b9db36f09333a7f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图8 引入(city,name)联合索引后，查询语句的执行计划"></p>
+<p>可以看到，这个查询过程不需要临时表，也不需要排序。接下来，我们用explain的结果来印证一下。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5937589-2ddf0d0e1a3d16a9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图9 引入(city,name)联合索引后，查询语句的执行计划"><br>从图中可以看到，Extra字段中没有Using filesort了，也就是不需要排序了。而且由于(city,name)这个联合索引本身有序，所以这个查询也不用把4000行全都读一遍，只要找到满足条件的前1000条记录就可以退出了。也就是说，在这个例子里，只需要扫描1000次。</p>
+<p><strong>这个语句的执行流程有没有可能进一步简化呢？</strong><br>答案是有的！</p>
+<blockquote>
+<p>覆盖索引是指，索引上的信息足够满足查询请求，不需要再回到主键索引上去取数据。</p>
+</blockquote>
+<p>按照覆盖索引的概念，我们可以再优化一下这个查询语句的执行流程。<br>针对这个查询，我们可以创建一个city、name和age的联合索引，对应的SQL语句就是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter table t add index city_user_age(city, name, age);</span><br></pre></td></tr></table></figure></p>
+<p>这时，对于city字段的值相同的行来说，还是按照name字段的值递增排序的，此时的查询语句也就不再需要排序了。这样整个查询语句的执行流程就变成了：</p>
+<ol>
+<li>从索引(city,name,age)找到第一个满足city=’杭州’条件的记录，取出其中的city、name和age这三个字段的值，作为结果集的一部分直接返回；</li>
+<li>从索引(city,name,age)取下一个记录，同样取出这三个字段的值，作为结果集的一部分直接返回；</li>
+<li>重复执行步骤2，直到查到第1000条记录，或者是不满足city=’杭州’条件时循环结束。</li>
+</ol>
+<p><img src="https://upload-images.jianshu.io/upload_images/5937589-fdd2efa7e90fb990.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图10 引入(city,name,age)联合索引后，查询语句的执行流程"></p>
+<p>explain的结果:</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/5937589-761d836c00c7e61b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="图11 引入(city,name,age)联合索引后，查询语句的执行计划"></p>
+<p>可以看到，Extra字段里面多了“Using index”，表示的就是使用了覆盖索引，性能上会快很多。<br>当然，这里并不是说要为了每个查询能用上覆盖索引，就要把语句中涉及的字段都建上联合索引，毕竟索引还是有维护代价的。这是一个需要权衡的决定。</p>
 
       
     </div>
@@ -509,12 +552,12 @@
   <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
   <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
   <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
-  <p><span>本文标题:</span><a href="/2018/05/Redis常见数据类型操作命令/">Redis常见数据类型操作命令</a></p>
+  <p><span>本文标题:</span><a href="/2020/04/9、orderby的执行流程/">9、orderby的执行流程</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 Soul 的个人博客">Soul</a></p>
-  <p><span>发布时间:</span>2018年05月17日 - 10:05</p>
-  <p><span>最后更新:</span>2018年05月17日 - 10:05</p>
-  <p><span>原始链接:</span><a href="/2018/05/Redis常见数据类型操作命令/" title="Redis常见数据类型操作命令">http://blog.linzhongtai.cn/2018/05/Redis常见数据类型操作命令/</a>
-    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://blog.linzhongtai.cn/2018/05/Redis常见数据类型操作命令/" aria-label="复制成功！"></i></span>
+  <p><span>发布时间:</span>2020年04月12日 - 11:04</p>
+  <p><span>最后更新:</span>2020年04月12日 - 11:04</p>
+  <p><span>原始链接:</span><a href="/2020/04/9、orderby的执行流程/" title="9、orderby的执行流程">http://blog.linzhongtai.cn/2020/04/9、orderby的执行流程/</a>
+    <span class="copy-path" title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://blog.linzhongtai.cn/2020/04/9、orderby的执行流程/" aria-label="复制成功！"></i></span>
   </p>
   <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
 </div>
@@ -582,7 +625,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/redis/" rel="tag"># redis</a>
+            <a href="/tags/Mysql/" rel="tag"># Mysql</a>
+          
+            <a href="/tags/MySql实战45讲笔记/" rel="tag"># MySql实战45讲笔记</a>
           
         </div>
       
@@ -595,8 +640,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/05/Java多线程之synchronized、Lock、volatile/" rel="next" title="Java多线程之synchronized、Lock、volatile">
-                <i class="fa fa-chevron-left"></i> Java多线程之synchronized、Lock、volatile
+              <a href="/2020/04/8、聚合函数count/" rel="next" title="8、聚合函数count">
+                <i class="fa fa-chevron-left"></i> 8、聚合函数count
               </a>
             
           </div>
@@ -604,10 +649,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/06/Liquibase小知识/" rel="prev" title="Liquibase小知识">
-                Liquibase小知识 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -805,7 +846,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Key"><span class="nav-number">1.</span> <span class="nav-text">Key</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#String"><span class="nav-number">2.</span> <span class="nav-text">String</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hash"><span class="nav-number">3.</span> <span class="nav-text">Hash</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#List"><span class="nav-number">4.</span> <span class="nav-text">List</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Set"><span class="nav-number">5.</span> <span class="nav-text">Set</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ZSet"><span class="nav-number">6.</span> <span class="nav-text">ZSet</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#全字段排序"><span class="nav-number">1.</span> <span class="nav-text">全字段排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rowid排序"><span class="nav-number">2.</span> <span class="nav-text">rowid排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全字段排序-VS-rowid排序"><span class="nav-number">3.</span> <span class="nav-text">全字段排序 VS rowid排序</span></a></li></ol></div>
             
 
           </div>

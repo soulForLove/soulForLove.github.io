@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[9、orderby的执行流程]]></title>
+    <url>%2F2020%2F04%2F9%E3%80%81orderby%E7%9A%84%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B%2F</url>
+    <content type="text"><![CDATA[假设要查询城市是“杭州”的所有人名字，并且按照姓名排序返回前1000个人的姓名、年龄。假设这个表的部分定义是这样的：123456789CREATE TABLE `t` ( `id` int(11) NOT NULL, `city` varchar(16) NOT NULL, `name` varchar(16) NOT NULL, `age` int(11) NOT NULL, `addr` varchar(128) DEFAULT NULL, PRIMARY KEY (`id`), KEY `city` (`city`)) ENGINE=InnoDB; 这时，SQL语句可以这么写：1select city,name,age from t where city=&apos;杭州&apos; order by name limit 1000; 全字段排序为避免全表扫描，我们需要在city字段加上索引。在city字段上创建索引之后，用explain命令来看看这个语句的执行情况。 Extra这个字段中的“Using filesort”表示的就是需要排序，MySQL会给每个线程分配一块内存用于排序，称为sort_buffer。为了说明这个SQL查询语句的执行过程，先来看一下city这个索引的示意图。从图中可以看到，满足city=’杭州’条件的行，是从ID_X到ID_(X+N)的这些记录。 通常情况下，这个语句执行流程如下所示 ： 初始化sort_buffer，确定放入name、city、age这三个字段； 从索引city找到第一个满足city=’杭州’条件的主键id，也就是图中的ID_X； 到主键id索引取出整行，取name、city、age三个字段的值，存入sort_buffer中； 从索引city取下一个记录的主键id； 重复步骤3、4直到city的值不满足查询条件为止，对应的主键id也就是图中的ID_Y； 对sort_buffer中的数据按照字段name做快速排序； 按照排序结果取前1000行返回给客户端。 暂且把这个排序过程，称为全字段排序，执行流程的示意图如下所示:图中“按name排序”这个动作，可能在内存中完成，也可能需要使用外部排序，这取决于排序所需的内存和参数sort_buffer_size。sort_buffer_size，就是MySQL为排序开辟的内存（sort_buffer）的大小。如果要排序的数据量小于sort_buffer_size，排序就在内存中完成。但如果排序数据量太大，内存放不下，则不得不利用磁盘临时文件辅助排序。 用下面介绍的方法，来确定一个排序语句是否使用了临时文件:1234567891011121314151617/* 打开optimizer_trace，只对本线程有效 */SET optimizer_trace=&apos;enabled=on&apos;; /* @a保存Innodb_rows_read的初始值 */select VARIABLE_VALUE into @a from performance_schema.session_status where variable_name = &apos;Innodb_rows_read&apos;;/* 执行语句 */select city, name,age from t where city=&apos;杭州&apos; order by name limit 1000; /* 查看 OPTIMIZER_TRACE 输出 */SELECT * FROM `information_schema`.`OPTIMIZER_TRACE`\G/* @b保存Innodb_rows_read的当前值 */select VARIABLE_VALUE into @b from performance_schema.session_status where variable_name = &apos;Innodb_rows_read&apos;;/* 计算Innodb_rows_read差值 */select @b-@a; 这个方法是通过查看 OPTIMIZER_TRACE 的结果来确认的，可以从 number_of_tmp_files中看到是否使用了临时文件。 number_of_tmp_files表示的是，排序过程中使用的临时文件数。为什么需要12个文件？内存放不下时，就需要使用外部排序，外部排序一般使用归并排序算法。可以这么简单理解，MySQL将需要排序的数据分成12份，每一份单独排序后存在这些临时文件中。然后把这12个有序文件再合并成一个有序的大文件。 如果sort_buffer_size超过了需要排序的数据量的大小，number_of_tmp_files就是0，表示排序可以直接在内存中完成。 否则就需要放在临时文件中排序。sort_buffer_size越小，需要分成的份数越多，number_of_tmp_files的值就越大。 示例表中有4000条满足city=’杭州’的记录，所以可以看到 examined_rows=4000，表示参与排序的行数是4000行。 sort_mode 里面的packed_additional_fields的意思是，排序过程对字符串做了“紧凑”处理。即使name字段的定义是varchar(16)，在排序过程中还是要按照实际长度来分配空间的。 同时，最后一个查询语句select @b-@a 的返回结果是4000，表示整个执行过程只扫描了4000行。 为了避免对结论造成干扰，把internal_tmp_disk_storage_engine设置成MyISAM。否则，select @b-@a的结果会显示为4001。这是因为查询OPTIMIZER_TRACE这个表时，需要用到临时表，而internal_tmp_disk_storage_engine的默认值是InnoDB。如果使用的是InnoDB引擎的话，把数据从临时表取出来的时候，会让Innodb_rows_read的值加1。 rowid排序在上面这个算法过程里面，只对原表的数据读了一遍，剩下的操作都是在sort_buffer和临时文件中执行的。但这个算法有一个问题，就是如果查询要返回的字段很多的话，那么sort_buffer里面要放的字段数太多，这样内存里能够同时放下的行数很少，要分成很多个临时文件，排序的性能会很差。所以如果单行很大，这个方法效率不够好。那么，如果MySQL认为排序的单行长度太大会怎么做呢？1SET max_length_for_sort_data = 16; max_length_for_sort_data，是MySQL中专门控制用于排序的行数据的长度的一个参数：如果单行的长度超过这个值，MySQL就认为单行太大，要换一个算法。 city、name、age 这三个字段的定义总长度是36，把max_length_for_sort_data设置为16，新的算法放入sort_buffer的字段，只有要排序的列（即name字段）和主键id。但这时，排序的结果就因为少了city和age字段的值，不能直接返回了，整个执行流程就变成如下所示的样子： 初始化sort_buffer，确定放入两个字段，即name和id； 从索引city找到第一个满足city=’杭州’条件的主键id，也就是图中的ID_X； 到主键id索引取出整行，取name、id这两个字段，存入sort_buffer中； 从索引city取下一个记录的主键id； 重复步骤3、4直到不满足city=’杭州’条件为止，也就是图中的ID_Y； 对sort_buffer中的数据按照字段name进行排序； 遍历排序结果，取前1000行，并按照id的值回到原表中取出city、name和age三个字段返回给客户端。 这个执行流程的示意图如下，把它称为rowid排序：对比图3的全字段排序流程图会发现，rowid排序多访问了一次表t的主键索引，就是步骤7。需要说明的是，最后的“结果集”是一个逻辑概念，实际上MySQL服务端从排序后的sort_buffer中依次取出id，然后到原表查到city、name和age这三个字段的结果，不需要在服务端再耗费内存存储结果，是直接返回给客户端的。 根据这个说明过程和图示，你可以想一下，这个时候执行select @b-@a，结果会是多少呢？ 首先，图中的examined_rows的值还是4000，表示用于排序的数据是4000行。但是select @b-@a这个语句的值变成5000了。 因为这时候除了排序过程外，在排序完成后，还要根据id去原表取值。由于语句是limit 1000，因此会多读1000行。从OPTIMIZER_TRACE的结果中，还能看到另外两个信息也变了。 sort_mode变成了&lt;sort_key, rowid&gt;，表示参与排序的只有name和id这两个字段。 number_of_tmp_files变成10了，是因为这时候参与排序的行数虽然仍然是4000行，但是每一行都变小了，因此需要排序的总数据量就变小了，需要的临时文件也相应地变少了。 全字段排序 VS rowid排序 如果MySQL实在是担心排序内存太小，会影响排序效率，才会采用rowid排序算法，这样排序过程中一次可以排序更多行，但是需要再回到原表去取数据。 如果MySQL认为内存足够大，会优先选择全字段排序，把需要的字段都放到sort_buffer中，这样排序后就会直接从内存里面返回查询结果了，不用再回到原表去取数据。 这也就体现了MySQL的一个设计思想：如果内存够，就要多利用内存，尽量减少磁盘访问。对于InnoDB表来说，rowid排序会要求回表多造成磁盘读，因此不会被优先选择。 其实，并不是所有的order by语句，都需要排序操作的。从上面分析的执行过程，我们可以看到，MySQL之所以需要生成临时表，并且在临时表上做排序操作，其原因是原来的数据都是无序的。 如果能够保证从city这个索引上取出来的行，天然就是按照name递增排序的话，是不是就可以不用再排序？！所以，可以在这个市民表上创建一个city和name的联合索引，对应的SQL语句是：1alter table t add index city_user(city, name); 在这个索引里面，依然可以用树搜索的方式定位到第一个满足city=’杭州’的记录，并且额外确保了，接下来按顺序取“下一条记录”的遍历过程中，只要city的值是杭州，name的值就一定是有序的。 这样整个查询过程的流程就变成了： 从索引(city,name)找到第一个满足city=’杭州’条件的主键id； 到主键id索引取出整行，取name、city、age三个字段的值，作为结果集的一部分直接返回； 从索引(city,name)取下一个记录主键id； 重复步骤2、3，直到查到第1000条记录，或者是不满足city=’杭州’条件时循环结束。 可以看到，这个查询过程不需要临时表，也不需要排序。接下来，我们用explain的结果来印证一下。 从图中可以看到，Extra字段中没有Using filesort了，也就是不需要排序了。而且由于(city,name)这个联合索引本身有序，所以这个查询也不用把4000行全都读一遍，只要找到满足条件的前1000条记录就可以退出了。也就是说，在这个例子里，只需要扫描1000次。 这个语句的执行流程有没有可能进一步简化呢？答案是有的！ 覆盖索引是指，索引上的信息足够满足查询请求，不需要再回到主键索引上去取数据。 按照覆盖索引的概念，我们可以再优化一下这个查询语句的执行流程。针对这个查询，我们可以创建一个city、name和age的联合索引，对应的SQL语句就是：1alter table t add index city_user_age(city, name, age); 这时，对于city字段的值相同的行来说，还是按照name字段的值递增排序的，此时的查询语句也就不再需要排序了。这样整个查询语句的执行流程就变成了： 从索引(city,name,age)找到第一个满足city=’杭州’条件的记录，取出其中的city、name和age这三个字段的值，作为结果集的一部分直接返回； 从索引(city,name,age)取下一个记录，同样取出这三个字段的值，作为结果集的一部分直接返回； 重复执行步骤2，直到查到第1000条记录，或者是不满足city=’杭州’条件时循环结束。 explain的结果: 可以看到，Extra字段里面多了“Using index”，表示的就是使用了覆盖索引，性能上会快很多。当然，这里并不是说要为了每个查询能用上覆盖索引，就要把语句中涉及的字段都建上联合索引，毕竟索引还是有维护代价的。这是一个需要权衡的决定。]]></content>
+      <categories>
+        <category>Mysql</category>
+      </categories>
+      <tags>
+        <tag>Mysql</tag>
+        <tag>MySql实战45讲笔记</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[8、聚合函数count]]></title>
     <url>%2F2020%2F04%2F8%E3%80%81%E8%81%9A%E5%90%88%E5%87%BD%E6%95%B0count%2F</url>
     <content type="text"><![CDATA[count(*)的实现方式在不同的MySQL引擎中，count(*)有不同的实现方式 MyISAM引擎把一个表的总行数存在了磁盘上，因此执行count(*)的时候会直接返回这个数，效率很高； 而InnoDB引擎就麻烦了，它执行count(*)的时候，需要把数据一行一行地从引擎里面读出来，然后累积计数。 以上是没有过滤条件的count(*)，如果加了where 条件的话，MyISAM表也是不能返回得这么快的。 为什么InnoDB不跟MyISAM一样，也把数字存起来呢？ 因为即使是在同一个时刻的多个查询，由 于多版本并发控制（MVCC）的原因，InnoDB表“应该返回多少行”也是不确定的 假设表t中现在有10000条记录，我们设计了三个用户并行的会话。 会话A先启动事务并查询一次表的总行数； 会话B启动事务，插入一行后记录后，查询表的总行数 会话C先启动一个单独的语句，插入一行记录后，查询表的总行数。 我们假设从上到下是按照时间顺序执行的，同一行语句是在同一时刻执行的，在最后一个时刻，三个会话A、B、C会同时查询表t的总行数，但拿到的结果却不同。这和InnoDB的事务设计有关系，可重复读是它默认的隔离级别，在代码上就是通过多版本并发控制，也就是MVCC来实现的。每一行记录都要判断自己是否对这个会话可见，因此对于count(*)请求来说，InnoDB只好把数据一行一行地读出依次判断，可见的行才能够用于计算“基于这个查询”的表的总行数。 不过MySQL在执行count(*)操作的时候还是做了优化：MySQL优化器会找到最小的那棵树来遍历。在保证逻辑正确的前提下，尽量减少扫描的数据量，是数据库系统设计的通用法则之一 小结： MyISAM表虽然count(*)很快，但是不支持事务； show table status命令虽然返回很快，但是不准确； InnoDB表直接count(*)会遍历全表，虽然结果准确，但会导致性能问题。 用缓存系统保存计数对于更新很频繁的库来说，可能会第一时间想到，用缓存系统来支持。用一个Redis服务来保存这个表的总行数。这个表每被插入一行Redis计数就加1，每被删除一行Redis计数就减1。这种方式下，读和更新操作都很快，但是这种方式存在问题：可能会丢失更新 Redis的数据不能永久地留在内存里，所以会把这个值定期地持久化存储起来。但即使这样，仍然可能丢失更新。试想如果刚刚在数据表中插入了一行，Redis中保存的值也加了1，然后Redis异常重启了，重启后要从存储redis数据的地方把这个值读回来，而刚刚加1的这个计数操作却丢失了。 虽然这个场景可以解决：在Redis异常重启以后，到数据库里面单独执行一次count(*)获取真实的行数，再把这个值写回到Redis里。异常重启毕竟不是经常出现的情况，这一次全表扫描的成本，还是可以接受的。不过，将计数保存在缓存系统中的方式，还不只是丢失更新的问题。即使Redis正常工作，这个值还是逻辑上不精确的。 如果要显示操作记录的总数，同时还要显示最近操作的100条记录。那么，这个页面的逻辑就需要先到Redis里面取出计数，再到数据表里面取数据记录。 我们是这么定义不精确的： 一种是，查到的100行结果里面有最新插入记录，而Redis的计数里还没加1； 另一种是，查到的100行结果里没有最新插入的记录，而Redis的计数里已经加了1。 这两种情况，都是逻辑不一致的。 在并发系统里面，无法精确控制不同线程的执行时刻的，因为存在图中的这种操作序列，所以，即使Redis正常工作，这个计数值还是逻辑上不精确的。 在数据库保存计数如果我们把这个计数直接放到数据库里单独的一张计数表C中，又会怎么样呢？ 首先，这解决了崩溃丢失的问题，InnoDB是支持崩溃恢复不丢数据的。其次，由于InnoDB是支持事务的，所以从下图可以看出逻辑上是一致的 不同的count用法 count()是一个聚合函数，对于返回的结果集，一行行地判断，如果count函数的参数不是NULL，累计值就加1，否则不加。最后返回累计值。 count(*)、count(主键id)和count(1) 都表示返回满足条件的结果集的总行数； count(字段），则表示返回满足条件的数据行里面，参数“字段”不为NULL的总个数。 对于count(主键id)来说：InnoDB引擎会遍历整张表，把每一行的id值都取出来，返回给server层。server层拿到id后，判断是不可能为空的，就按行累加。 对于count(1)来说，InnoDB引擎遍历整张表，但不取值。server层对于返回的每一行，放一个数字“1”进去，判断是不可能为空的，按行累加。 单看这两个用法的差别的话，你能对比出来，count(1)执行得要比count(主键id)快。因为从引擎返回id会涉及到解析数据行，以及拷贝字段值的操作。 对于count(字段)来说： 如果这个“字段”是定义为not null的话，一行行地从记录里面读出这个字段，判断不能为null，按行累加； 如果这个“字段”定义允许为null，那么执行的时候，判断到有可能是null，还要把值取出来再判断一下，不是null才累加。 count(*)是例外，并不会把全部字段取出来，而是专门做了优化，不取值。count(*)肯定不是null，按行累加。 按照效率排序的话，count(字段)&lt;count(主键id)&lt;count(1)≈count(*)，建议尽量使用count(*)。]]></content>
@@ -205,8 +217,8 @@
         <category>JAVA</category>
       </categories>
       <tags>
-        <tag>JAVA</tag>
         <tag>小知识</tag>
+        <tag>JAVA</tag>
       </tags>
   </entry>
   <entry>
@@ -756,8 +768,8 @@
         <category>JAVA</category>
       </categories>
       <tags>
-        <tag>JAVA</tag>
         <tag>小知识</tag>
+        <tag>JAVA</tag>
       </tags>
   </entry>
   <entry>
@@ -973,8 +985,8 @@
         <category>Bug</category>
       </categories>
       <tags>
-        <tag>小知识</tag>
         <tag>Bug</tag>
+        <tag>小知识</tag>
       </tags>
   </entry>
   <entry>
@@ -1007,8 +1019,8 @@
         <category>JAVA</category>
       </categories>
       <tags>
-        <tag>JAVA</tag>
         <tag>小知识</tag>
+        <tag>JAVA</tag>
       </tags>
   </entry>
   <entry>
